@@ -8,6 +8,16 @@
 
 ## Usage:
 
+    # From terminal
+
+        Use 'py main.py'.
+
+    # From desktop envoirment
+
+        If the file is not associated to Python automatically, left click 'main.py', 'open with', and click on 'Python'
+
+
+
     Remember, when running the bot, it will need the folder 'templates', and a folder called 'tmp', so the bot can store the screenshots. (create 'tmp' folder if it does not exist).
 
     To use this bot you must need use Nox emulator with a resolution of 1280 x 720, without resizing the screen.
@@ -42,4 +52,3 @@
     #### ISOs:
 
                 - Windows 10
-# FGO_Farming_Bot
