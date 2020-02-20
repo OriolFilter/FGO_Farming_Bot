@@ -50,3 +50,14 @@ Also this bot does not work at 'Android' level, it presses your screen, means th
 #### ISOs:
 
     - Windows 10
+
+
+## Future implementations
+
+    - Noble Phantasm Usage
+
+    - More Craft Essence support
+
+    - Removing the need of storing a screenshot (this isn't a priority)
+
+    - Using skills to charge NP (not sure how it will result, since it can impact the preformance if I don't manage to improve the code)
