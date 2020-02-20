@@ -3,9 +3,9 @@
 
 ## Instalation:
 
-    To execute the bot, you must install [Python](https://www.python.org/downloads/) on your system, once [Python](https://www.python.org/downloads/) is installed, execute 'setup.bat', once it's done you are ready to go!
+    To execute the bot, you must install [Python](https://www.python.org/downloads/) on your system, once [Python](https://www.python.org/downloads/) is installed, execute 'setup.bat', also it will create the folder 'tmp', so you don't have to add it manually, once it's done you are ready to go!
 
-
+º
 ## Usage:
 
     # From terminal
@@ -14,16 +14,14 @@
 
     # From desktop envoirment
 
-        If the file is not associated to Python automatically, left click 'main.py', 'open with', and click on 'Python'
-
-
+        If the file is not associated to Python automatically, left click 'main.py', 'open with', and click on 'Python'.
 
     Remember, when running the bot, it will need the folder 'templates', and a folder called 'tmp', so the bot can store the screenshots. (create 'tmp' folder if it does not exist).
 
     To use this bot you must need use Nox emulator with a resolution of 1280 x 720, without resizing the screen.
 
 
-## How does bot works:
+## How does the bot works:
 
     It will be doing screenshots from your NoxApplication, then filtering the results and comparing them with some templates, then proceed to act.
 
@@ -31,7 +29,7 @@
 
     Even dragging it in front of your screen, in case you don't have it as 'active' window, the bot will avoid calling it, in case someone needs to use the PC while the bot still running.
 
-    Also this bot does not work at 'Android' level, it presses your screen, mean that if you plan to leave it while you are doing somthing on the PC will result in the bot not farming.
+    Also this bot does not work at 'Android' level, it presses your screen, means that if you plan to leave it while you are doing somthing on the PC, it will result in the bot not farming.
 
 
 ## Supported emulators:
