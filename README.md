@@ -5,7 +5,7 @@
 
 To execute the bot, you must install [Python](https://www.python.org/downloads/) on your system, once [Python](https://www.python.org/downloads/) is installed, execute 'setup.bat', also it will create the folder 'tmp', so you don't have to add it manually, once it's done you are ready to go!
 
-º
+
 ## Usage:
 
 # From terminal
