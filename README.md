@@ -31,13 +31,18 @@ Even dragging it in front of your screen, in case you don't have it as 'active' 
 
 Also this bot does not work at 'Android' level, it presses your screen, means that if you plan to leave it while you are doing somthing on the PC, it will result in the bot not farming.
 
+## Combat System:
+
+### Picking cards
+
+The order is, effective cards first, then your card priority selection (ej. Buster, Arts, Quick).
+
 
 ## Supported emulators:
 
     - Nox
 
-
-## Known versions of Python & Nox that work:
+## Known versions of Python & emulators that work:
 
 #### Nox:
 
@@ -60,4 +65,43 @@ Also this bot does not work at 'Android' level, it presses your screen, means th
 
     - Removing the need of storing a screenshot (this isn't a priority)
 
-    - Using skills to charge NP (not sure how it will result, since it can impact the preformance if I don't manage to improve the code)
+    - Working on background insted of foreground
+
+## Versions
+
+- 1.01 First Version
+
+- 1.01b Added CE picker, improved performance & menu
+
+### CE ADDED
+
+        - ChaldeaLunchtime
+
+        - MysticEyesOfDistortion (event)
+
+- 1.02 Added NP behavior, improved code, fixed some buggs & added more elements to 'templates'
+
+#### CE ADDED
+
+        - Chorus (event)
+
+        - Decapitating bunny 2018 (event)
+
+        - Sprinter (event)
+
+        - RepeatMagic (event)
+
+        - MatureGentelman (event)
+
+        - VividDanceOfFists (event)
+
+        - SummersPrecognition (event)
+
+        - TreefoldBarrier (event)
+
+        - GrandPuppeteer (event)
+
+
+#### About
+
+CE added, since im using my own friends to get the files, if im not able to be friend with somone who has X CE, i won't be able to get the image, so there is a chane about some craft essences being without the 'Limitet Break' form
