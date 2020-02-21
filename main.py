@@ -902,7 +902,7 @@ class botMenu():
 
         Label(menu, text="\nCombat System:", anchor='center').pack(fill='both')
         Label(menu, text="Select which card prioroty order:\n", anchor='center').pack(fill='both')
-        cardPrioBox = ttk.Combobox(menu, values=self.cardPrioVar,  state="readonly", textvariable=self.cardPrioVar)
+        cardPrioBox = ttk.Combobox(menu, values=self.cardPrios,  state="readonly", textvariable=self.cardPrioVar)
         cardPrioBox.set('BAQ')
         cardPrioBox.pack()
 
