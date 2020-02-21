@@ -101,7 +101,10 @@ The order is, effective cards first, then your card priority selection (ej. Bust
 
         - GrandPuppeteer (event)
 
+#### About Updates
 
-#### About
+Remember to update 'templates' folder with each patch.
 
-CE added, since im using my own friends to get the files, if im not able to be friend with somone who has X CE, i won't be able to get the image, so there is a chane about some craft essences being without the 'Limitet Break' form
+#### About CE Added
+
+Since im using my own friends to get the files, if im not able to be friend with somone who has X CE, i won't be able to get the image, so there is a chane about some craft essences being without the 'Limitet Break' form
