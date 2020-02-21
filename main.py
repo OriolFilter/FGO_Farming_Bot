@@ -8,7 +8,7 @@ import cv2
 import numpy
 import threading
 from tkinter import *
-from tkinter import ttk
+from tkinter import ttk, IntVar
 
 #Variables
 
@@ -18,30 +18,28 @@ appPos: int = [0,0] #x,y
 proportions: int = [0,0] #widh,height
 screenshotImg = "tmp/Screenshot.jpg"
 mainMenuTemplates = ["templates/quests/chaldea","templates/quests/S2"]
-menuClicks: int = [200,200,1253,30,757,205]#PreMainMenu/PrePre #close_news #LastQuest #remember doing appos+menuclicks
+menuClicks: int = [200,200,1253,30,757,205] #PreMainMenu/PrePre #close_news #LastQuest #remember doing appos+menuclicks
 cardClickPos: int = [135,519,391,519,649,519,905,519.1162,519] #card?1Y,2Y,3Y,4Y,5Y   (why not Y,1,2,3,4,5?)
 cardScreenshotPos: int = [[40,350,277,635],[300,350,537,635],[547,350,784,635],[796,350,1033,635],[1062,350,1299,635]] #Y
 cardPosition: int = [[135,466],[387,466],[638,466],[904,466],[1149,466]]
+npPosition: int =[261,387,638,881]  #Might be temporal y,x0,x1,2
 
+botIsRunning = False
+botMode = None
 questPicker = None
 chaldeaQuestType = None
 dailyQuest = [None,None] # 0 = xp, 1 = training ,2 = vault / 0123 (difficulty)
 lastQuest = None
-botMode = None
-NPMode = None
 SupportCE = None
-botIsRunning = False
-#Form
-#tempvalues
+NPBehavior = None
+cardPrio = [None,None,None] #0Buster,1Arts,2Quick
+autoRestoreEnergy: bool = None
 
-questPicker = 0 #questpicker = chaldea gate (0)
-chaldeaQuestType = 0 #0 = DailyMissions
-cardPrio = [0,1,2] #0Buster,1Arts,2Quick
-dailyQuest = [1,2] # 0 = xp, 1 = training ,2 = vault / 0123 (difficulty)
+#tempvalues
+questPicker = 0 #questpicker = chaldea gate (0) #It's static..., looking for differents modes, in case there are some running events that can add
+chaldeaQuestType = 0 #0 = DailyMissions  #It's static...
 #Now means, training mode, at almost max difficulty (lvl 40 if im not wrong)
-botMode: int = 1 #0 means Normal, 1 Lastquest, 2 OnlyBattle
-NPMode:int = 2 #0 Not, 1 Boss, 2 Spam
-SupportCE = 'MysticEyesOfDistortion' #If foud, found = True, keep scrolling (searching for same CE but with the 'star'), if bottom barr is True and found is True scroll up till find it again, else, go to top, and select first one
+NPBehavior:int = None #0 Don't, 1 DangerSpam, 2 Spam
 
 
 #Classes
@@ -68,7 +66,7 @@ def screenshotCard(cardNumber: int):
 def checkCombat(a: int = None):
     img_rgb = cv2.imread('tmp/Screenshot.jpg')
     img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
-    template = cv2.imread('templates/attackButton.png',0)
+    template = cv2.imread('templates/Combat/attackButton.png',0)
     res = cv2.matchTemplate(img_gray,template,cv2.TM_CCOEFF_NORMED)
     _, max_val, _, max_loc = cv2.minMaxLoc(res)
     treshHold = 0.85
@@ -85,16 +83,17 @@ def checkSupportCE(CEname,mode= None):
     img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
     template = cv2.imread('templates/CE/'+CEname+'.png',0)
     #template = cv2.imread('templates/CE/ChaldeaLunchtime.png',0)
-    res = cv2.matchTemplate(img_gray,template,cv2.TM_CCOEFF_NORMED)
-    _, max_val, _, max_loc = cv2.minMaxLoc(res)
-    treshHold = 0.95
-    if max_val>treshHold: #0 means press attack button
-        if mode == 1:
-            bestY,bestX = numpy.where( res >= max_val)
-            pyautogui.click(appPos[0]+bestX, appPos[1]+bestY)
-        return True
-    else: return False
-
+    try:
+        res = cv2.matchTemplate(img_gray,template,cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, max_loc = cv2.minMaxLoc(res)
+        treshHold = 0.95
+        if max_val>treshHold: #0 means press attack button
+            if mode == 1:
+                bestY,bestX = numpy.where( res >= max_val)
+                pyautogui.click(appPos[0]+bestX, appPos[1]+bestY)
+            return True
+        else: return False
+    except cv2.error: print('Couldn\' find '+CEname+' inside our folders, download \'templates\' folder again and if the issue persists contact the owner')
 def checkScrollIsUp():
     img_rgb = cv2.imread('tmp/Screenshot.jpg')
     img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
@@ -354,15 +353,23 @@ def checkLoading():
     if max_val>0.9: return True
     else: return False
 
+def checkConnecting():
+    img_rgb = cv2.imread('tmp/Screenshot.jpg')
+    img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
+    template = cv2.imread('templates/connecting.png',0)
+    res = cv2.matchTemplate(img_gray,template,cv2.TM_CCOEFF_NORMED)
+    _, max_val, _, max_loc = cv2.minMaxLoc(res)
+    if max_val>0.9: return True
+    else: return False
 def checkBackCombat():
     img_rgb = cv2.imread('tmp/Screenshot.jpg')
     img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
-    template = cv2.imread('templates/combatBackButton.png',0)
+    template = cv2.imread('templates/Combat/combatBackButton.png',0)
     res = cv2.matchTemplate(img_gray,template,cv2.TM_CCOEFF_NORMED)
     _, max_val, _, max_loc = cv2.minMaxLoc(res)
     if max_val>0.9:
-        bestY,bestX = numpy.where( res >= max_val)
-        pyautogui.click(appPos[0]+bestX, appPos[1]+bestY)
+        # bestY,bestX = numpy.where( res >= max_val)
+        # pyautogui.click(appPos[0]+bestX, appPos[1]+bestY)
         return True
     else: return False
 
@@ -387,6 +394,7 @@ def checkSelectLastQuest():
     _, max_val, _, max_loc = cv2.minMaxLoc(res)
     if max_val>0.9:
         pyautogui.click(appPos[0]+menuClicks[4], appPos[1]+menuClicks[5])
+        time.sleep(0.5)
         return True
     else: return False
 
@@ -411,6 +419,19 @@ def checkResumeButton():
     res = cv2.matchTemplate(img_gray,template,cv2.TM_CCOEFF_NORMED)
     _, max_val, _, max_loc = cv2.minMaxLoc(res)
     if max_val>0.9:
+        bestY,bestX = numpy.where( res >= max_val)
+        pyautogui.click(appPos[0]+bestX, appPos[1]+bestY)
+        return True
+    else: return False
+
+def checkDangerEnemies():
+    screenshot()
+    img_rgb = cv2.imread('tmp/Screenshot.jpg')
+    img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
+    template = cv2.imread('templates/Combat/danger.png',0)
+    res = cv2.matchTemplate(img_gray,template,cv2.TM_CCOEFF_NORMED)
+    _, max_val, _, max_loc = cv2.minMaxLoc(res)
+    if max_val>0.95:
         bestY,bestX = numpy.where( res >= max_val)
         pyautogui.click(appPos[0]+bestX, appPos[1]+bestY)
         return True
@@ -466,31 +487,31 @@ def checkCardInfo():
     effectivenes=1
 
     img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
-    template = cv2.imread('templates/Cards/effective.png',0)
+    template = cv2.imread('templates/Combat/effective.png',0)
     res = cv2.matchTemplate(img_gray,template,cv2.TM_CCOEFF_NORMED)
     _, max_val, _, max_loc = cv2.minMaxLoc(res)
-    treshHold = 0.7
+    treshHold = 0.9
     if max_val>treshHold:
         effectivenes=0
     else:
         img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
-        template = cv2.imread('templates/Cards/resist.png',0)
+        template = cv2.imread('templates/Combat/resist.png',0)
         res = cv2.matchTemplate(img_gray,template,cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
-        treshHold = 0.7
+        treshHold = 0.9
         if max_val>treshHold:
             effectivenes=2
 
     img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
-    template = cv2.imread('templates/Cards/buster.png',0)
+    template = cv2.imread('templates/Combat/buster.png',0)
     res = cv2.matchTemplate(img_gray,template,cv2.TM_CCOEFF_NORMED)
     _, max_val, _, max_loc = cv2.minMaxLoc(res)
-    treshHold = 0.7
+    treshHold = 0.9
     if max_val>treshHold:
         return (0,effectivenes)
     else:
         img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
-        template = cv2.imread('templates/Cards/arts.png',0)
+        template = cv2.imread('templates/Combat/arts.png',0)
         res = cv2.matchTemplate(img_gray,template,cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
         if max_val>treshHold:
@@ -502,7 +523,7 @@ def restoreEnergy():
     global close
     img_rgb = cv2.imread('tmp/Screenshot.jpg')
     img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
-    template = cv2.imread('templates/energy/restoreAP.png',0)
+    template = cv2.imread('templates/energy/goldApple.png',0) #to check that im inside of that
     res = cv2.matchTemplate(img_gray,template,cv2.TM_CCOEFF_NORMED)
     _, max_val, _, max_loc = cv2.minMaxLoc(res)
     if max_val>0.9:
@@ -510,7 +531,7 @@ def restoreEnergy():
         #search bronze>silver>gold and have attleast 1!
         screenshot()
         restoredAP = False
-        if restoredAP == False: # Bronze
+        if restoredAP == False and  autoRestoreEnergy == True: # Bronze
             img_rgb = cv2.imread('tmp/Screenshot.jpg')
             img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
             template = cv2.imread('templates/energy/bronzeApple.png',0)
@@ -521,7 +542,7 @@ def restoreEnergy():
                 pyautogui.click(appPos[0]+bestX, appPos[1]+bestY)
                 time.sleep(0.1)
                 if findOk() == True: restoredAP = True
-        if restoredAP == False: # Silver
+        if restoredAP == False and  autoRestoreEnergy == True: # Silver
             img_rgb = cv2.imread('tmp/Screenshot.jpg')
             img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
             template = cv2.imread('templates/energy/silverApple.png',0)
@@ -532,7 +553,7 @@ def restoreEnergy():
                 pyautogui.click(appPos[0]+bestX, appPos[1]+bestY)
                 time.sleep(0.1)
                 if findOk() == True: restoredAP = True
-        if restoredAP == False: # Silver
+        if restoredAP == False and  autoRestoreEnergy == True: # Silver
             img_rgb = cv2.imread('tmp/Screenshot.jpg')
             img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
             template = cv2.imread('templates/energy/goldApple.png',0)
@@ -543,11 +564,12 @@ def restoreEnergy():
                 pyautogui.click(appPos[0]+bestX, appPos[1]+bestY)
                 time.sleep(0.1)
                 if findOk() == True: restoredAP = True
+
         if restoredAP == False:
             close = True
+            #botMenu.TerminalVar('No energy left, stopping')
             return True
-        else: return True
-    else: return False
+    return False
 
 ## Actions
 def selectSupport():
@@ -651,6 +673,7 @@ def attack():
                     [0,0,0],
                     [0,0,0]]#4   #0B,1A,2Q, 0Effective,#1NeutracheckC,2#Resist #Alredypicked? 0False,1True
     c=0
+    time.sleep(0.3)
     while c<5:
         screenshotCard(c)
         cardInfo[c][0],cardInfo[c][1]=checkCardInfo()
@@ -670,12 +693,25 @@ def attack():
                 cardN=cardN+1
             cardT=cardT+1
         cardE=cardE+1
+    if NPBehavior == 1 & checkDangerEnemies():
+        ('Attacking Danger Enemies')
+    elif NPBehavior == 2:
+        ('Spamming NP')
+        d:int = 1
+        while d<4:
+            time.sleep(0.1)
+            pyautogui.click(appPos[0]+npPosition[d], appPos[1]+npPosition[0])
+            d+=1
+    elif 0:
+        pass
+
     #UseCards
     c:int = 0
     while c < 3:
         time.sleep(0.1)
         pyautogui.click(appPos[0]+cardPosition[cardsOrder[c]][0], appPos[1]+cardPosition[cardsOrder[c]][1])
-        c=c+1
+        c+=1
+    time.sleep(3)
 
 # MainCode
 
@@ -698,6 +734,7 @@ def farm():
                     elif checkCombat(1) == True:combat()
                     elif checkSelectSupp() == True: selectSupport()
                     elif checkLoading() == True: time.sleep(2)
+                    elif checkConnecting() == True: time.sleep(4)
                     elif checkConfirmParty() == True: checkStartQuest()
                     elif checkLastQuest(lastQuest) == True: pass
                     elif checkMainMenu() == True: mainMenu()
@@ -706,7 +743,7 @@ def farm():
                     elif checkClose() == True: pass
                     elif checkClosePopUp() == True: pass
                     elif checkNextButton() == True: pass
-                    elif checkBackCombat() == True: pass
+                    elif checkBackCombat() == True: combat()
                     elif tap() == True: pass
                     elif checkResumeButton() == True: pass
                     elif checkNewsMenu() == True: pass
@@ -723,14 +760,15 @@ def farm():
                     elif checkCombat(1) == True:combat()
                     elif checkSelectSupp() == True: selectSupport()
                     elif checkLoading() == True: time.sleep(2)
+                    elif checkConnecting() == True: time.sleep(4)
                     elif checkConfirmParty() == True: checkStartQuest()
-                    elif checkSelectLastQuest() == True: pass
                     elif restoreEnergy() == True: pass
                     elif checkClosePopUp() == True: pass
                     elif checkNextButton() == True: pass
-                    elif checkBackCombat() == True: pass
+                    elif checkBackCombat() == True: combat()
                     elif tap() == True: pass
                     elif checkResumeButton() == True: pass
+                    elif checkSelectLastQuest() == True: pass
                     else: time.sleep(2) # print('im fucking lost')
                 else: time.sleep(2)
             elif botMode == 2: #If windows not in front do nothing
@@ -739,13 +777,14 @@ def farm():
                     screenshot()
                     if False: pass
                     elif checkCombat(1) == True:combat()
+                    elif checkBackCombat() == True: combat()
                     else: time.sleep(2) # print('im fucking lost')
                 else: time.sleep(2)
     else:
         ('NoxPlayer was not found...')
 
     botIsRunning = False
-    ('Bot stopped')
+    #botMenu.__.set('Bot stopped')
 
 # Menu
 
@@ -757,14 +796,25 @@ class botMenu():
     CEDictionary = {'None' : None,
               'ChaldeaLunchtime': 'ChaldeaLunchtime',
               'MysticEyesOfDistortion': 'MysticEyesOfDistortion',
+              'Chorus': 'Chorus',
+              'DecapitatingBunny2018': 'DecapitatingBunny2018',
+              'Sprinter': 'Sprinter',
+              'RepeatMagic': 'RepeatMagic',
+              'MatureGentelman': 'MatureGentelman',
+              'VividDanceOfFists': 'VividDanceOfFists',
+              'SummersPrecognition': 'SummersPrecognition',
+              'TreefoldBarrier':'TreefoldBarrier',
+              'GrandPuppeteer':'GrandPuppeteer'
     }
+    npModesDictionary = {"None": 0, "Only Danger Servants": 1, "Spam": 2}
     CEList: list = []
+    npModesList: list = []
 
     def stopBot(self):
         global close
         self.TerminalVar.set('Stopping...')
         close = True
-        self.TerminalVar.set('Stopped!')
+        self.TerminalVar.set('Stopped.')
 
     def startBot(self):
         global botIsRunning
@@ -772,13 +822,15 @@ class botMenu():
         global questPicker
         global dailyQuest
         global cardPrio
-        global NPMode
+        global NPBehavior
         global SupportCE
+        global autoRestoreEnergy
 
         if botIsRunning == False:
             botMode = self.botModeVar.get()
             questPicker = self.questPickerVar.get()
             dailyQuest = [self.dailyQuestTypeVar.get(),self.dailyQuestDiffVar.get()] # 0 = xp, 1 = training ,2 = vault / 0123 (difficulty)
+            autoRestoreEnergy = self.restoreEnergyVar.get()
 
             cardPrioText = self.cardPrioVar.get()
             for i in range (0,3):
@@ -786,7 +838,7 @@ class botMenu():
                 if x == 66: cardPrio[i] = 0
                 elif x == 65: cardPrio[i] = 1
                 else: cardPrio[i] = 2
-            #NPMode = self.NPModevar
+            NPBehavior = self.npModesDictionary[self.NPModeVar.get()]
             SupportCE = self.CEDictionary[self.SupportCEVar.get()]
 
             botIsRunning = True
@@ -813,19 +865,23 @@ class botMenu():
         self.dailyQuestTypeVar = IntVar() #Not using, only dailyquests on chaldea atm
         self.dailyQuestDiffVar = IntVar()
         self.cardPrioVar= StringVar()
-        #self.NPModevar = IntVar()
+        self.NPModeVar = StringVar()
         self.SupportCEVar = StringVar()
         self.TerminalVar = StringVar()
+        self.restoreEnergyVar = BooleanVar()
 
         for x in self.CEDictionary:
             self.CEList.append(x)
+
+        for x in self.npModesDictionary:
+            self.npModesList.append(x)
 
         menu.title("FGOFarmingBot")
         Label(menu, text='Welcome to FGOFarmingBot', anchor='center').pack(fill='both')
         Label(menu, text="Start by selection one of this options, then proceed to press 'Start' button!", anchor='center').pack(fill='both')
         Label(menu, text="\nChoose which mode do you want the bot runs", anchor='center').pack(fill='both')
         modeButtons = [self.createRadioButton(m,self.botModeVar) for m in self.botModes]
-
+        self.botModeVar.set(1)
 
         Label(menu, text="\nIn case you selected 'Daily Quests' select which type and difficulty must be", anchor='center').pack(fill='both')
         Label(menu, text="\nType: ", anchor='center').pack(fill='both')
@@ -839,16 +895,26 @@ class botMenu():
         supportCEBox.set('None')
         supportCEBox.pack()
 
-
+        Label(menu, text="\nDo you want to auto restore energy?\n", anchor='center').pack()
+        restoreEnergyBool = ttk.Combobox(menu, values=(True,False),  state="readonly", textvariable=self.restoreEnergyVar)
+        restoreEnergyBool.set('True')
+        restoreEnergyBool.pack()
 
         Label(menu, text="\nCombat System:", anchor='center').pack(fill='both')
         Label(menu, text="Select which card prioroty order:\n", anchor='center').pack(fill='both')
-        cardPrioBox = ttk.Combobox(menu, values=self.cardPrios,  state="readonly", textvariable=self.cardPrioVar)
+        cardPrioBox = ttk.Combobox(menu, values=self.cardPrioVar,  state="readonly", textvariable=self.cardPrioVar)
         cardPrioBox.set('BAQ')
         cardPrioBox.pack()
-        Label(menu, text="\nNp usage & CESupport chooser in a future\n", anchor='center').pack()
+
+        Label(menu, text="\nChoose the NP behavior:\n", anchor='center').pack(fill='both')
+        NPBBox = ttk.Combobox(menu, values=self.npModesList,  state="readonly", textvariable=self.NPModeVar)
+        NPBBox.set('Only Danger Servants')
+        NPBBox.pack()
+
+        Label(menu, text="\nMore emulators support in a future\n", anchor='center').pack()
         terminal = Entry(menu, textvariable=self.TerminalVar, state='disabled').pack()
         Label(menu, text="\n", anchor='center').pack() #Space
+
         #Buttons
         Button(menu, text="Quit" , anchor='s', command=self.quitMenu).pack(side=BOTTOM)
         Button(menu, text="Stop" , anchor='s', command=self.stopBot).pack(side=BOTTOM)
@@ -860,7 +926,6 @@ class botMenu():
 menu = Tk()
 botMenu()
 close=True
-
 ## Notes
 
 # 1280 * 720
