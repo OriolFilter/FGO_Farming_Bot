@@ -13,7 +13,7 @@ from tkinter import ttk, IntVar
 #Variables
 
 close = False
-appname: str = 'NoxPlayer'
+appname: str = None
 appPos: int = [0,0] #x,y
 proportions: int = [0,0] #widh,height
 screenshotImg = "tmp/Screenshot.jpg"
@@ -23,6 +23,8 @@ cardClickPos: int = [135,519,391,519,649,519,905,519.1162,519] #card?1Y,2Y,3Y,4Y
 cardScreenshotPos: int = [[40,350,277,635],[300,350,537,635],[547,350,784,635],[796,350,1033,635],[1062,350,1299,635]] #Y
 cardPosition: int = [[135,466],[387,466],[638,466],[904,466],[1149,466]]
 npPosition: int =[261,387,638,881]  #Might be temporal y,x0,x1,2
+
+
 
 botIsRunning = False
 botMode = None
@@ -34,6 +36,8 @@ SupportCE = None
 NPBehavior = None
 cardPrio = [None,None,None] #0Buster,1Arts,2Quick
 autoRestoreEnergy: bool = None
+chainCardsEnabled: bool = False
+
 
 #tempvalues
 questPicker = 0 #questpicker = chaldea gate (0) #It's static..., looking for differents modes, in case there are some running events that can add
@@ -50,9 +54,12 @@ def screenshot():
     window_coordenades()
     #ImageGrab.grab()
     #img=ImageGrab.grab()#       #X      #Y               #x2                      #y2
-    img=ImageGrab.grab(bbox=(appPos[0],appPos[1],appPos[0]+proportions[0],appPos[1]+proportions[1]))
-    img.save('tmp/Screenshot.jpg')
-
+    try:
+        img=ImageGrab.grab(bbox=(appPos[0],appPos[1],appPos[0]+proportions[0],appPos[1]+proportions[1]))
+        img.save('tmp/Screenshot.jpg')
+    except:
+        ('error doing the screenshot')
+        return False
 
 def screenshotCard(cardNumber: int):
     window_coordenades()
@@ -725,7 +732,6 @@ def farm():
             #time.sleep(1)
             # print('checking status from while!')
             #print(game_status)
-
             if botMode == 0: #{
                 ('Normal Mode')
                 if checkActiveWindow() == True:
@@ -787,8 +793,50 @@ def farm():
     #botMenu.__.set('Bot stopped')
 
 # Menu
+class VerticalScrolledFrame(Frame):
+    """A pure Tkinter scrollable frame that actually works!
+    * Use the 'interior' attribute to place widgets inside the scrollable frame
+    * Construct and pack/place/grid normally
+    * This frame only allows vertical scrolling
+    """
+    def __init__(self, parent, *args, **kw):
+        Frame.__init__(self, parent, *args, **kw)
 
-class botMenu():
+        # create a canvas object and a vertical scrollbar for scrolling it
+        vscrollbar = Scrollbar(self, orient=VERTICAL)
+        vscrollbar.pack(fill=Y, side=RIGHT, expand=FALSE)
+        canvas = Canvas(self, bd=0, highlightthickness=0,
+                        yscrollcommand=vscrollbar.set)
+        canvas.pack(side=LEFT, fill=BOTH, expand=TRUE)
+        vscrollbar.config(command=canvas.yview)
+
+        # reset the view
+        canvas.xview_moveto(0)
+        canvas.yview_moveto(0)
+
+        # create a frame inside the canvas which will be scrolled with it
+        self.interior = interior = Frame(canvas)
+        interior_id = canvas.create_window(0, 0, window=interior,
+                                           anchor=NW)
+
+        # track changes to the canvas and frame width and sync them,
+        # also updating the scrollbar
+        def _configure_interior(event):
+            # update the scrollbars to match the size of the inner frame
+            size = (interior.winfo_reqwidth(), interior.winfo_reqheight())
+            canvas.config(scrollregion="0 0 %s %s" % size)
+            if interior.winfo_reqwidth() != canvas.winfo_width():
+                # update the canvas's width to fit the inner frame
+                canvas.config(width=interior.winfo_reqwidth())
+        interior.bind('<Configure>', _configure_interior)
+
+        def _configure_canvas(event):
+            if interior.winfo_reqwidth() != canvas.winfo_width():
+                # update the inner frame's width to fill the canvas
+                canvas.itemconfigure(interior_id, width=canvas.winfo_width())
+        canvas.bind('<Configure>', _configure_canvas)
+
+class botMenu(Tk): #StolenStructureFromSomone, im so sorry, will try to improve and, maybe don't change the structure since it works well, but atleast to understand it and being capable to o it myself
     botModes = [("Daily Quests", 0), ("Last Quest", 1), ("Auto battle only", 2)]
     dailyQuests = [('Ember Gathering (XP)', 0), ('Training Grounds (Items)', 1), ('Treasure Vault (QP)', 2)] # 0 = xp, 1 = training ,2 = vault / 0123 (difficulty)
     dailyQuestsDifficulty = [('Novice', 0), ('Intermediate', 1), ('Advanced', 2), ('Expert',3)] # 0 = xp, 1 = training ,2 = vault / 0123 (difficulty)
@@ -810,6 +858,11 @@ class botMenu():
     CEList: list = []
     npModesList: list = []
 
+
+    def updateTerminal(self):
+        print('debugg')
+
+
     def stopBot(self):
         global close
         self.TerminalVar.set('Stopping...')
@@ -824,6 +877,7 @@ class botMenu():
         global cardPrio
         global NPBehavior
         global SupportCE
+        global appname
         global autoRestoreEnergy
 
         if botIsRunning == False:
@@ -840,6 +894,7 @@ class botMenu():
                 else: cardPrio[i] = 2
             NPBehavior = self.npModesDictionary[self.NPModeVar.get()]
             SupportCE = self.CEDictionary[self.SupportCEVar.get()]
+            appname = self.emuWinNameVar.get()
 
             botIsRunning = True
             self.TerminalVar.set('starting bot...')
@@ -852,23 +907,34 @@ class botMenu():
     def quitMenu(self):
         self.stopBot()
         self.TerminalVar.set('quitting!')
-        menu.quit()
+        self.frame.interior.quit()
 
     def createRadioButton(self,option,variable = None):
         text, value = option
-        return Radiobutton(menu, anchor="n" , text=text, value=value,
+        return Radiobutton(self.frame.interior, anchor="n" , text=text, value=value,
                               command=None, variable=variable, state='normal').pack()
 
-    def __init__(self):
+
+    def selectedApp(self):
+        if self.emuType.get() == 'Nox':
+            self.emuType.set('NoxPlayer')
+
+    def __init__(self, *args, **kwargs):
+        root = Tk.__init__(self, *args, **kwargs)
+        self.frame = VerticalScrolledFrame(root)
+        self.frame.pack(fill=BOTH, side=BOTTOM, expand=YES)
+
         self.botModeVar = IntVar()
         self.questPickerVar = IntVar()
         self.dailyQuestTypeVar = IntVar() #Not using, only dailyquests on chaldea atm
         self.dailyQuestDiffVar = IntVar()
-        self.cardPrioVar= StringVar()
-        self.NPModeVar = StringVar()
-        self.SupportCEVar = StringVar()
+        self.cardPrioVar= StringVar(value='BAQ')
+        self.NPModeVar = StringVar(value='Only Danger Servants')
+        self.SupportCEVar = StringVar(value='None')
         self.TerminalVar = StringVar()
         self.restoreEnergyVar = BooleanVar()
+        self.emuType = StringVar()
+        self.emuWinNameVar = StringVar(value='NoxPayer')
 
         for x in self.CEDictionary:
             self.CEList.append(x)
@@ -876,56 +942,68 @@ class botMenu():
         for x in self.npModesDictionary:
             self.npModesList.append(x)
 
-        menu.title("FGOFarmingBot")
-        Label(menu, text='Welcome to FGOFarmingBot', anchor='center').pack(fill='both')
-        Label(menu, text="Start by selection one of this options, then proceed to press 'Start' button!", anchor='center').pack(fill='both')
-        Label(menu, text="\nChoose which mode do you want the bot runs", anchor='center').pack(fill='both')
+        # scrollbar = Scrollbar(menu)
+        # scrollbar.pack(side=RIGHT, fill=Y)
+
+        self.title("FGOFarmingBot")
+        Label(self.frame.interior, text='Welcome to FGOFarmingBot', anchor='center').pack()
+        Label(self.frame.interior, text="Start by selection one of this options, then proceed to press 'Start' button!", anchor='center').pack()
+        Label(self.frame.interior, text="\nChoose which mode do you want the bot runs", anchor='center').pack()
         modeButtons = [self.createRadioButton(m,self.botModeVar) for m in self.botModes]
         self.botModeVar.set(1)
 
-        Label(menu, text="\nIn case you selected 'Daily Quests' select which type and difficulty must be", anchor='center').pack(fill='both')
-        Label(menu, text="\nType: ", anchor='center').pack(fill='both')
+        Label(self.frame.interior, text="\nIn case you selected 'Daily Quests' select which type and difficulty must be", anchor='center').pack(fill='both')
+        Label(self.frame.interior, text="\nType: ", anchor='center').pack(fill='both')
         dailyQuestsButtons = [self.createRadioButton(m,self.dailyQuestTypeVar) for m in self.dailyQuests]
-        Label(menu, text="\nDifficulty: ", anchor='center').pack(fill='both')
+        Label(self.frame.interior, text="\nDifficulty: ", anchor='center').pack(fill='both')
         dailyQuestsButtons = [self.createRadioButton(m,self.dailyQuestDiffVar) for m in self.dailyQuestsDifficulty]
 
 
-        Label(menu, text="\nIn case you selected 'Daily Quests' or 'Last Quest'\nselect which CE must search from your friendlist:", anchor='center').pack(fill='both')
-        supportCEBox = ttk.Combobox(menu, values=(self.CEList),  state="readonly", textvariable=self.SupportCEVar)
-        supportCEBox.set('None')
-        supportCEBox.pack()
+        Label(self.frame.interior, text="\nIn case you selected 'Daily Quests' or 'Last Quest'\nselect which CE must search from your friendlist:", anchor='center').pack(fill='both')
+        self.supportCEBox = ttk.Combobox(self.frame.interior, values=self.CEList, state="readonly", textvariable=self.SupportCEVar).pack()
 
-        Label(menu, text="\nDo you want to auto restore energy?\n", anchor='center').pack()
-        restoreEnergyBool = ttk.Combobox(menu, values=(True,False),  state="readonly", textvariable=self.restoreEnergyVar)
+        Label(self.frame.interior, text="\nDo you want to auto restore energy?\n", anchor='center').pack()
+        restoreEnergyBool = ttk.Combobox(self.frame.interior, values=(True,False),  state="readonly", textvariable=self.restoreEnergyVar)
         restoreEnergyBool.set('True')
         restoreEnergyBool.pack()
 
-        Label(menu, text="\nCombat System:", anchor='center').pack(fill='both')
-        Label(menu, text="Select which card prioroty order:\n", anchor='center').pack(fill='both')
-        cardPrioBox = ttk.Combobox(menu, values=self.cardPrios,  state="readonly", textvariable=self.cardPrioVar)
-        cardPrioBox.set('BAQ')
-        cardPrioBox.pack()
+        Label(self.frame.interior, text="\nCombat System:", anchor='center').pack(fill='both')
+        Label(self.frame.interior, text="Select which card prioroty order:\n", anchor='center').pack(fill='both')
+        self.cardPrioBox = ttk.Combobox(self.frame.interior, values=self.cardPrios,  state="readonly", textvariable=self.cardPrioVar).pack()
 
-        Label(menu, text="\nChoose the NP behavior:\n", anchor='center').pack(fill='both')
-        NPBBox = ttk.Combobox(menu, values=self.npModesList,  state="readonly", textvariable=self.NPModeVar)
-        NPBBox.set('Only Danger Servants')
-        NPBBox.pack()
+        Label(self.frame.interior, text="\nChoose the NP behavior:\n", anchor='center').pack(fill='both')
+        NPBBox = ttk.Combobox(self.frame.interior, values=self.npModesList,  state="readonly", textvariable=self.NPModeVar).pack()
 
-        Label(menu, text="\nMore emulators support in a future\n", anchor='center').pack()
-        terminal = Entry(menu, textvariable=self.TerminalVar, state='disabled').pack()
-        Label(menu, text="\n", anchor='center').pack() #Space
+        Label(self.frame.interior, text="\nEmulator config:\n", anchor='center').pack()
+        Label(self.frame.interior, text="Please select your emulator from this list (it will be used to give a config):\n", anchor='center').pack()
+
+        self.EmulatorConfigBox = ttk.Combobox(self.frame.interior, values='Nox', textvariable=self.emuType, state="readonly")
+        self.EmulatorConfigBox.set('Nox')
+        self.EmulatorConfigBox.pack()
+
+        Label(self.frame.interior, text="\nIntroduce the window name from your emulator:\n(you can check that from 'tasklist')\n", anchor='center').pack()
+        self.EmulatorWinNameEntry = ttk.Entry(self.frame.interior, textvariable=self.emuWinNameVar).pack()
+
+        Label(self.frame.interior, text="\nStatus:", anchor='center').pack()
+        self.terminal = Entry(self.frame.interior, textvariable=self.TerminalVar, state='disabled').pack()
+
+        Label(self.frame.interior, text="\nMore emulators support in a future\n\n", anchor='center').pack()
 
         #Buttons
-        Button(menu, text="Quit" , anchor='s', command=self.quitMenu).pack(side=BOTTOM)
-        Button(menu, text="Stop" , anchor='s', command=self.stopBot).pack(side=BOTTOM)
-        Button(menu, text="Start" , anchor='s', command=self.startBot).pack(side=BOTTOM)
+        Button(self.frame.interior, text="Quit" , anchor='s', command=self.quitMenu).pack(side=BOTTOM, fill=X)
+        Button(self.frame.interior, text="Stop" , anchor='s', command=self.stopBot).pack(side=BOTTOM, fill=X)
+        Button(self.frame.interior, text="Start" , anchor='s', command=self.startBot).pack(side=BOTTOM, fill=X)
         mainloop()
 
 
+
+
 # Main
-menu = Tk()
-botMenu()
+app = botMenu()
+app.mainloop()
 close=True
+
+
 ## Notes
 
 # 1280 * 720
