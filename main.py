@@ -923,6 +923,8 @@ class botMenu(Tk): #StolenStructureFromSomone, im so sorry, will try to improve 
         root = Tk.__init__(self, *args, **kwargs)
         self.frame = VerticalScrolledFrame(root)
         self.frame.pack(fill=BOTH, side=BOTTOM, expand=YES)
+        self.geometry('550x750')
+
 
         self.botModeVar = IntVar()
         self.questPickerVar = IntVar()
@@ -987,7 +989,7 @@ class botMenu(Tk): #StolenStructureFromSomone, im so sorry, will try to improve 
         Label(self.frame.interior, text="\nStatus:", anchor='center').pack()
         self.terminal = Entry(self.frame.interior, textvariable=self.TerminalVar, state='disabled').pack()
 
-        Label(self.frame.interior, text="\nMore emulators support in a future\n\n", anchor='center').pack()
+        Label(self.frame.interior, text="\n").pack()
 
         #Buttons
         Button(self.frame.interior, text="Quit" , anchor='s', command=self.quitMenu).pack(side=BOTTOM, fill=X)
