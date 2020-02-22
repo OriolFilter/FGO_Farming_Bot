@@ -1,6 +1,6 @@
 #imports
 import time
-
+import webbrowser
 import pyautogui
 import pygetwindow as gw
 import pyscreenshot as ImageGrab
@@ -995,6 +995,9 @@ class botMenu(Tk): #StolenStructureFromSomone, im so sorry, will try to improve 
         Button(self.frame.interior, text="Quit" , anchor='s', command=self.quitMenu).pack(side=BOTTOM, fill=X)
         Button(self.frame.interior, text="Stop" , anchor='s', command=self.stopBot).pack(side=BOTTOM, fill=X)
         Button(self.frame.interior, text="Start" , anchor='s', command=self.startBot).pack(side=BOTTOM, fill=X)
+        self.github = Label(self.frame.interior, text="github.com/OriolFilter/FGO_farming_bot", fg="blue", cursor="hand2", anchor='s')
+        self.github.pack(side=BOTTOM, fill=X)
+        self.github.bind("<Button-1>",lambda e: webbrowser.open("https://github.com/OriolFilter/FGO_farming_bot"))
         mainloop()
 
 
