@@ -998,6 +998,7 @@ class botMenu(Tk): #StolenStructureFromSomone, im so sorry, will try to improve 
 
 
 
+
 # Main
 app = botMenu()
 app.mainloop()
