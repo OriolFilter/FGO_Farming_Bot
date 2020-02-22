@@ -35,7 +35,7 @@ Also this bot does not work at 'Android' level, it presses your screen, means th
 
 ### Picking cards
 
-The order is, effective cards first, then your card priority selection (ej. Buster, Arts, Quick).
+The order is, effective cards first, then your card priority selection (ej. Buster, Arts, Quick), after effective cards come the neutral ones, and the last ones will be the cards affected by resist.
 
 
 ## Supported emulators:
@@ -59,21 +59,26 @@ The order is, effective cards first, then your card priority selection (ej. Bust
 
 ## Future implementations
 
-    - Noble Phantasm Usage
-
     - More Craft Essence support
 
     - Removing the need of storing a screenshot (this isn't a priority)
 
     - Working on background insted of foreground
 
+    - Add support for more emulators
+
+    - Storing, loading and autoloading config (autolading will search a file with X name inside his folder)
+
+    - Noble Phantasm Usage (done)
+
+
 ## Versions
 
 - 1.01 First Version
 
-- 1.01b Added CE picker, improved performance & menu
+- 1.01b Added CE picker, improved performance & added a menu
 
-### CE ADDED
+#### CE ADDED
 
         - ChaldeaLunchtime
 
@@ -100,6 +105,8 @@ The order is, effective cards first, then your card priority selection (ej. Bust
         - TreefoldBarrier (event)
 
         - GrandPuppeteer (event)
+
+- 1.02b Added a vertical scrollbar for the menu, added 'Select Emulator Software', and 'Introduce Emulator Window name', updated some CE to fix some issues related with them.
 
 #### About Updates
 
