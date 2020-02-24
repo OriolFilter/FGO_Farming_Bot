@@ -59,7 +59,7 @@ The order is, effective cards first, then your card priority selection (ej. Bust
 
 ## Future implementations
 
-    - More Craft Essence support
+    - More Craft Essence support (atleast the event-and usual supportfarm)
 
     - Removing the need of storing a screenshot (this isn't a priority)
 
@@ -69,7 +69,11 @@ The order is, effective cards first, then your card priority selection (ej. Bust
 
     - Storing, loading and autoloading config (autolading will search a file with X name inside his folder)
 
+    - Limit the number times the bot regenerates energy (done)
+
     - Noble Phantasm Usage (done)
+
+    - Allow color-chains
 
 
 ## Versions
@@ -108,6 +112,9 @@ The order is, effective cards first, then your card priority selection (ej. Bust
 
 - 1.02b Added a vertical scrollbar for the menu, added 'Select Emulator Software', and 'Introduce Emulator Window name', updated some CE to fix some issues related with them.
 
+- 1.02c Now you can limit the times to get the energy refilled and now support color-chains, also fixed some issues and updated
+
+
 #### About Updates
 
 Remember to update 'templates' folder with each patch.
@@ -115,3 +122,32 @@ Remember to update 'templates' folder with each patch.
 #### About CE Added
 
 Since im using my own friends to get the files, if im not able to be friend with somone who has X CE, i won't be able to get the image, so there is a chane about some craft essences being without the 'Limitet Break' form
+
+
+## CE list
+
+### Usual Support CE
+
+        - ChaldeaLunchtime
+
+### Event CE
+
+        - MysticEyesOfDistortion (event)
+
+        - Chorus (event)
+
+        - Decapitating bunny 2018 (event)
+
+        - Sprinter (event)
+
+        - RepeatMagic (event)
+
+        - MatureGentelman (event)
+
+        - VividDanceOfFists (event)
+
+        - SummersPrecognition (event)
+
+        - TreefoldBarrier (event)
+
+        - GrandPuppeteer (event)
