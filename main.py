@@ -1234,6 +1234,7 @@ class botMenu(
         Label(self.frame.interior, text="").pack()
         Checkbutton(self.frame.interior, text="Restore Energy Automatically", variable=self.restoreEnergyVar).pack()
 
+        ("ok")
 
         Label(self.frame.interior, text="\nHow many times do you want to get the energy refilled?\n(0 means infinite)\n", anchor='center').pack()
         ttk.Entry(self.frame.interior, textvariable=self.timesToRefillVar).pack()
