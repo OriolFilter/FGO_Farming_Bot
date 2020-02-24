@@ -1210,7 +1210,7 @@ class botMenu(
         # scrollbar = Scrollbar(menu)
         # scrollbar.pack(side=RIGHT, fill=Y)
 
-        self.title("FGOFarmingBot v1.02b")
+        self.title("FGOFarmingBot v1.02c")
         Label(self.frame.interior, text='Welcome to FGOFarmingBot', anchor='center').pack()
         Label(self.frame.interior, text="Start by selection one of this options, then proceed to press 'Start' button!",
               anchor='center').pack()
