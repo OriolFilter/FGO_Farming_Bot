@@ -448,8 +448,8 @@ def checkBackCombat():
     res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
     _, max_val, _, max_loc = cv2.minMaxLoc(res)
     if max_val > 0.9:
-        # bestY,bestX = numpy.where( res >= max_val)
-        # pyautogui.click(appPos[0]+bestX, appPos[1]+bestY)
+        bestY,bestX = numpy.where( res >= max_val)
+        pyautogui.click(appPos[0]+bestX, appPos[1]+bestY)
         return True
     else:
         return False
@@ -910,96 +910,56 @@ def farm():
                 ('Normal Mode')
                 if checkActiveWindow() == True:
                     screenshot()
-                    if False:
-                        pass
-                    elif checkCombat(1) == True:
-                        combat()
-                    elif checkSelectSupp() == True:
-                        selectSupport()
-                    elif checkLoading() == True:
-                        time.sleep(2)
-                    elif checkConnecting() == True:
-                        time.sleep(4)
-                    elif checkConfirmParty() == True:
-                        checkStartQuest()
-                    elif checkLastQuest(lastQuest) == True:
-                        pass
-                    elif checkMainMenu() == True:
-                        mainMenu()
-                    elif SelectDailyQuest(dailyQuest[0], dailyQuest[1]) == True:
-                        pass
-                    elif restoreEnergy() == True:
-                        pass
-                    elif checkClose() == True:
-                        pass
-                    elif checkClosePopUp() == True:
-                        pass
-                    elif checkNextButton() == True:
-                        pass
-                    elif checkBackCombat() == True:
-                        combat()
-                    elif tap() == True:
-                        pass
-                    elif checkResumeButton() == True:
-                        pass
-                    elif checkNewsMenu() == True:
-                        pass
-                    elif preCheckMainMenu() == True:
-                        pass
-                    else:
-                        time.sleep(2)  # print('im fucking lost')
-                else:
-                    time.sleep(2)
+                    if False: pass
+                    elif checkCombat(1) == True: combat()
+                    elif checkSelectSupp() == True: selectSupport()
+                    elif checkLoading() == True: time.sleep(2)
+                    elif checkConnecting() == True: time.sleep(4)
+                    elif checkConfirmParty() == True: checkStartQuest()
+                    elif checkLastQuest(lastQuest) == True: pass
+                    elif checkMainMenu() == True: mainMenu()
+                    elif SelectDailyQuest(dailyQuest[0], dailyQuest[1]) == True: pass
+                    elif restoreEnergy() == True: pass
+                    elif checkClose() == True:  pass
+                    elif checkClosePopUp() == True: pass
+                    elif checkNextButton() == True: pass
+                    elif checkBackCombat() == True: pass
+                    elif tap() == True: pass
+                    elif checkResumeButton() == True: pass
+                    elif checkNewsMenu() == True: pass
+                    elif preCheckMainMenu() == True: pass
+                    else: time.sleep(2)  # print('im fucking lost')
+                else: time.sleep(2)
 
             # }
             elif botMode == 1:
                 ('Repeating Last Quest Mode!')  # This will need some explanation
                 if checkActiveWindow() == True:
                     screenshot()
-                    if False:
-                        pass
-                    elif checkCombat(1) == True:
-                        combat()
-                    elif checkSelectSupp() == True:
-                        selectSupport()
-                    elif checkLoading() == True:
-                        time.sleep(2)
-                    elif checkConnecting() == True:
-                        time.sleep(4)
-                    elif checkConfirmParty() == True:
-                        checkStartQuest()
-                    elif restoreEnergy() == True:
-                        pass
-                    elif checkClosePopUp() == True:
-                        pass
-                    elif checkNextButton() == True:
-                        pass
-                    elif checkBackCombat() == True:
-                        combat()
-                    elif tap() == True:
-                        pass
-                    elif checkResumeButton() == True:
-                        pass
-                    elif checkSelectLastQuest() == True:
-                        pass
-                    else:
-                        time.sleep(2)  # print('im fucking lost')
-                else:
-                    time.sleep(2)
+                    if False: pass
+                    elif checkCombat(1) == True: combat()
+                    elif checkSelectSupp() == True: selectSupport()
+                    elif checkLoading() == True: time.sleep(2)
+                    elif checkConnecting() == True: time.sleep(4)
+                    elif checkConfirmParty() == True: checkStartQuest()
+                    elif restoreEnergy() == True: pass
+                    elif checkClosePopUp() == True: pass
+                    elif checkNextButton() == True: pass
+                    elif checkBackCombat() == True: pass
+                    elif tap() == True: pass
+                    elif checkResumeButton() == True: pass
+                    elif checkSelectLastQuest() == True: pass
+                    else: time.sleep(2)  # print('im fucking lost')
+                else: time.sleep(2)
             elif botMode == 2:  # If windows not in front do nothing
                 ('Battle Mode!')
                 if checkActiveWindow() == True:
                     screenshot()
-                    if False:
-                        pass
-                    elif checkCombat(1) == True:
-                        combat()
-                    elif checkBackCombat() == True:
-                        combat()
-                    else:
-                        time.sleep(2)  # print('im fucking lost')
-                else:
-                    time.sleep(2)
+                    if False: pass
+                    elif checkCombat(1) == True: combat()
+                    elif checkBackCombat() == True: combat()
+                    else: time.sleep(2)  # print('im fucking lost')
+                else: time.sleep(2)
     else:
         ('NoxPlayer was not found...')
     botIsRunning = False
