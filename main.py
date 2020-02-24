@@ -517,14 +517,16 @@ def checkResumeButton():
 def checkDangerEnemiesAndServants():
     screenshot()
     img_rgb = cv2.imread('tmp/Screenshot.jpg')
+    #Danger
     img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
     template = cv2.imread('templates/Combat/danger.png', 0)
     res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
     _, max_val, _, max_loc = cv2.minMaxLoc(res)
-    if max_val > 0.85:
+    if max_val > 0.75:
         bestY, bestX = numpy.where(res >= max_val)
         pyautogui.click(appPos[0] + bestX, appPos[1] + bestY)
         return True
+    #Servants
     img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
     template = cv2.imread('templates/Combat/servant.png', 0)
     res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
