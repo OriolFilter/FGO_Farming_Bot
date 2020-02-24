@@ -811,17 +811,23 @@ def attack():
         if chainCardsEnabled:
             if cardInfo[c][0] == 0:
                 busterCards+=1
+                print('B')
             elif cardInfo[c][0] == 1:
                 artsCards+=1
+                print('A')
             else:
                 quickCards+=1
+                print('Q')
+
         c = c + 1
     cardsPicked: int = 0
     cardsOrder: int = [0, 0, 0]
-    if artsCards >= 3 | quickCards >= 3 | busterCards >= 3:
+    if (artsCards > 1) | (quickCards > 2) | (busterCards > 2):
+        print('hi IF')
         chainTurn=True
         if busterCards >= 3:
             cardE: int = 0
+            print('Bchain!')
             while cardE < 3 and cardsPicked < 3:
                 cardN: int = 0
                 while cardN < 5 and cardsPicked < 3:
@@ -843,6 +849,7 @@ def attack():
                     cardN = cardN + 1
                 cardE = cardE + 1
         else:
+            print('quickChain')
             cardE: int = 0
             while cardE < 3 and cardsPicked < 3:
                 cardN: int = 0
@@ -888,6 +895,7 @@ def attack():
 
     # UseCards
     c: int = 0
+    print(cardsOrder)
     while c < 3:
         time.sleep(0.1)
         pyautogui.click(appPos[0] + cardPosition[cardsOrder[c]][0], appPos[1] + cardPosition[cardsOrder[c]][1])
@@ -1125,8 +1133,7 @@ class botMenu(
             botIsRunning = True
             farm()
             self.TerminalVar.set('Bot stopped')
-        else:
-            self.TerminalVar.set('Bot is running, updated your configuration')
+        else: self.TerminalVar.set('Bot is running, updated your configuration')
 
     def createRadioButton(self, option, variable=None):
         text, value = option
