@@ -819,7 +819,7 @@ def attack():
         c = c + 1
     cardsPicked: int = 0
     cardsOrder: int = [0, 0, 0]
-    if (artsCards > 1) | (quickCards > 2) | (busterCards > 2):
+    if (artsCards > 2) | (quickCards > 2) | (busterCards > 2):
         chainTurn=True
         if busterCards >= 3:
             cardE: int = 0
@@ -1038,9 +1038,6 @@ class botMenu(
     npModesDictionary = {"None": 0, "Only Danger Enemies & Servants": 1, "Spam": 2}
     CEList: list = []
     npModesList: list = []
-
-    def updateTerminal(self):
-        print('debugg')
 
     def stopBot(self):
         global close
