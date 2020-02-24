@@ -22,7 +22,7 @@ menuClicks: int = [200, 200, 1253, 30, 757,205]  # PreMainMenu/PrePre #close_new
 cardClickPos: int = [135, 519, 391, 519, 649, 519, 905, 519.1162, 519]  # card?1Y,2Y,3Y,4Y,5Y   (why not Y,1,2,3,4,5?)
 cardScreenshotPos: int = [[40, 350, 277, 635], [300, 350, 537, 635], [547, 350, 784, 635], [796, 350, 1033, 635],[1062, 350, 1299, 635]]  # Y
 cardPosition: int = [[135, 466], [387, 466], [638, 466], [904, 466], [1149, 466]]
-npPosition: int = [261, 387, 638, 881]  # Might be temporal y,x0,x1,2
+npPosition: int = [140, 387, 638, 881]  # Might be temporal y,x0,x1,2
 
 botIsRunning = False
 botMode = None
