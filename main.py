@@ -1003,7 +1003,6 @@ def farm():
         ('NoxPlayer was not found...')
     botIsRunning = False
     print('Bot Stopped')
-    # botMenu.__.set('Bot stopped')
 
 
 # Menu
@@ -1100,65 +1099,34 @@ class botMenu(
         global timesToRefill
         global timesRefilled
         global chainCardsEnabled
+        timesRefilled = 0
+        botMode = self.botModeVar.get()
+        questPicker = self.questPickerVar.get()
+        NPBehavior = self.npModesDictionary[self.NPModeVar.get()]
+        SupportCE = self.CEDictionary[self.SupportCEVar.get()]
+        appname = self.emuWinNameVar.get()
+        timesToRefill = self.timesToRefillVar.get()
+        cardPrioText = self.cardPrioVar.get()
+        autoRestoreEnergy = self.restoreEnergyVar.get()
+        chainCardsEnabled = self.enableChainsVar.get()
+        dailyQuest = [self.dailyQuestTypeVar.get(),
+                      self.dailyQuestDiffVar.get()]  # 0 = xp, 1 = training ,2 = vault / 0123 (difficulty)
+        for i in range(0, 3):
+            x = ord(cardPrioText[i])
+            if x == 66:
+                cardPrio[i] = 0
+            elif x == 65:
+                cardPrio[i] = 1
+            else:
+                cardPrio[i] = 2
 
         if botIsRunning == False:
-            timesRefilled = 0
-            botMode = self.botModeVar.get()
-            questPicker = self.questPickerVar.get()
-            NPBehavior = self.npModesDictionary[self.NPModeVar.get()]
-            SupportCE = self.CEDictionary[self.SupportCEVar.get()]
-            appname = self.emuWinNameVar.get()
-            timesToRefill = self.timesToRefillVar.get()
-            cardPrioText = self.cardPrioVar.get()
-            autoRestoreEnergy = self.restoreEnergyVar.get()
+            self.TerminalVar.set('Started bot')
             botIsRunning = True
-            chainCardsEnabled = self.enableChainsVar.get()
-            dailyQuest = [self.dailyQuestTypeVar.get(),
-                          self.dailyQuestDiffVar.get()]  # 0 = xp, 1 = training ,2 = vault / 0123 (difficulty)
-            for i in range(0, 3):
-                x = ord(cardPrioText[i])
-                if x == 66:
-                    cardPrio[i] = 0
-                elif x == 65:
-                    cardPrio[i] = 1
-                else:
-                    cardPrio[i] = 2
-            #Start
-            self.TerminalVar.set('starting bot...')
-            botThread = threading.Thread(target=farm)
-            botThread.start()
-            self.TerminalVar.set('started bot')
-
+            farm()
+            self.TerminalVar.set('Bot stopped')
         else:
             self.TerminalVar.set('Bot is running, updated your configuration')
-
-            botMode = self.botModeVar.get()
-            questPicker = self.questPickerVar.get()
-            NPBehavior = self.npModesDictionary[self.NPModeVar.get()]
-            SupportCE = self.CEDictionary[self.SupportCEVar.get()]
-            appname = self.emuWinNameVar.get()
-            timesToRefill = self.timesToRefillVar.get()
-            cardPrioText = self.cardPrioVar.get()
-            autoRestoreEnergy = self.restoreEnergyVar.get()
-            botIsRunning = True
-            chainCardsEnabled = self.enableChainsVar.get()
-            dailyQuest = [self.dailyQuestTypeVar.get(),
-                          self.dailyQuestDiffVar.get()]  # 0 = xp, 1 = training ,2 = vault / 0123 (difficulty)
-            for i in range(0, 3):
-                x = ord(cardPrioText[i])
-                if x == 66:
-                    cardPrio[i] = 0
-                elif x == 65:
-                    cardPrio[i] = 1
-                else:
-                    cardPrio[i] = 2
-
-
-
-    def quitMenu(self):
-        self.stopBot()
-        self.TerminalVar.set('quitting!')
-        self.frame.interior.quit()
 
     def createRadioButton(self, option, variable=None):
         text, value = option
@@ -1175,7 +1143,11 @@ class botMenu(
             message+= 'There was an error with the \'Times to refill\' configuration'
             error = True
         if error == True: self.TerminalVar.set(message)
-        else: self.startBot()
+        else:
+            self.TerminalVar.set('starting bot...')
+            botThread = threading.Thread(target=self.startBot)
+            botThread.start()
+
 
     def selectedApp(self):
         if self.emuType.get() == 'Nox':
@@ -1272,9 +1244,8 @@ class botMenu(
         Label(self.frame.interior, text="\n").pack()
 
         # Buttons
-        Button(self.frame.interior, text="Quit", anchor='s', command=self.quitMenu).pack(side=BOTTOM, fill=X)
         Button(self.frame.interior, text="Stop", anchor='s', command=self.stopBot).pack(side=BOTTOM, fill=X)
-        Button(self.frame.interior, text="Start", anchor='s', command=self.checkCorrectInput).pack(side=BOTTOM, fill=X)
+        Button(self.frame.interior, text="Start/Upadte", anchor='s', command=self.checkCorrectInput).pack(side=BOTTOM, fill=X)
         self.github = Label(self.frame.interior, text="github.com/OriolFilter/FGO_farming_bot", fg="blue",
                             cursor="hand2", anchor='s')
         self.github.pack(side=BOTTOM, fill=X)
