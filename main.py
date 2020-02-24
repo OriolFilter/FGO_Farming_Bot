@@ -524,7 +524,7 @@ def checkDangerEnemiesAndServants():
     _, max_val, _, max_loc = cv2.minMaxLoc(res)
     if max_val > 0.75:
         bestY, bestX = numpy.where(res >= max_val)
-        pyautogui.click(appPos[0] + bestX, appPos[1] + bestY)
+        pyautogui.click(appPos[0] + bestX+15, appPos[1] + bestY)
         return True
     #Servants
     img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
@@ -533,7 +533,7 @@ def checkDangerEnemiesAndServants():
     _, max_val, _, max_loc = cv2.minMaxLoc(res)
     if max_val > 0.95:
         bestY, bestX = numpy.where(res >= max_val)
-        pyautogui.click(appPos[0] + bestX, appPos[1] + bestY)
+        pyautogui.click(appPos[0] + bestX+15, appPos[1] + bestY)
         return True
     return False
 
