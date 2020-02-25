@@ -114,7 +114,7 @@ The order is, effective cards first, then your card priority selection (ej. Bust
 
 - 1.02c Now you can limit the times to get the energy refilled and added a 'update config' button, removing the need to pause->start the bot again, keep in mind that will restart the apples to use! Now support color-chains, also fixed some issues and updated.
 
-- 1.03 Added 'revert card order' option, reverting the order of the cards selected, ending with the card with higher value.
+- 1.03 Added 'revert card order' option, reverting the order of the cards selected, ending with the card with higher value, removed 'Quit' button.
 #### About Updates
 
 Remember to update 'templates' folder with each patch.
