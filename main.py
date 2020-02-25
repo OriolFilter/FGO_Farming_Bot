@@ -1219,6 +1219,7 @@ class botMenu(
         self.github.bind("<Button-1>", lambda e: webbrowser.open("https://github.com/OriolFilter/FGO_farming_bot"))
         Button(self.frame.interior, text="Stop", anchor='s', command=self.stopBot).pack(side=BOTTOM, fill=X)
         Button(self.frame.interior, text="Start/Upadte", anchor='s', command=self.checkCorrectInput).pack(side=BOTTOM, fill=X)
+
         mainloop()
 
 
