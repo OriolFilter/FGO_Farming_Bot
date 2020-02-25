@@ -1190,7 +1190,7 @@ class botMenu(
         Checkbutton(self.frame.interior, text="Revert card order?\n(higher priority card at the end, does not apply to NP)", variable=self.revertCardOrderVar).pack()
         Label(self.frame.interior, text="\nChoose the NP behavior:\n", anchor='center').pack(fill='both')
         NPBBox = ttk.Combobox(self.frame.interior, values=self.npModesList, state="readonly",
-                              textvariable=self.NPModeVar).pack(fill=X)
+                              textvariable=self.NPModeVar, width=50).pack()
 
         Label(self.frame.interior, text="\nEmulator config:\n", anchor='center').pack()
         Label(self.frame.interior,
@@ -1213,12 +1213,12 @@ class botMenu(
         Label(self.frame.interior, text="\n").pack()
 
         # Buttons
-        Button(self.frame.interior, text="Stop", anchor='s', command=self.stopBot).pack(side=BOTTOM, fill=X)
-        Button(self.frame.interior, text="Start/Upadte", anchor='s', command=self.checkCorrectInput).pack(side=BOTTOM, fill=X)
         self.github = Label(self.frame.interior, text="github.com/OriolFilter/FGO_farming_bot", fg="blue",
                             cursor="hand2", anchor='s')
-        self.github.pack(side=BOTTOM, fill=X)
+        self.github.pack(side=BOTTOM)
         self.github.bind("<Button-1>", lambda e: webbrowser.open("https://github.com/OriolFilter/FGO_farming_bot"))
+        Button(self.frame.interior, text="Stop", anchor='s', command=self.stopBot).pack(side=BOTTOM, fill=X)
+        Button(self.frame.interior, text="Start/Upadte", anchor='s', command=self.checkCorrectInput).pack(side=BOTTOM, fill=X)
         mainloop()
 
 
