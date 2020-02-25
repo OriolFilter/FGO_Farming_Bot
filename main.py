@@ -12,7 +12,7 @@ from tkinter import ttk, IntVar
 
 # Variables
 
-close = False
+version = "v1.03"
 appname: str = None
 appPos: int = [0, 0]  # x,y
 proportions: int = [0, 0]  # widh,height
@@ -22,8 +22,10 @@ menuClicks: int = [200, 200, 1253, 30, 757,205]  # PreMainMenu/PrePre #close_new
 cardClickPos: int = [135, 519, 391, 519, 649, 519, 905, 519.1162, 519]  # card?1Y,2Y,3Y,4Y,5Y   (why not Y,1,2,3,4,5?)
 cardScreenshotPos: int = [[40, 350, 277, 635], [300, 350, 537, 635], [547, 350, 784, 635], [796, 350, 1033, 635],[1062, 350, 1299, 635]]  # Y
 cardPosition: int = [[135, 466], [387, 466], [638, 466], [904, 466], [1149, 466]]
+revertCardOrder = None
 npPosition: int = [140, 387, 638, 881]  # Might be temporal y,x0,x1,2
 
+close = False
 botIsRunning = False
 botMode = None
 questPicker = None
@@ -37,15 +39,14 @@ autoRestoreEnergy: bool = None
 chainCardsEnabled: bool = False
 timesRefilled = None
 timesToRefill = None
+dangerOrServantFound = None
+NPBehavior: int = None  # 0 Don't, 1 DangerSpam, 2 Spam
 
 
 # tempvalues
 questPicker = 0  # questpicker = chaldea gate (0) #It's static..., looking for differents modes, in case there are some running events that can add
 chaldeaQuestType = 0  # 0 = DailyMissions  #It's static...
 # Now means, training mode, at almost max difficulty (lvl 40 if im not wrong)
-NPBehavior: int = None  # 0 Don't, 1 DangerSpam, 2 Spam
-dangerOrServantFound = None
-chainCardsEnabled = False
 
 # Classes
 
@@ -796,7 +797,6 @@ def attack():
     artsCards=0
     quickCards=0
     busterCards=0
-    chainFound = 0
     chainTurn = False
     cardInfo: int = [[0, 0, 0],
                      [0, 0, 0],
@@ -888,11 +888,18 @@ def attack():
         pass
 
     # UseCards
-    c: int = 0
-    while c < 3:
-        time.sleep(0.1)
-        pyautogui.click(appPos[0] + cardPosition[cardsOrder[c]][0], appPos[1] + cardPosition[cardsOrder[c]][1])
-        c += 1
+    if revertCardOrder == True:
+        c: int = 2
+        while c >= 0:
+            time.sleep(0.1)
+            pyautogui.click(appPos[0] + cardPosition[cardsOrder[c]][0], appPos[1] + cardPosition[cardsOrder[c]][1])
+            c -=1
+    else:
+        c: int = 0
+        while c < 3:
+            time.sleep(0.1)
+            pyautogui.click(appPos[0] + cardPosition[cardsOrder[c]][0], appPos[1] + cardPosition[cardsOrder[c]][1])
+            c += 1
     time.sleep(3)
 
 
@@ -901,8 +908,6 @@ def attack():
 # CheckMenu
 def farm():
     global botIsRunning
-    global close
-    close = False
     if checkActiveWindow() != 2:
         while close == False:
             print('bot is running')
@@ -1057,6 +1062,9 @@ class botMenu(
         global timesToRefill
         global timesRefilled
         global chainCardsEnabled
+        global revertCardOrder
+        global close
+
         timesRefilled = 0
         botMode = self.botModeVar.get()
         questPicker = self.questPickerVar.get()
@@ -1067,8 +1075,10 @@ class botMenu(
         cardPrioText = self.cardPrioVar.get()
         autoRestoreEnergy = self.restoreEnergyVar.get()
         chainCardsEnabled = self.enableChainsVar.get()
+        revertCardOrder = self.revertCardOrderVar.get()
         dailyQuest = [self.dailyQuestTypeVar.get(),
                       self.dailyQuestDiffVar.get()]  # 0 = xp, 1 = training ,2 = vault / 0123 (difficulty)
+
         for i in range(0, 3):
             x = ord(cardPrioText[i])
             if x == 66:
@@ -1079,8 +1089,9 @@ class botMenu(
                 cardPrio[i] = 2
 
         if botIsRunning == False:
-            self.TerminalVar.set('Started bot')
+            close = False
             botIsRunning = True
+            self.TerminalVar.set('Started bot')
             farm()
             self.TerminalVar.set('Bot stopped')
         else: self.TerminalVar.set('Bot is running, updated your configuration')
@@ -1129,6 +1140,7 @@ class botMenu(
         self.emuWinNameVar = StringVar(value='NoxPayer')
         self.timesToRefillVar = IntVar(value=0)
         self.enableChainsVar = BooleanVar(value=1)
+        self.revertCardOrderVar = BooleanVar(value=1)
 
         for x in self.CEDictionary:
             self.CEList.append(x)
@@ -1139,7 +1151,7 @@ class botMenu(
         # scrollbar = Scrollbar(menu)
         # scrollbar.pack(side=RIGHT, fill=Y)
 
-        self.title("FGOFarmingBot v1.02c")
+        self.title("FGOFarmingBot "+version)
         Label(self.frame.interior, text='Welcome to FGOFarmingBot', anchor='center').pack()
         Label(self.frame.interior, text="Start by selection one of this options, then proceed to press 'Start' button!",
               anchor='center').pack()
@@ -1172,13 +1184,13 @@ class botMenu(
         Label(self.frame.interior, text="Select which card prioroty order:\n", anchor='center').pack(fill='both')
         self.cardPrioBox = ttk.Combobox(self.frame.interior, values=self.cardPrios, state="readonly",textvariable=self.cardPrioVar).pack()
 
+        Label(self.frame.interior, text="").pack()
+        Checkbutton(self.frame.interior, text="Color chains priority", variable=self.enableChainsVar).pack()
+        Label(self.frame.interior, text="").pack()
+        Checkbutton(self.frame.interior, text="Revert card order?\n(higher priority card at the end, does not apply to NP)", variable=self.revertCardOrderVar).pack()
         Label(self.frame.interior, text="\nChoose the NP behavior:\n", anchor='center').pack(fill='both')
         NPBBox = ttk.Combobox(self.frame.interior, values=self.npModesList, state="readonly",
-                              textvariable=self.NPModeVar)
-        NPBBox.pack(fill=X)
-        Label(self.frame.interior, text="").pack()
-        Checkbutton(self.frame.interior, text="Color cards chains priority", variable=self.enableChainsVar).pack()
-
+                              textvariable=self.NPModeVar).pack(fill=X)
 
         Label(self.frame.interior, text="\nEmulator config:\n", anchor='center').pack()
         Label(self.frame.interior,
