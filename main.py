@@ -968,7 +968,7 @@ def farm():
     else:
         ('NoxPlayer was not found...')
     botIsRunning = False
-    print('Bot Stopped')
+    return('Bot Stopped')
 
 
 # Menu
@@ -1092,8 +1092,7 @@ class botMenu(
             close = False
             botIsRunning = True
             self.TerminalVar.set('Started bot')
-            farm()
-            self.TerminalVar.set('Bot stopped')
+            self.TerminalVar.set(farm())
         else: self.TerminalVar.set('Bot is running, updated your configuration')
 
     def createRadioButton(self, option, variable=None):
@@ -1137,7 +1136,7 @@ class botMenu(
         self.TerminalVar = StringVar()
         self.restoreEnergyVar = BooleanVar(value=1)
         self.emuType = StringVar()
-        self.emuWinNameVar = StringVar(value='NoxPayer')
+        self.emuWinNameVar = StringVar(value='NoxPlayer')
         self.timesToRefillVar = IntVar(value=0)
         self.enableChainsVar = BooleanVar(value=1)
         self.revertCardOrderVar = BooleanVar(value=1)
