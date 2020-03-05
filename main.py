@@ -12,7 +12,7 @@ from tkinter import ttk, IntVar
 
 # Variables
 
-version = "v1.03"
+version = "v1.04"
 appname: str = None
 appPos: int = [0, 0]  # x,y
 proportions: int = [0, 0]  # widh,height
