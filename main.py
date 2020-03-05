@@ -538,6 +538,8 @@ def checkDangerEnemiesAndServants():
         return True
     return False
 
+def checkServant():
+    pass
 
 def checkActiveWindow():
     try:
@@ -692,6 +694,7 @@ def restoreEnergy():
 ## Actions
 def selectSupport():
     # select_first_supp_atm
+    time.sleep(0.2)
     if SupportCE != None:
         searchSupportCE()
     else:
@@ -769,6 +772,8 @@ def combat():
     # Use spells
     dangerOrServantFound = checkDangerEnemiesAndServants()
     attack()
+
+
 
 
 def window_coordenades():
@@ -1029,16 +1034,20 @@ class botMenu(
     cardPrios = 'BAQ', 'BQA', 'ABQ', 'AQB', 'QBA', 'QAB'
     CEDictionary = {'None': None,
                     'ChaldeaLunchtime': 'ChaldeaLunchtime',
-                    'MysticEyesOfDistortion': 'MysticEyesOfDistortion',
-                    'Chorus': 'Chorus',
-                    'DecapitatingBunny2018': 'DecapitatingBunny2018',
-                    'Sprinter': 'Sprinter',
-                    'RepeatMagic': 'RepeatMagic',
-                    'MatureGentelman': 'MatureGentelman',
-                    'VividDanceOfFists': 'VividDanceOfFists',
-                    'SummersPrecognition': 'SummersPrecognition',
-                    'TreefoldBarrier': 'TreefoldBarrier',
-                    'GrandPuppeteer': 'GrandPuppeteer'
+                    'MonaLisa': 'MonaLisa'
+
+
+                    #Event/Temp #ShikiEvent
+                    # 'MysticEyesOfDistortion': 'MysticEyesOfDistortion',
+                    # 'Chorus': 'Chorus',
+                    # 'DecapitatingBunny2018': 'DecapitatingBunny2018',
+                    # 'Sprinter': 'Sprinter',
+                    # 'RepeatMagic': 'RepeatMagic',
+                    # 'MatureGentelman': 'MatureGentelman',
+                    # 'VividDanceOfFists': 'VividDanceOfFists',
+                    # 'SummersPrecognition': 'SummersPrecognition',
+                    # 'TreefoldBarrier': 'TreefoldBarrier',
+                    # 'GrandPuppeteer': 'GrandPuppeteer'
                     }
     npModesDictionary = {"None": 0, "Only Danger Enemies & Servants": 1, "Spam": 2}
     CEList: list = []
@@ -1131,7 +1140,7 @@ class botMenu(
         self.dailyQuestTypeVar = IntVar()  # Not using, only dailyquests on chaldea atm
         self.dailyQuestDiffVar = IntVar()
         self.cardPrioVar = StringVar(value='BAQ')
-        self.NPModeVar = StringVar(value='Only Danger Enemies & Servants')
+        self.NPModeVar = StringVar(value='Spam')
         self.SupportCEVar = StringVar(value='None')
         self.TerminalVar = StringVar()
         self.restoreEnergyVar = BooleanVar(value=1)
