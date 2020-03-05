@@ -143,6 +143,7 @@ def searchSupportCE():
     dragToBottom = True
     selectedCE = False
     foundCE = False
+    time.sleep(0.4)
     screenshot()
     # searchforTheCE
     if checkSupportCE(SupportCE) == True and checkActiveWindow() == True:
@@ -694,11 +695,11 @@ def restoreEnergy():
 ## Actions
 def selectSupport():
     # select_first_supp_atm
-    time.sleep(0.2)
-    if SupportCE != None:
-        searchSupportCE()
-    else:
-        if checkActiveWindow() == True: pyautogui.click(appPos[0] + 137, appPos[1] + 270)  # SelectFirstSupport
+    if checkActiveWindow() == True:
+        if SupportCE != None:
+            searchSupportCE()
+        else:
+             pyautogui.click(appPos[0] + 137, appPos[1] + 270)  # SelectFirstSupport
 
 
 def mainMenu():  # questPicker,chaldeaQuestType = None,dailyType = None
