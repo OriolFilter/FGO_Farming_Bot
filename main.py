@@ -165,7 +165,6 @@ def searchSupportCE():
             foundCE,selectedCE= checkSupportCE(SupportCE)
         if checkScrollIsDown() == True and selectedCE == False:
             dragToBottom = False
-
     while not dragToBottom and selectedCE != True and checkActiveWindow() == True:
         if checkActiveWindow():
             dragBarr(-70, 'selectSupport')
@@ -182,7 +181,6 @@ def searchSupportCE():
         if checkScrollIsDown() and selectedCE == False:
             foundCE,selectedCE= checkSupportCE(SupportCE)
             dragToBottom = False
-
     while dragToBottom != True and selectedCE != True and checkActiveWindow() == True and foundCE:
         if checkActiveWindow() == True:
             screenshot()
@@ -191,7 +189,7 @@ def searchSupportCE():
     while foundCE == False:
         pyautogui.click(appPos[0] + 137, appPos[1] + 270)  # SelectFirstSupport
         foundCE = True
-
+    time.sleep(0.3)
 
 
 def preCheckMainMenu():
