@@ -24,7 +24,7 @@ cardScreenshotPos: int = [[40, 350, 277, 635], [300, 350, 537, 635], [547, 350, 
 cardPosition: int = [[135, 466], [387, 466], [638, 466], [904, 466], [1149, 466]]
 revertCardOrder = None
 npPosition: int = [140, 387, 638, 881]  # Might be temporal y,x0,x1,2
-
+cardColorDictionary = {'B':0,'A':1,'Q':2}
 close = False
 botIsRunning = False
 botMode = None
@@ -95,19 +95,29 @@ def checkCombat(a: int = None):
 def checkSupportCE(CEname, mode=None):
     img_rgb = cv2.imread('tmp/Screenshot.jpg')
     img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
-    template = cv2.imread('templates/CE/' + CEname + '.png', 0)
+    template = cv2.imread('templates/CE/' + CEname + 'U.png', 0)
     # template = cv2.imread('templates/CE/ChaldeaLunchtime.png',0)
     try:
         res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
         treshHold = 0.95
-        if max_val > treshHold:  # 0 means press attack button
-            if mode == 1:
+        if max_val > treshHold:
+            treshHold = 0.98
+            if max_val > treshHold and mode == None:
                 bestY, bestX = numpy.where(res >= max_val)
                 pyautogui.click(appPos[0] + bestX, appPos[1] + bestY)
-            return True
+                return True,True
+            elif mode == 1:
+                bestY, bestX = numpy.where(res >= max_val)
+                pyautogui.click(appPos[0] + bestX, appPos[1] + bestY)
+            else: return True,False # Found,Selected
+            # if mode=1select95
+            # if max_val > treshHold:
+            # if mode == 1:
+            #     bestY, bestX = numpy.where(res >= max_val)
+            #     pyautogui.click(appPos[0] + bestX, appPos[1] + bestY)
         else:
-            return False
+            return False,False
     except cv2.error:
         print('Couldn\' find ' + CEname + ' inside our folders, download \'templates\' folder again and if the issue persists contact the owner')
 
@@ -143,67 +153,45 @@ def searchSupportCE():
     dragToBottom = True
     selectedCE = False
     foundCE = False
-    time.sleep(0.4)
+    time.sleep(1.5)
     screenshot()
     # searchforTheCE
-    if checkSupportCE(SupportCE) == True and checkActiveWindow() == True:
-        if checkSupportCE(SupportCE + 'U', 1) == True:
-            selectedCE = True
-        else:
-            foundCE = True
-    while dragToBottom and not selectedCE and checkActiveWindow() == True:
-        if checkActiveWindow() == True:  dragBarr(70, 'selectSupport')
-        if checkActiveWindow() == True:  screenshot()
-        if checkSupportCE(SupportCE) == True:
-            if checkSupportCE(SupportCE + 'U', 1) == True:
-                selectedCE = True
-            else:
-                foundCE = True
-        if checkScrollIsDown():
-            if checkSupportCE(SupportCE) == True:
-                if checkSupportCE(SupportCE + 'U', 1) == True:
-                    selectedCE = True
-                else:
-                    foundCE = True
+    if checkActiveWindow() == True:
+        foundCE,selectedCE= checkSupportCE(SupportCE)
+    while dragToBottom and selectedCE == False and checkActiveWindow() == True:
+        if checkActiveWindow() == True:
+            dragBarr(70, 'selectSupport')
+            screenshot()
+            foundCE,selectedCE= checkSupportCE(SupportCE)
+        if checkScrollIsDown() == True and selectedCE == False:
             dragToBottom = False
+
     while not dragToBottom and selectedCE != True and checkActiveWindow() == True:
-        if checkActiveWindow() == True:  dragBarr(-70, 'selectSupport')
-        if checkActiveWindow() == True:  screenshot()
-        if checkSupportCE(SupportCE) == True:
-            if checkSupportCE(SupportCE + 'U', 1) == True:
-                selectedCE = True
-            else:
-                foundCE = True
-        if checkScrollIsUp():
-            if checkSupportCE(SupportCE) == True:
-                if checkSupportCE(SupportCE + 'U', 1) == True:
-                    selectedCE = True
-                else:
-                    foundCE = True
-            dragToBottom = True
+        if checkActiveWindow():
+            dragBarr(-70, 'selectSupport')
+            screenshot()
+            foundCE,selectedCE= checkSupportCE(SupportCE)
+        if checkScrollIsUp() and selectedCE == False: dragToBottom = True
     # SelectCE
-    if foundCE == True and selectedCE == False and checkActiveWindow() == True:
-        while dragToBottom and selectedCE != True and checkActiveWindow() == True:
-            if checkActiveWindow() == True: screenshot()
-            if checkSupportCE(SupportCE, 1) == True:
-                selectedCE = True
-            if checkScrollIsDown():
-                if checkSupportCE(SupportCE, 1) == True: selectedCE = True
-                dragToBottom = False
-            if selectedCE == False:
-                if checkActiveWindow() == True:  dragBarr(70, 'selectSupport')
-        while dragToBottom != True and selectedCE != True and checkActiveWindow() == True:
-            if checkActiveWindow() == True: screenshot()
-            if checkSupportCE(SupportCE, 1) == True:
-                selectedCE = True
-            if checkScrollIsUp():
-                if checkSupportCE(SupportCE, 1) == True:
-                    selectedCE = True
-                dragToBottom = True
-            if selectedCE == False:
-                if checkActiveWindow() == True:  dragBarr(-70, 'selectSupport')
-    elif foundCE == False:
-        SupportCE = None
+    # if foundCE == True and selectedCE == False and checkActiveWindow() == True:
+    while dragToBottom and selectedCE != True and checkActiveWindow() == True and foundCE:
+        if checkActiveWindow() == True:
+            screenshot()
+            foundCE,selectedCE= checkSupportCE(SupportCE)
+
+        if checkScrollIsDown() and selectedCE == False:
+            foundCE,selectedCE= checkSupportCE(SupportCE)
+            dragToBottom = False
+
+    while dragToBottom != True and selectedCE != True and checkActiveWindow() == True and foundCE:
+        if checkActiveWindow() == True:
+            screenshot()
+            foundCE,selectedCE= checkSupportCE(SupportCE)
+            if checkActiveWindow() == True and selectedCE == False:  dragBarr(-70, 'selectSupport')
+    while foundCE == False:
+        pyautogui.click(appPos[0] + 137, appPos[1] + 270)  # SelectFirstSupport
+        foundCE = True
+
 
 
 def preCheckMainMenu():
@@ -595,6 +583,15 @@ def checkCardInfo():
     effectivenes = 1
 
     img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
+    template = cv2.imread('templates/Combat/Stunned.png', 0)
+    res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
+    _, max_val, _, max_loc = cv2.minMaxLoc(res)
+    treshHold = 0.8
+    if max_val > treshHold:
+        return(3,3)
+
+
+    img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
     template = cv2.imread('templates/Combat/effective.png', 0)
     res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
     _, max_val, _, max_loc = cv2.minMaxLoc(res)
@@ -683,11 +680,13 @@ def restoreEnergy():
                         restoredAP = True
 
             if restoredAP == False:
+                print("Stopping after restoring energy "+timesToRefill+" times")
                 close = True
                 # botMenu.Terminal('No energy left, stopping')
                 return True
         return False
     else:
+        print("No apples left")
         close = True
         return True
 
@@ -815,14 +814,12 @@ def attack():
         screenshotCard(c)
         cardInfo[c][0], cardInfo[c][1] = checkCardInfo()
         if chainCardsEnabled:
-            if cardInfo[c][0] == 0:
-                busterCards+=1
-            elif cardInfo[c][0] == 1:
-                artsCards+=1
-            else:
-                quickCards+=1
+            if cardInfo[c][0] == 0: busterCards+=1
+            elif cardInfo[c][0] == 1: artsCards+=1
+            elif cardInfo[c][0] == 2: quickCards+=1
 
         c = c + 1
+    #Chains
     cardsPicked: int = 0
     cardsOrder: int = [0, 0, 0]
     if (artsCards > 2) | (quickCards > 2) | (busterCards > 2):
@@ -861,10 +858,11 @@ def attack():
                     cardN = cardN + 1
                 cardE = cardE + 1
 
+    #CardOrder
     cardE: int = 0
     while cardE < 3 and cardsPicked < 3 and chainTurn == False:
         cardT: int = 0
-        while cardT < 3 and cardsPicked < 3:
+        while cardT < 4 and cardsPicked < 3:
             cardN: int = 0
             while cardN < 5 and cardsPicked < 3:
                 if cardInfo[cardN][0] == cardPrio[cardT] and cardInfo[cardN][1] == cardE and cardInfo[cardN][2] == 0:
@@ -1089,14 +1087,17 @@ class botMenu(
         dailyQuest = [self.dailyQuestTypeVar.get(),
                       self.dailyQuestDiffVar.get()]  # 0 = xp, 1 = training ,2 = vault / 0123 (difficulty)
 
-        for i in range(0, 3):
-            x = ord(cardPrioText[i])
-            if x == 66:
-                cardPrio[i] = 0
-            elif x == 65:
-                cardPrio[i] = 1
-            else:
-                cardPrio[i] = 2
+        # for i in range(0, 3):  #Depracatted
+        #     x = ord(cardPrioText[i])
+        #     if x == 66:
+        #         cardPrio[i] = 0
+        #     elif x == 65:
+        #         cardPrio[i] = 1
+        #     else:
+        #         cardPrio[i] = 2
+
+        for i in range(0, 3): cardPrio[i]=cardColorDictionary[cardPrioText[i]]
+        cardPrio.append(4)
 
         if botIsRunning == False:
             close = False
