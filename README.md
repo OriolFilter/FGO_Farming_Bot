@@ -116,7 +116,9 @@ The order is, effective cards first, then your card priority selection (ej. Bust
 
 - 1.03 Added 'revert card order' option, reverting the order of the cards selected, ending with the card with higher value, removed 'Quit' button.
 
-- 104 Added 'MonaLisa' to the CE list, disabled CE from shiki event
+- 1.04 Added 'MonaLisa' to the CE list, disabled CE from shiki event
+
+- 1.04b Added support for 'Stuns' cards, which will avoid, improved code, fixed some errors about picking the CE from the support list
 
 #### About Updates
 
@@ -133,7 +135,7 @@ Since im using my own friends to get the files, if im not able to be friend with
 
         - ChaldeaLunchtime
 
-
+        - MonaLisa
 
 
 
