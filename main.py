@@ -678,7 +678,7 @@ def restoreEnergy():
                         restoredAP = True
 
             if restoredAP == False:
-                print("Stopping after restoring energy "+timesToRefill+" times")
+                print("Stopping after restoring energy",timesToRefill,"times")
                 close = True
                 # botMenu.Terminal('No energy left, stopping')
                 return True
