@@ -12,7 +12,7 @@ from tkinter import ttk, IntVar
 
 # Variables
 
-version = "v1.04b"
+version = "v1.05"
 appname: str = None
 appPos: int = [0, 0]  # x,y
 proportions: int = [0, 0]  # widh,height
@@ -90,6 +90,30 @@ def checkCombat(a: int = None):
         return True
     else:
         return False
+def checkFriendRequest():
+    img_rgb = cv2.imread('tmp/Screenshot.jpg')
+    img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
+    template = cv2.imread('templates/friendRequest.png', 0)
+    res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
+    _, max_val, _, max_loc = cv2.minMaxLoc(res)
+    treshHold = 0.85
+    if max_val > treshHold:
+        # bestY, bestX = numpy.where(res >= max_val)
+        # pyautogui.click(appPos[0] + bestX, appPos[1] + bestY)
+        return True
+    else:
+        return False
+
+def declineFriendRequest():
+    img_rgb = cv2.imread('tmp/Screenshot.jpg')
+    img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
+    template = cv2.imread('templates/doNotSend.png', 0)
+    res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
+    _, max_val, _, max_loc = cv2.minMaxLoc(res)
+    treshHold = 0.85
+    if max_val > treshHold:
+        bestY, bestX = numpy.where(res >= max_val)
+        pyautogui.click(appPos[0] + bestX, appPos[1] + bestY)
 
 
 def checkSupportCE(CEname, mode=None):
@@ -931,6 +955,7 @@ def farm():
                     elif checkClosePopUp() == True: pass
                     elif checkNextButton() == True: pass
                     elif checkBackCombat() == True: pass
+                    elif checkFriendRequest() == True: declineFriendRequest()
                     elif tap() == True: pass
                     elif checkResumeButton() == True: pass
                     elif checkNewsMenu() == True: pass
