@@ -120,6 +120,8 @@ The order is, effective cards first, then your card priority selection (ej. Bust
 
 - 1.04b Added support for 'Stuns' cards, which will avoid, improved code, fixed some errors about picking the CE from the support list
 
+- 1.05 No longer sends a friend request in case you used somone who is not in your friend list, this patch will be used for the "saber wars" event.
+
 #### About Updates
 
 Remember to update 'templates' folder with each patch.
