@@ -59,7 +59,7 @@ The order is, effective cards first, then your card priority selection (ej. Bust
 
 ## Future implementations
 
-    - More Craft Essence support (atleast the event-and usual supportfarm)
+    - More Craft Essence support (atleast the event-and usual supportfarming)
 
     - Removing the need of storing a screenshot (this isn't a priority)
 
@@ -73,7 +73,9 @@ The order is, effective cards first, then your card priority selection (ej. Bust
 
     - Noble Phantasm Usage (done)
 
-    - Allow color-chains
+    - Allow color-chains (done)
+
+    - Improve Noble Phantasm Usage (soon)
 
 
 ## Versions
@@ -120,8 +122,9 @@ The order is, effective cards first, then your card priority selection (ej. Bust
 
 - 1.04b Added support for 'Stuns' cards, which will avoid, improved code, fixed some errors about picking the CE from the support list
 
-- 1.05 No longer sends a friend request in case you used somone who is not in your friend list, this patch will be used for the "saber wars" event.
+- 1.05 No longer sends a friend request in case you used somone who is not in your friend list.
 
+- 1.06 Fixed minor bugs, fixed a bug where the bot ends when restoring the last apple, added the "Asisted mode/Card picker".
 #### About Updates
 
 Remember to update 'templates' folder with each patch.
