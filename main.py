@@ -12,7 +12,7 @@ from tkinter import ttk, IntVar
 
 # Variables
 
-version = "v1.05"
+version = "v1.06"
 appname: str = None
 appPos: int = [0, 0]  # x,y
 proportions: int = [0, 0]  # widh,height
@@ -453,15 +453,18 @@ def checkConnecting():
         return False
 
 
-def checkBackCombat():
+def checkBackCombat(mode: 1):
+    #0 == return true
+    #1 == click where back is
     img_rgb = cv2.imread('tmp/Screenshot.jpg')
     img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
     template = cv2.imread('templates/Combat/combatBackButton.png', 0)
     res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
     _, max_val, _, max_loc = cv2.minMaxLoc(res)
     if max_val > 0.9:
-        bestY,bestX = numpy.where( res >= max_val)
-        pyautogui.click(appPos[0]+bestX, appPos[1]+bestY)
+        if mode != 1:
+            bestY,bestX = numpy.where( res >= max_val)
+            pyautogui.click(appPos[0]+bestX, appPos[1]+bestY)
         return True
     else:
         return False
@@ -652,11 +655,13 @@ def restoreEnergy():
     global timesRefilled
     img_rgb = cv2.imread('tmp/Screenshot.jpg')
     img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
-    template = cv2.imread('templates/energy/goldApple.png', 0)  # to check that im inside of that
+    template = cv2.imread('templates/energy/restoreEnergyMenu.png', 0)  # to check that im inside of that
     res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
     _, max_val, _, max_loc = cv2.minMaxLoc(res)
-    if (timesRefilled < timesToRefill) | (timesToRefill == 0):
-        if max_val > 0.9:
+    # print(max_val)
+    if max_val > 0.99:
+        print(timesToRefill,timesRefilled)
+        if (timesRefilled < timesToRefill) or timesToRefill == 0:
             dragBarr(200, 'energyBar')
             # search bronze>silver>gold and have attleast 1!
             screenshot()
@@ -700,17 +705,15 @@ def restoreEnergy():
                     if findOk() == True:
                         timesRefilled += 1
                         restoredAP = True
-
             if restoredAP == False:
-                print("Stopping after restoring energy",timesToRefill,"times")
+                print("No apples left")
                 close = True
-                # botMenu.Terminal('No energy left, stopping')
                 return True
-        return False
-    else:
-        print("No apples left")
-        close = True
-        return True
+        else:
+            print("Stopping after restoring energy",timesRefilled,"times")
+            close = True
+            # botMenu.Terminal('No energy left, stopping')
+            return True
 
 
 ## Actions
@@ -882,7 +885,7 @@ def attack():
 
     #CardOrder
     cardE: int = 0
-    while cardE < 3 and cardsPicked < 3 and chainTurn == False:
+    while cardE < 4 and cardsPicked < 3 and chainTurn == False:
         cardT: int = 0
         while cardT < 4 and cardsPicked < 3:
             cardN: int = 0
@@ -950,7 +953,7 @@ def farm():
                     elif checkLastQuest(lastQuest) == True: pass
                     elif checkMainMenu() == True: mainMenu()
                     elif SelectDailyQuest(dailyQuest[0], dailyQuest[1]) == True: pass
-                    elif restoreEnergy() == True: pass
+                    elif restoreEnergy() == True: time.sleep(5)
                     elif checkClose() == True:  pass
                     elif checkClosePopUp() == True: pass
                     elif checkNextButton() == True: pass
@@ -974,7 +977,7 @@ def farm():
                     elif checkLoading() == True: time.sleep(2)
                     elif checkConnecting() == True: time.sleep(4)
                     elif checkConfirmParty() == True: checkStartQuest()
-                    elif restoreEnergy() == True: pass
+                    elif restoreEnergy() == True: time.sleep(5)
                     elif checkClosePopUp() == True: pass
                     elif checkNextButton() == True: pass
                     elif checkBackCombat() == True: pass
@@ -990,6 +993,14 @@ def farm():
                     if False: pass
                     elif checkCombat(1) == True: combat()
                     elif checkBackCombat() == True: combat()
+                    else: time.sleep(2)  # print('im fucking lost')
+                else: time.sleep(2)
+            elif botMode == 3:  # If windows not in front do nothing
+                ('Asisted mode')
+                if checkActiveWindow() == True:
+                    screenshot()
+                    if False: pass
+                    elif checkBackCombat(1) == True: combat()
                     else: time.sleep(2)  # print('im fucking lost')
                 else: time.sleep(2)
     else:
@@ -1048,7 +1059,7 @@ class VerticalScrolledFrame(Frame):
 
 class botMenu(
     Tk):  # StoleFrametructureFromSomone, im so sorry, will try to improve and, maybe don't change the structure since it works well, but atleast to understand it and being capable to o it myself
-    botModes = [("Daily Quests", 0), ("Last Quest", 1), ("Auto battle only", 2)]
+    botModes = [("Daily Quests", 0), ("Last Quest", 1), ("Auto battle only", 2), ("Asisted Mode (Only pick cards)", 3)]
     dailyQuests = [('Ember Gathering (XP)', 0), ('Training Grounds (Items)', 1),
                    ('Treasure Vault (QP)', 2)]  # 0 = xp, 1 = training ,2 = vault / 0123 (difficulty)
     dailyQuestsDifficulty = [('Novice', 0), ('Intermediate', 1), ('Advanced', 2),
