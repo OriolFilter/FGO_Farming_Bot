@@ -118,7 +118,7 @@ class bot():
 
     ## Check
     def checkCombat(self, a: int = None):
-        img_rgb = self.screenshotImg
+        img_rgb = self.screenshotImg #Es pot fer improve si es fa servir directament self.screenshotImg i no img_rgb
         img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
         template = cv2.imread('../templates/Combat/attackButton.png', 0)
         res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)

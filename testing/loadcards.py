@@ -1,17 +1,111 @@
 import json
+import socket
 import time
 import matplotlib.pyplot as plt
 import cv2
+import numpy
 import numpy as np
-
+from PIL import Image
 
 class getCardsInfo():
-    def __init__(self,imgVar):
-        self.imgVar=self.resizeScreenshot(imgVar)
+    def __init__(self):
+        # self.imgVar=self.resizeScreenshot(imgVar)
+        self.botmode=0
 
-        self.color=0
+    def serverMode(self):
+        self.startServer()
+        while True: # while not close
+            try:
+                self.establishCliConnection()
+                while True: # Once connected to server / while not close
+                    # self.waitCliMessage()
+                    self.main()
+            except ConnectionResetError:
+                print('Connection with client was lost')
+                self.conn.close()
 
-    def resizeScreenshot(self,img): #Ho fa bé
+    def main(self):
+        self.screenshot()
+        if True: #Whatever it does we are in combat mode...
+            self.getNormalCardInfo()
+            self.sendJson()
+
+    def startServer(self):
+        #Start server
+        self.serverip='localhost'
+        # self.serverip='192.168.1.152'
+        self.serverport=12345
+        self.socket = socket.socket()         # Create a socket object
+        self.socket.bind((self.serverip, self.serverport))        # Bind to the port
+        self.socket.listen(5)                 # Now wait for client connection.
+        print('Server started')
+
+    def establishCliConnection(self):
+        print('Waiting client connection')
+        self.conn, self.clientaddr = self.socket.accept()     # Establish connection with client.
+        print('Connection established')
+
+
+    def waitCliMessage(self): # no reason
+        print('waiting client petition')
+        self.jsonRecived = None
+        # time.sleep(1)
+        self.jsonRecived = self.conn.recv(1024).decode()
+        print(self.jsonRecived)
+        self.sendServerResponse()
+
+    def functionsSwitch(self):
+        # self.getNormalCardInfo()
+        # if self.jsonRecived is 0: # Recive Screenshot, -1 = close connection or stop
+        #     self.screenshot()
+
+        print('This thing have no reason to exist!')
+        # print('sleep 4')
+
+    def screenshot(self):
+        if self.botmode is 0:
+            import pickle
+            import os
+            import io
+            from array import array
+            # img=self.conn.recv(1024*4000)
+            img=self.conn.recv(1024*4000)
+            # Cll resize image, + load, but less info, faster response, better network
+            # self.imageVar=pickle.loads(img)
+            # self.imageVar=self.conn.recv(1024*4000).decode()
+            # print('Recived Image!')
+            print("String: {}".format(img))
+            print()
+            image = Image.open(io.BytesIO(img))
+            print(image.size)
+            self.imgVar=self.pilToOpencv(image)
+            print(self.imgVar.shape)
+            # image.show()
+            # self.imageVar.show()
+
+            time.sleep(3)
+            # Convert Img to opencv2
+        else:
+            print('loading image manually!')
+
+        # https://stackoverflow.com/questions/32908639/open-pil-image-from-byte-file
+        # https://stackoverflow.com/questions/38626692/convert-pil-image-to-bytearray/38626806
+
+    def sendServerResponse(self):
+        print('Sending response to client')
+        # print('pass')
+        self.conn.sendall('nice!'.encode())
+
+    def pilToOpencv(self,img):
+        # Load image
+        img=img
+        # Image to opencv
+        open_cv_image = numpy.array(img)
+        open_cv_image = open_cv_image[:, :, ::-1].copy()
+        # imgReady = self.resizeOpenCvScreenshot(open_cv_image) #No pot ser
+        return open_cv_image
+
+    def resizeOpenCvScreenshot(self,img): #Ho fa bé
         # print('> ',img.shape)
         # cv2.imshow('ok',img)
         # cv2.waitKey()
@@ -32,32 +126,37 @@ class getCardsInfo():
         # time.sleep(20)
         return img
         # self.sizeProp=
+
     def getNormalCardInfo(self):
         # self.detectBusterCards()
         # self.detectArtsCards()
         # self.detectQuickCards()
         # self.getCardsInfo()
         self.cardsFound=0
-        jsonData={"cards" :[]
+        self.jsonDataStr={"connection code":0,
+                          "state": 0,
+                          "cards" :[],
+                          # "dragBarrPos":[{"x":None,"y":None}]
+                          "dragBarrPos":[],
+                          # "nextQuestPos":[{"x":None,"y":None}]
+                          "nextQuestPos":[]
                       }
         for n in range(0,4):
             recivedJson=None
             recivedJson=self.getCardsInfo(n) #Not real json tho
             if recivedJson:
-                print('>', recivedJson)
-                # jsonData["cards"].append(recivedJson)
-        # self.getCardsInfo(3)
-        # print(jsonData)
-        # jsonStr=json.dumps("{'id': 4, 'type': {'Quick'}, 'effectiveness': {0}, 'pos': [{'x': {269}, 'y': {488}}]}")
-        # jsonLoad=json.loads(jsonStr)
-        # for element in jsonData["cards"]:print(element)
-        # for element in jsonData["cards"]:print(element[0])
-        # for element in jsonData:print(element.carss)
+                # print('>', recivedJson)
+                for line in recivedJson:
+                    # print(line)
+                    # print(recivedJson[line])
+                    self.jsonDataStr["cards"].append(recivedJson[line])
 
+        print('found {}'.format(self.cardsFound))
+        self.sendJson()
         # https://stackoverflow.com/questions/26745519/converting-dictionary-to-json
 
     def getCardsInfo(self,mode=0): #Problemes amb els returns de Json
-        jsonCardList=[]
+        jsonCardList={}
         modeSrc={0: '../templates/Combat/buster.png',
                1: '../templates/Combat/arts.png',
                2: '../templates/Combat/quick.png',
@@ -74,11 +173,8 @@ class getCardsInfo():
         # 3 Stunned
 
         templateSrc=modeSrc[mode]
-
-        # jsonCardList=json.dumps('{"a":2}')
-
-
-        img = cv2.cvtColor(self.imgVar, cv2.COLOR_BGR2GRAY)
+        img_rgb=self.imgVar
+        img = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
         template = cv2.imread(templateSrc, 0)
         res = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED)
         template = cv2.imread(templateSrc,0)
@@ -114,12 +210,13 @@ class getCardsInfo():
                 # jsonCardList["cards"][self.cardsFound]='{"type": {cType}}, "effectiveness": {eff}}'.format(cType=textMode[mode],eff=effectiveness,)
                 # jsonCardList["cards"][self.cardsFound]={"type": {textMode[mode]}}, "effectiveness": {effectiveness}, "pos" :[{"x":{cardCoordCenter[0]},"y": {cardCoordCenter[1]}]}
 
-                jsonCardList.append({"id": self.cardsFound,
-                                            "type": {textMode[mode]},
-                                            "effectiveness": {effectiveness},
+                jsonCardList[self.cardsFound]=(
+                                            # {"type": {textMode[mode]},
+                                            {"type": mode,
+                                            "effectiveness": effectiveness,
                                             "pos" :[
-                                                {"x":{cardCoordCenter[0]},
-                                                 "y": {cardCoordCenter[1]}
+                                                {"x":cardCoordCenter[0],
+                                                 "y": cardCoordCenter[1]
                                                  }]
                                             })
                 self.cardsFound+=1
@@ -167,31 +264,38 @@ class getCardsInfo():
         # cv2.waitKey()
         return effectivenes
 
+    def getNPInfo(self):pass   #'stunned/unusable=5, or 4 and if NPcard 4==not use'
+
+    def sendJson(self):
+        self.jsonData=json.dumps(self.jsonDataStr)
+        self.conn.sendall(self.jsonData.encode())
+        # print(self.jsonData)
+        # State Dict
+        stateDict={ -2: 'stop',
+                    -1: 'wait',
+                    0:'combat'
+                   }
+        # try:
+        #     print(stateDict[1])
+        # except KeyError:
+        #     print('Index out of range!, going to wait 5 seconds')
 
 
 
-
-
-    def getNPInfo(self):pass   ;'stunned/unusable=5, or 4 and if NPcard 4==not use'
-
-
-
-def loadImage():
-    img = cv2.imread('tmp/androidCards.jpg',cv2.COLOR_BGR2GRAY)
-    # img = cv2.imread('tmp/cardsImage.jpg',cv2.COLOR_BGR2GRAY)
-    # cv2.imshow('ok',img)
-    # cv2.waitKey()
-    return img
-
-img=loadImage()
+#Send Example
+# img=loadImage()
+bot = getCardsInfo()
+bot.serverMode()
+# bot.screenshot2()
+# bot.getNormalCardInfo()
+# bot.getCardsInfo()
 # plt.imshow (img)
 # plt.show ()
-cl=getCardsInfo(img)
-cl.getNormalCardInfo()
 
 
-x=[]
-for element in x:print(element) #Al ser 0 no fa res
+
+# x=[]
+# for element in x:print(element) #Al ser 0 no fa res
 
 
 

@@ -50,10 +50,10 @@ def startConnectionClient():
     finally:
         s.close()                     # Close the socket when done
 
-cardSize=None
-setattr(cardSize.x,'x','218')
-cardSize.y= lambda :None
-setattr(cardSize.y,'y','218')
+# cardSize=None
+# setattr(cardSize.x,'x','218')
+# cardSize.y= lambda :None
+# setattr(cardSize.y,'y','218')
 
 # while True:
 startConnectionClient()
