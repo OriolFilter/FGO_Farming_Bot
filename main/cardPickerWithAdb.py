@@ -23,12 +23,26 @@ print('This is a test WITHOUT server/client')
 
 
 class botClient():
-    def __init__(self,port,ip):
+    def __init__(self,ip,port=None):
         self.timeV=time.time() #D
-        self.client = AdbClient(host="127.0.0.1", port=port)
+        if port != None:
+            self.client = AdbClient(host="127.0.0.1", port=port)
+        else:
+            self.client = AdbClient(host="127.0.0.1", port=5037)
         # clientId="192.168.1.78:5037"
         # print(":".join([ip,str(port)]))
-        self.mainDev = self.client.device(":".join([ip,str(port)]))
+        self.repeatQuest=False
+        self.selectSupport=False
+        self.refillTotal=0
+        self.refillLimit=0
+        self.refill=False
+        # self
+        print(port is None)
+        if port != None:
+            self.mainDev = self.client.device(":".join([ip,str(port)]))
+        else:
+            self.mainDev = self.client.device(ip)
+            
         self.cardsPrio=[0,1,2,3]
 
     # ImageThings
@@ -45,9 +59,11 @@ class botClient():
             img = self.resizeOpenCvScreenshot(img)
             self.screenshotImg = img
             self.screenshotImg = self.resizeOpenCvScreenshot(self.pilToOpencv(self.bimageToImage(bimg)))
+            return True
         else:
             print('TIME STOPPE')
             time.sleep(5)
+            return False
         # print("screenshot Ends")
         # Image is alredy in byte aray, don't need to do nothing
 
@@ -336,23 +352,28 @@ class botClient():
     # Main
     def main(self):
         while True:
-            # self.time(">>")
-            self.screenshot()
-            # self.time(">>")
-            if False:pass
-            elif self.checkInCombat():self.attack()
-            elif self.checkAttackButton():
-                self.click(xy=[self.attackButtonLoc[0],self.attackButtonLoc[1]])
-                time.sleep(1)
-            elif self.checkSelectSupp():self.click([675,250])
-            elif self.checkRepeatButton():self.clickRepeatButton()
-            elif self.clickCheckTapScreen():pass
-            elif self.clickCheckNextutton():pass
-            self.time(">>>")
+            try:
+                # self.time(">>")
+                if self.screenshot():
+                # self.time(">>")
+                    if False:pass
+                    elif self.checkInCombat():self.attack()
+                    elif self.checkAttackButton():
+                        self.click(xy=[self.attackButtonLoc[0]+50,self.attackButtonLoc[1]])
+                        time.sleep(1)
+                    #elif self.checkSelectSupp():self.click([675,250])
+                    #elif self.checkRepeatButton():self.clickRepeatButton()
+                    elif self.clickCheckTapScreen():pass
+                    elif self.clickCheckNextutton():pass
+                    # self.time(">>>")
+            except cv2.error as e:
+                print("Screen blocked")
+                time.sleep(2)
     # Misc /D
     def time(self,str=">"):
         print('{} {}'.format(str,time.time()-self.timeV))
         self.timeV=time.time()
 
-test=botClient(port=5037,ip="192.168.1.78")
+#test=botClient(port=5037,ip="192.168.1.78")
+test=botClient(ip="40edac8d")
 test.main()
