@@ -47,6 +47,7 @@ class botClient():
         self.timeV=time.time() #D
         self.mask=None
         self.npOnDangerOrServant=False
+        self.colorOverEffectiveness=False
 
     # ImageThings
     def screenshot(self):
@@ -63,6 +64,7 @@ class botClient():
             img = self.resizeOpenCvScreenshot(img)
             self.screenshotImg = img
             self.screenshotImg = self.resizeOpenCvScreenshot(self.pilToOpencv(self.bimageToImage(bimg)))
+            self.screenshotImgGray = cv2.cvtColor(self.screenshotImg, cv2.COLOR_BGR2GRAY)
             return True
         else:
             print('TIME STOPPE')
@@ -130,9 +132,8 @@ class botClient():
     def selectRandomSupp(self):pass
 
     def clickRepeatButton(self):
-        img_gray = cv2.cvtColor(self.screenshotImg, cv2.COLOR_BGR2GRAY)
         template = cv2.imread('../templates/repeatButton.png', 0)
-        res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
+        res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
 
         treshHold = 0.85
@@ -142,9 +143,8 @@ class botClient():
         else: return False
 
     def clickCheckTapScreen(self):
-        img_gray = cv2.cvtColor(self.screenshotImg, cv2.COLOR_BGR2GRAY)
         template = cv2.imread('../templates/tap.png', 0)
-        res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
+        res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
         if max_val > 0.7:
             bestY, bestX = np.where(res >= max_val)
@@ -154,9 +154,8 @@ class botClient():
 
     def clickCheckNextutton(self):
         # screenshot()
-        img_gray = cv2.cvtColor(self.screenshotImg, cv2.COLOR_BGR2GRAY)
         template = cv2.imread('../templates/nextButton.png', 0)
-        res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
+        res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
         if max_val > 0.9:
             bestY, bestX = np.where(res >= max_val)
@@ -167,20 +166,22 @@ class botClient():
     # checkState
 
     def checkSelectSupp(self):
-        img_gray = cv2.cvtColor(self.screenshotImg, cv2.COLOR_BGR2GRAY)
-        template = cv2.imread('../templates/selectSupport.png', 0)
-        res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
-        _, max_val, _, max_loc = cv2.minMaxLoc(res)
+        templateA = cv2.imread('../templates/selectSupportA.png', 0)
+        templateB = cv2.imread('../templates/selectSupportB.png', 0)
+        resA = cv2.matchTemplate(self.screenshotImgGray, templateA, cv2.TM_CCOEFF_NORMED)
+        resB = cv2.matchTemplate(self.screenshotImgGray, templateB, cv2.TM_CCOEFF_NORMED)
+        _, max_valA, _, max_loc = cv2.minMaxLoc(resA)
+        _, max_valB, _, max_loc = cv2.minMaxLoc(resB)
         # print(max_val)
-        if max_val > 0.9:
+        treshhold=0.9
+        if max_valA > treshhold or max_valB > treshhold:
             return True
         else:
             return False
 
     def checkRepeatButton(self):
-        img_gray = cv2.cvtColor(self.screenshotImg, cv2.COLOR_BGR2GRAY)
         template = cv2.imread('../templates/repeatMessage.png', 0)
-        res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
+        res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
 
         treshHold = 0.85
@@ -188,9 +189,8 @@ class botClient():
         else: return False
 
     def checkAttackButton(self):
-        img_gray = cv2.cvtColor(self.screenshotImg, cv2.COLOR_BGR2GRAY)
         template = cv2.imread('../templates/Combat/attackButton.png', 0)
-        res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
+        res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
 
         treshHold = 0.85
@@ -201,9 +201,8 @@ class botClient():
         else: return False
 
     def checkInCombat(self):
-        img_gray = cv2.cvtColor(self.screenshotImg, cv2.COLOR_BGR2GRAY)
         template = cv2.imread('../templates/Combat/combatBackButton.png', 0)
-        res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
+        res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
         treshHold = 0.85
         if max_val > treshHold:  # 0 means press attack button
@@ -212,11 +211,10 @@ class botClient():
             return False
 
     def dangerOrServantFound(self):
-        img_gray = cv2.cvtColor(self.screenshotImg, cv2.COLOR_BGR2GRAY)
         templateDanger = cv2.imread('../templates/Combat/danger.png', 0)
         templateServant = cv2.imread('../templates/Combat/servant.png', 0)
-        resD = cv2.matchTemplate(img_gray, templateDanger, cv2.TM_CCOEFF_NORMED)
-        resS = cv2.matchTemplate(img_gray, templateServant, cv2.TM_CCOEFF_NORMED)
+        resD = cv2.matchTemplate(self.screenshotImgGray, templateDanger, cv2.TM_CCOEFF_NORMED)
+        resS = cv2.matchTemplate(self.screenshotImgGray, templateServant, cv2.TM_CCOEFF_NORMED)
         _, max_valD, _, max_locD = cv2.minMaxLoc(resD)
         _, max_valS, _, max_locS = cv2.minMaxLoc(resS)
         treshHold = 0.85
@@ -233,7 +231,8 @@ class botClient():
                            }
         self.cardsFound=0 # D
         self.getNormalCardInfo()
-        self.getNPCardInfo()
+        if self.dangerOrServantFound():
+            self.getNPCardInfo()
         # print(' --: {}'.format(self.cardsFound))
         if self.checkActiveApp():
             # print(self.cardsJsonStr)
@@ -278,7 +277,6 @@ class botClient():
     #                 # print(recivedJson[line])
     #                 self.cardsJsonStr["NP"].append(receivedJson[line])
     #     print(self.cardsJsonStr["NP"]) # D
-    #     cv2.imwrite('Test.png',self.screenshotImg)
     #     # self.showImage(self.screenshotImg)
     #     # self.showImage(self.mask)
     #     self.mask=None
@@ -380,7 +378,6 @@ class botClient():
             cardImg=self.screenshotImg[coordS[1]:coordE[1],coordS[0]:coordE[0]]
 
             effectivenes=1
-
             img_gray = cv2.cvtColor(cardImg, cv2.COLOR_BGR2GRAY)
             template = cv2.imread('../templates/Combat/effective.png', 0)
             res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
@@ -412,7 +409,9 @@ class botClient():
             # for e in range(0,4):
             #     if card[type] is
                 # print(e)
-        if self.npOnDangerOrServant and self.dangerOrServantFound():
+
+        # NP
+        if self.npOnDangerOrServant:
             c=0
             while c<len(self.cardsJsonStr["NP"]) and self.cardsSelected<3:
                 if not self.cardsJsonStr["NP"][c]["used"]:
@@ -425,24 +424,46 @@ class botClient():
                 c+=1
 
         backup=0
-        while self.cardsSelected<3 and backup<5:
-            t=0
-            while t<4 and self.cardsSelected<3:
+
+        if self.colorOverEffectiveness:
+            while self.cardsSelected<3 and backup<5:
+                t=0
+                while t<4 and self.cardsSelected<3:
+                    e=0
+                    while e<4 and self.cardsSelected<3:
+                        # print(len(self.cardsJsonStr["NORMAL"]))
+                        c=0
+                        while c<len(self.cardsJsonStr["NORMAL"]) and self.cardsSelected<3:
+                            if self.cardsJsonStr["NORMAL"][c]["type"] == self.cardsPrio[t] and self.cardsJsonStr["NORMAL"][c]["effectiveness"] == e and not self.cardsJsonStr["NORMAL"][c]["used"]:
+                                self.cardsJsonStr["NORMAL"][c]["used"]=True
+                                self.cardsSelected+=1
+                                print(self.cardsJsonStr["NORMAL"][c]["pos"])
+                                # print(self.cardsJsonStr["NORMAL"][c]["pos"][0])
+                                # print(self.cardsJsonStr["NORMAL"][c]["pos"]["x"])
+                                self.click(xy=[self.cardsJsonStr["NORMAL"][c]["pos"]["x"],self.cardsJsonStr["NORMAL"][c]["pos"]["y"]])
+                            c+=1
+                        e+=1
+                    t+=1
+                backup+=1
+        else:
+            while self.cardsSelected<3 and backup<5:
                 e=0
                 while e<4 and self.cardsSelected<3:
-                    # print(len(self.cardsJsonStr["NORMAL"]))
-                    c=0
-                    while c<len(self.cardsJsonStr["NORMAL"]) and self.cardsSelected<3:
-                        if self.cardsJsonStr["NORMAL"][c]["type"] == self.cardsPrio[t] and self.cardsJsonStr["NORMAL"][c]["effectiveness"] == e and not self.cardsJsonStr["NORMAL"][c]["used"]:
-                            self.cardsJsonStr["NORMAL"][c]["used"]=True
-                            self.cardsSelected+=1
-                            print(self.cardsJsonStr["NORMAL"][c]["pos"])
-                            # print(self.cardsJsonStr["NORMAL"][c]["pos"][0])
-                            # print(self.cardsJsonStr["NORMAL"][c]["pos"]["x"])
-                            self.click(xy=[self.cardsJsonStr["NORMAL"][c]["pos"]["x"],self.cardsJsonStr["NORMAL"][c]["pos"]["y"]])
-                        c+=1
+                    t=0
+                    while t<4 and self.cardsSelected<3:
+                        # print(len(self.cardsJsonStr["NORMAL"]))
+                        c=0
+                        while c<len(self.cardsJsonStr["NORMAL"]) and self.cardsSelected<3:
+                            if self.cardsJsonStr["NORMAL"][c]["type"] == self.cardsPrio[t] and self.cardsJsonStr["NORMAL"][c]["effectiveness"] == e and not self.cardsJsonStr["NORMAL"][c]["used"]:
+                                self.cardsJsonStr["NORMAL"][c]["used"]=True
+                                self.cardsSelected+=1
+                                print(self.cardsJsonStr["NORMAL"][c]["pos"])
+                                # print(self.cardsJsonStr["NORMAL"][c]["pos"][0])
+                                # print(self.cardsJsonStr["NORMAL"][c]["pos"]["x"])
+                                self.click(xy=[self.cardsJsonStr["NORMAL"][c]["pos"]["x"],self.cardsJsonStr["NORMAL"][c]["pos"]["y"]])
+                            c+=1
+                        t+=1
                     e+=1
-                t+=1
             backup+=1
             # print(self.cardsSelected)
             # print()
@@ -486,6 +507,7 @@ class botClient():
             elif self.clickCheckTapScreen():pass
             elif self.clickCheckNextutton():pass
             else:print('N')
+            cv2.imwrite('Test.png',self.screenshotImg)
             #RestoreEnergy/Stop
             # self.time(">>>")
 
