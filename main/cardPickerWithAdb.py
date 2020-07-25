@@ -1,6 +1,4 @@
 # Project Excalibur
-
-
 # print(":".join(["a","b"]))
 
 # print(mainDev.get_battery_level())
@@ -23,32 +21,38 @@ print('This is a test WITHOUT server/client')
 
 
 class botClient():
-    def __init__(self,ip,port=None):
-        self.timeV=time.time() #D
-        if port != None:
-            self.client = AdbClient(host="127.0.0.1", port=port)
-        else:
-            self.client = AdbClient(host="127.0.0.1", port=5037)
-        # clientId="192.168.1.78:5037"
-        # print(":".join([ip,str(port)]))
-        self.repeatQuest=False
-        self.selectSupport=False
+    def __init__(self,ip=None,port=None,debugg=False):
+        if not debugg:
+            if port != None:
+                self.client = AdbClient(host="127.0.0.1", port=port)
+            else:
+                self.client = AdbClient(host="127.0.0.1", port=5037)
+            if port != None:
+                self.mainDev = self.client.device(":".join([ip,str(port)]))
+            else:
+                self.mainDev = self.client.device(ip)
+            # clientId="192.168.1.78:5037"
+            # print(":".join([ip,str(port)]))
+            self.debugg=False
+
+        # self
+        else:self.debugg=True
+        self.run=True
+        self.repeatQuest=True
+        self.selectSupport=True
         self.refillTotal=0
         self.refillLimit=0
         self.refill=False
-        # self
-        print(port is None)
-        if port != None:
-            self.mainDev = self.client.device(":".join([ip,str(port)]))
-        else:
-            self.mainDev = self.client.device(ip)
-            
         self.cardsPrio=[0,1,2,3]
+        self.timeV=time.time() #D
+        self.mask=None
+        self.npOnDangerOrServant=False
 
     # ImageThings
     def screenshot(self):
         # print("screenshot Start")
-        if self.checkActiveApp():
+        if self.debugg:return True
+        elif self.checkActiveApp():
             # print("reciving bimg")
             self.time(">")
             bimg = self.mainDev.screencap()
@@ -108,14 +112,19 @@ class botClient():
         # print("Clicking at: {} {}".format(x*self.clickResolution,y*self.clickResolution))
         # print("Clicking at: {} {}".format(x,y))
         if xy == []:pass
+        # print('Click x:{} y:{}'.format(xy[0],xy[1]))
+        if self.debugg:print('Click x:{} y:{}'.format(xy[0],xy[1]))
         else:self.mainDev.input_tap(int(xy[0]*self.clickResolution),int(xy[1]*self.clickResolution))
 
     def checkActiveApp(self):
-        appname= "com.aniplex.fategrandorder.en"
-        appList = self.mainDev.get_top_activities()
-        if appname in str(appList[len(appList)-1]):
+        try:
+            appname= "com.aniplex.fategrandorder.en"
+            appList = self.mainDev.get_top_activities()
+            if appname in str(appList[len(appList)-1]):
+                return True
+            return False
+        except AttributeError as e:
             return True
-        return False
 
     # Menu related
     def selectRandomSupp(self):pass
@@ -202,89 +211,170 @@ class botClient():
         else:
             return False
 
+    def dangerOrServantFound(self):
+        img_gray = cv2.cvtColor(self.screenshotImg, cv2.COLOR_BGR2GRAY)
+        templateDanger = cv2.imread('../templates/Combat/danger.png', 0)
+        templateServant = cv2.imread('../templates/Combat/servant.png', 0)
+        resD = cv2.matchTemplate(img_gray, templateDanger, cv2.TM_CCOEFF_NORMED)
+        resS = cv2.matchTemplate(img_gray, templateServant, cv2.TM_CCOEFF_NORMED)
+        _, max_valD, _, max_locD = cv2.minMaxLoc(resD)
+        _, max_valS, _, max_locS = cv2.minMaxLoc(resS)
+        treshHold = 0.85
+        if max_valD > treshHold or max_valS > treshHold:  # 0 means press attack button
+            return True
+        else:
+            return False
+
     # Combat
     def attack(self):
         self.cardsSelected=0
-        self.cardsJsonStr={"NORMAL":[],"NP":[]}
+        self.cardsJsonStr={"NORMAL":[],
+                           "NP":[]
+                           }
+        self.cardsFound=0 # D
         self.getNormalCardInfo()
+        self.getNPCardInfo()
+        # print(' --: {}'.format(self.cardsFound))
         if self.checkActiveApp():
             # print(self.cardsJsonStr)
             self.selectAttackCards()
         else:print("NOT ACTIVE")
+
+    def getNPCardInfo(self):
+        self.cardsJsonStr['NP'].append(
+                                                {"pos" :
+                                                    {"x":514,
+                                                     "y": 201
+                                                     },
+                                                "used": False
+                                                })
+        self.cardsJsonStr['NP'].append(
+                                                {"pos" :
+                                                    {"x":739,
+                                                     "y": 210
+                                                     },
+                                                "used": False
+                                                })
+        self.cardsJsonStr['NP'].append(
+                                                {"pos" :
+                                                    {"x":987,
+                                                     "y": 232
+                                                     },
+                                                "used": False
+                                                })
+
+    #     # self.detectBusterCards()
+    #     # self.detectArtsCards()
+    #     # self.detectQuickCards()
+    #     # self.getCardsInfo()
+    #     # self.cardsFound=0
+    #     # self.cardsJson={}
+    #     for n in range(0,4):
+    #         # print('T')
+    #         receivedJson=None
+    #         receivedJson=self.getCardsInfo(n,mode=1) #Not real json tho
+    #         if receivedJson:
+    #             for line in receivedJson:
+    #                 # print(recivedJson[line])
+    #                 self.cardsJsonStr["NP"].append(receivedJson[line])
+    #     print(self.cardsJsonStr["NP"]) # D
+    #     cv2.imwrite('Test.png',self.screenshotImg)
+    #     # self.showImage(self.screenshotImg)
+    #     # self.showImage(self.mask)
+    #     self.mask=None
+    #     # print('found {} cards'.format(self.cardsFound))
+    #     # for element in self.cardsJsonStr["NORMAL"]:print(element)
+
 
     def getNormalCardInfo(self):
         # self.detectBusterCards()
         # self.detectArtsCards()
         # self.detectQuickCards()
         # self.getCardsInfo()
-        self.cardsFound=0
+        # self.cardsFound=0
         # self.cardsJson={}
         for n in range(0,4):
             receivedJson=None
-            receivedJson=self.getCardsInfo(n) #Not real json tho
+            receivedJson=self.getCardsInfo(n,mode=0) #Not real json tho
             if receivedJson:
                 for line in receivedJson:
                     # print(line)
                     # print(recivedJson[line])
                     self.cardsJsonStr["NORMAL"].append(receivedJson[line])
-
+        # self.showImage(self.mask)
+        self.mask=None
         # print('found {} cards'.format(self.cardsFound))
         # for element in self.cardsJsonStr["NORMAL"]:print(element)
 
-    def getCardsInfo(self,mode=0): #Problemes amb els returns de Json
+    def getCardsInfo(self,color,mode=0): #Problemes amb els returns de Json
+        # 0 Normal
+        # 1 N?P
         jsonCardList={}
-        modeSrc={0: '../templates/Combat/buster.png',
+        colorSrc={0: '../templates/Combat/buster.png',
                1: '../templates/Combat/arts.png',
                2: '../templates/Combat/quick.png',
                3: '../templates/Combat/stunned.png'
                }
-        textMode={0: 'Buster',
-               1: 'Arts',
-               2: 'Quick',
-               3: 'Stunned'
-               }
+        # textMode={0: 'Buster',
+        #        1: 'Arts',
+        #        2: 'Quick',
+        #        3: 'Stunned'
+        #        }
         # 0 Buster
         # 1 Arts
         # 2 Quick
         # 3 Stunned
+        if mode == 1:print('searching')
+        if self.mask is None:self.generateMaskFromImage(mode=mode)
 
-        templateSrc=modeSrc[mode]
-        img = cv2.cvtColor(self.screenshotImg, cv2.COLOR_BGR2GRAY)
+        templateSrc=colorSrc[color]
         template = cv2.imread(templateSrc, 0)
-        res = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED)
-        # template = cv2.imread(templateSrc,0)
-        # xw, yh = template.shape[::-1] #Unused
-        mask = np.zeros(self.screenshotImg.shape[:2], np.uint8) #Crear Mascara
-        # mask[int(mask.shape[0]/2.5):mask.shape[0],0:mask.shape[1]]=255 #passar a blanc, fer servir en NP
-        mask[0:int(mask.shape[0]/2.5),0:mask.shape[1]]=255
-        # print(mask.shape)
+
+
+        img = cv2.cvtColor(self.screenshotImg, cv2.COLOR_BGR2GRAY) # Passa l'imatge a GRAY
+
+        res = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED) # Match Template
         treshHold = 0.85
 
         aviable = np.where( res >= treshHold)
-        count=0
         for pt in zip(*aviable[::-1]): #No se com funciona, haig de mirar si tira b, sino tiro del for loc i ja
             #pt = found point
             cardCoordStart=((pt[0] - 45,pt[1] - 215)) #X,Y
             cardCoordEnd=(cardCoordStart[0]+213,cardCoordStart[1]+279) #X,Y (esta aixins per opencv)
             cardCoordCenter=(int((cardCoordStart[0]+cardCoordEnd[0])/2),int((cardCoordStart[1]+cardCoordEnd[1])/2))
-            if int(mask[pt[1],pt[0]]) == 0:
-                cv2.rectangle(mask,cardCoordStart,cardCoordEnd,(255,255,255),-1) #Thik
-                effectiveness=self.reurnCardEff(cardCoordStart,cardCoordEnd)
-                # print('Card found!\nType: {cType}\nEffectiveness: {eff}\n\n'.format(cType=textMode[mode],eff=effectiveness))
-                cv2.rectangle(self.screenshotImg,cardCoordCenter,(cardCoordCenter[0]+10,cardCoordCenter[1]+10),(255,0,0),-1) #Thik
-
-                jsonCardList[self.cardsFound]=(
-                                            # {"type": {textMode[mode]},
-                                            {"type": mode,
-                                            "effectiveness": effectiveness,
-                                            "pos" :
-                                                {"x":cardCoordCenter[0],
-                                                 "y": cardCoordCenter[1]
-                                                 },
-                                            "used": False
-                                            })
+            if int(self.mask[pt[1],pt[0]]) == 0:
+                cv2.rectangle(self.mask,cardCoordStart,cardCoordEnd,(255,255,255),-1) #Thik
+                # cv2.rectangle(self.screenshotImg,cardCoordCenter,(cardCoordCenter[0]+10,cardCoordCenter[1]+10),(255,0,0),-1) #Thik
+                if mode==1:
+                    jsonCardList[self.cardsFound]=(
+                                                {"pos" :
+                                                    {"x":cardCoordCenter[0],
+                                                     "y": cardCoordCenter[1]
+                                                     },
+                                                "used": False
+                                                })
+                else:
+                    effectiveness=self.reurnCardEff(cardCoordStart,cardCoordEnd)
+                    jsonCardList[self.cardsFound]=(
+                                                {"type": color,
+                                                "effectiveness": effectiveness,
+                                                "pos" :
+                                                    {"x":cardCoordCenter[0],
+                                                     "y": cardCoordCenter[1]
+                                                     },
+                                                "used": False
+                                                })
                 self.cardsFound+=1
         return jsonCardList
+
+    def getCardColor(self):
+        for x in range(0,4):pass
+
+    def generateMaskFromImage(self,mode):
+        self.mask = np.zeros(self.screenshotImg.shape[:2], np.uint8) #Crear Mascara
+
+        if mode == 0:self.mask[0:int(self.mask.shape[0]/2.5),0:self.mask.shape[1]]=255 #Normal
+        else:self.mask[int(self.mask.shape[0]/1.75):,0:self.mask.shape[1]]=255 #NP
 
     def reurnCardEff(self,coordS,coordE):
             cardImg=self.screenshotImg[coordS[1]:coordE[1],coordS[0]:coordE[0]]
@@ -322,6 +412,18 @@ class botClient():
             # for e in range(0,4):
             #     if card[type] is
                 # print(e)
+        if self.npOnDangerOrServant and self.dangerOrServantFound():
+            c=0
+            while c<len(self.cardsJsonStr["NP"]) and self.cardsSelected<3:
+                if not self.cardsJsonStr["NP"][c]["used"]:
+                    self.cardsJsonStr["NP"][c]["used"]=True
+                    # self.cardsSelected+=1
+                    print(self.cardsJsonStr["NP"][c]["pos"])
+                    # print(self.cardsJsonStr["NP"][c]["pos"][0])
+                    # print(self.cardsJsonStr["NP"][c]["pos"]["x"])
+                    self.click(xy=[self.cardsJsonStr["NP"][c]["pos"]["x"],self.cardsJsonStr["NP"][c]["pos"]["y"]])
+                c+=1
+
         backup=0
         while self.cardsSelected<3 and backup<5:
             t=0
@@ -350,25 +452,55 @@ class botClient():
     def countColors(self):pass
 
     # Main
-    def main(self):
-        while True:
-            try:
-                # self.time(">>")
-                if self.screenshot():
-                # self.time(">>")
-                    if False:pass
-                    elif self.checkInCombat():self.attack()
-                    elif self.checkAttackButton():
-                        self.click(xy=[self.attackButtonLoc[0]+50,self.attackButtonLoc[1]])
-                        time.sleep(1)
-                    #elif self.checkSelectSupp():self.click([675,250])
-                    #elif self.checkRepeatButton():self.clickRepeatButton()
-                    elif self.clickCheckTapScreen():pass
-                    elif self.clickCheckNextutton():pass
-                    # self.time(">>>")
-            except cv2.error as e:
-                print("Screen blocked")
-                time.sleep(2)
+    def main(self,mode=0):
+        if self.debugg:self.debuggMode()
+        else:
+            while self.run:
+                try:
+                    if mode == 0:self.basicMode()
+
+                    else:
+                        print('Wrong mode...')
+                        input()
+                except cv2.error as e:
+                    print(e)
+                    print("Screen blocked")
+                    time.sleep(2)
+
+    def basicMode(self):
+        # self.time(">>")
+        if self.screenshot():
+        # self.time(">>")
+            # print('?')
+            if False:pass
+            elif self.checkInCombat():self.attack()
+            elif self.checkAttackButton():
+                self.click(xy=[self.attackButtonLoc[0]+50,self.attackButtonLoc[1]])
+                time.sleep(1)
+            elif self.selectSupport and self.checkSelectSupp():
+                self.click([675,250])
+                time.sleep(1)
+            elif self.repeatQuest and self.checkRepeatButton():
+                self.clickRepeatButton()
+                time.sleep(1)
+            elif self.clickCheckTapScreen():pass
+            elif self.clickCheckNextutton():pass
+            else:print('N')
+            #RestoreEnergy/Stop
+            # self.time(">>>")
+
+    def debuggMode(self):#Test From images
+        self.screenshotImg=cv2.imread('Test.png')
+        # print(self.screenshotImg)
+        # self.showScreenshot()
+        self.basicMode()
+        print(self.cardsJsonStr)
+        input()
+
+    def showImage(self,img):
+        cv2.namedWindow('image')
+        cv2.imshow('image',img)
+        cv2.waitKey(0)
     # Misc /D
     def time(self,str=">"):
         print('{} {}'.format(str,time.time()-self.timeV))
@@ -376,4 +508,7 @@ class botClient():
 
 #test=botClient(port=5037,ip="192.168.1.78")
 test=botClient(ip="40edac8d")
-test.main()
+#test=botClient(debugg=True)
+test.npOnDangerOrServant=True
+test.main(mode=0)
+
