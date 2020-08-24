@@ -37,25 +37,26 @@ class botClient():
 
         # self
         else:self.debugg=True
-        self.run=True
-        self.repeatQuest=True
-        #self.repeatQuest=False
 
-        self.restoreEnergy=True
-        self.timesToRestoreEnergy=4 #Does only work with gold/silver apples
+
+        # Energy
         self.timesRestoredEnergy=0
+        self.timesToRestoreEnergy=0 #Does only work with gold/silver apples
 
-        self.selectSupport=True
-        self.refillTotal=0
-        self.refillLimit=0
-        self.refill=False
-        self.cardsPrio=[0,1,2,3]
-        # self.cardsPrio=[1,0,2,3]
-        self.timeV=time.time() #D
-        self.mask=None
+        # Quests
+        self.repeatQuest=False
+        self.selectSupport=False
+
+
+        # Combat
         self.npOnDangerOrServant=False
         self.colorOverEffectiveness=False
-        self.npOnDangerOrServant=True
+        test.cardsPrio=[0,1,2,3] # Default, Buster, Arts, Quick, Stunned
+
+        # Misc
+        self.run=True # Mayb should move it to self.main()
+        self.mask=None
+        self.timeV=time.time() #D
 
     # ImageThings
     def screenshot(self,save=False):
@@ -606,6 +607,11 @@ class botClient():
                 self.clickRepeatButton()
                 time.sleep(1)
             elif self.clickCheckNextutton():pass
+            elif self.restoreApples() and self.timesRestoredEnergy < self.timesToRestoreEnergy:
+                if self.restoreApples(0):pass
+                elif self.restoreApples(1):pass
+                elif self.restoreApples(2):pass
+
             else:print('N')
             #RestoreEnergy/Stop
             self.time(">>>")
@@ -639,11 +645,18 @@ class botClient():
 
 #test=botClient(port=5037,ip="192.168.1.78")
 test=botClient(ip="40edac8d")
+#Settind custom details
+test.timesToRestoreEnergy=5
+test.npOnDangerOrServant=True
+test.selectSupport=True
+test.repeatQuest=True
 #test=botClient(debugg=True)
 # test.screenshot(True)
 # test.debuggMode()
-# test.main(mode=0)
 # test.clickSpeedTest()
 # test.swipe([500,100],[200,200])
-test.screenshot()
-print(test.restoreApples(2))
+# test.screenshot()
+# print(test.restoreApples(2))
+
+# Running Main
+test.main(mode=0)
