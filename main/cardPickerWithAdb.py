@@ -51,7 +51,7 @@ class botClient():
         # Combat
         self.npOnDangerOrServant=False
         self.colorOverEffectiveness=False
-        test.cardsPrio=[0,1,2,3] # Default, Buster, Arts, Quick, Stunned
+        self.cardsPrio=[0,1,2,3] # Default, Buster, Arts, Quick, Stunned
 
         # Misc
         self.run=True # Mayb should move it to self.main()
@@ -574,47 +574,73 @@ class botClient():
 
     # Main
     def main(self,mode=0):
+        # Main let you pick some predefined modes
         if self.debugg:self.debuggMode()
         else:
-            while self.run:
-                try:
-                    if mode == 0:self.basicMode()
+            try:
+                if mode == 0:self.basicMode()
+                elif mode == 1:self.combatOnly()
+                elif mode == 2:self.combatOnly()
 
-                    else:
-                        print('Wrong mode...')
-                        input()
-                except cv2.error as e:
-                    print(e)
-                    print("Screen blocked")
-                    time.sleep(2)
+                else:
+                    print('Wrong mode...')
+                    input()
+
+            except cv2.error as e:
+                print(e)
+                print("Screen blocked")
+                time.sleep(2)
+        print('Closing...')
+
+
+    def cardPickerOnly(self):
+        print('Card picker only mode selected')
+        while self.run:
+            if self.screenshot():
+                if self.checkInCombat():self.attack()
+                else:print('N')
+
+
+    def combatOnly(self):
+        print('Combat mode selected')
+        while self.run:
+            if self.screenshot():
+                if False:pass
+                elif self.checkInCombat():self.attack()
+                elif self.checkAttackButton():
+                    self.click(xy=[self.attackButtonLoc[0]+50,self.attackButtonLoc[1]])
+                    time.sleep(1)
+                else:print('N')
 
     def basicMode(self):
-        # self.time(">>")
-        if self.screenshot():
-        # self.time(">>")
-            # print('?')
-            # cv2.imwrite('Test.png',self.screenshotImg)
-            if False:pass
-            elif self.checkInCombat():self.attack()
-            elif self.checkAttackButton():
-                self.click(xy=[self.attackButtonLoc[0]+50,self.attackButtonLoc[1]])
-                time.sleep(1)
-            elif self.selectSupport and self.checkSelectSupp():
-                self.click([675,250])
-                time.sleep(1)
-            elif self.clickCheckTapScreen():pass
-            elif self.repeatQuest and self.checkRepeatButton():
-                self.clickRepeatButton()
-                time.sleep(1)
-            elif self.clickCheckNextutton():pass
-            elif self.restoreApples() and self.timesRestoredEnergy < self.timesToRestoreEnergy:
-                if self.restoreApples(0):pass
-                elif self.restoreApples(1):pass
-                elif self.restoreApples(2):pass
+        print('Basic mode selected')
+        while self.run:
+            # self.time(">>")
+            if self.screenshot():
+            # self.time(">>")
+                # print('?')
+                # cv2.imwrite('Test.png',self.screenshotImg)
+                if False:pass
+                elif self.checkInCombat():self.attack()
+                elif self.checkAttackButton():
+                    self.click(xy=[self.attackButtonLoc[0]+50,self.attackButtonLoc[1]])
+                    time.sleep(1)
+                elif self.selectSupport and self.checkSelectSupp():
+                    self.click([675,250])
+                    time.sleep(1)
+                elif self.clickCheckTapScreen():pass
+                elif self.repeatQuest and self.checkRepeatButton():
+                    self.clickRepeatButton()
+                    time.sleep(1)
+                elif self.clickCheckNextutton():pass
+                elif self.restoreApples() and self.timesRestoredEnergy < self.timesToRestoreEnergy:
+                    if self.restoreApples(0):pass
+                    elif self.restoreApples(1):pass
+                    elif self.restoreApples(2):pass
 
-            else:print('N')
-            #RestoreEnergy/Stop
-            self.time(">>>")
+                else:print('N')
+                #RestoreEnergy/Stop
+                self.time(">>>")
 
     #Debugg
     def debuggMode(self):#Test From images
@@ -659,4 +685,5 @@ test.repeatQuest=True
 # print(test.restoreApples(2))
 
 # Running Main
-test.main(mode=0)
+# test.main(mode=0)
+test.main(mode=1)
