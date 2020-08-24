@@ -39,23 +39,31 @@ class botClient():
         else:self.debugg=True
         self.run=True
         self.repeatQuest=True
+        #self.repeatQuest=False
+
+        self.restoreEnergy=True
+        self.timesToRestoreEnergy=4 #Does only work with gold/silver apples
+        self.timesRestoredEnergy=0
+
         self.selectSupport=True
         self.refillTotal=0
         self.refillLimit=0
         self.refill=False
         self.cardsPrio=[0,1,2,3]
+        # self.cardsPrio=[1,0,2,3]
         self.timeV=time.time() #D
         self.mask=None
         self.npOnDangerOrServant=False
         self.colorOverEffectiveness=False
+        self.npOnDangerOrServant=True
 
     # ImageThings
-    def screenshot(self):
+    def screenshot(self,save=False):
         # print("screenshot Start")
         if self.debugg:return True
         elif self.checkActiveApp():
             # print("reciving bimg")
-            self.time(">")
+            # self.time(">")
             bimg = self.mainDev.screencap()
             self.time(">>")
             # print("recived bimg")
@@ -65,6 +73,8 @@ class botClient():
             self.screenshotImg = img
             self.screenshotImg = self.resizeOpenCvScreenshot(self.pilToOpencv(self.bimageToImage(bimg)))
             self.screenshotImgGray = cv2.cvtColor(self.screenshotImg, cv2.COLOR_BGR2GRAY)
+            if save:
+                cv2.imwrite("Test.png",self.screenshotImg)
             return True
         else:
             print('TIME STOPPE')
@@ -117,6 +127,16 @@ class botClient():
         # print('Click x:{} y:{}'.format(xy[0],xy[1]))
         if self.debugg:print('Click x:{} y:{}'.format(xy[0],xy[1]))
         else:self.mainDev.input_tap(int(xy[0]*self.clickResolution),int(xy[1]*self.clickResolution))
+
+    def swipe(self,xyStart=[],xyEnd=[],time=200):
+        # print(xy)
+        # Te en compte la rotació del dispositiu
+        # print("Clicking at: {} {}".format(x*self.clickResolution,y*self.clickResolution))
+        # print("Clicking at: {} {}".format(x,y))
+        if xyStart == [] or xyEnd == []:pass
+        # print('Click x:{} y:{}'.format(xy[0],xy[1]))
+        if self.debugg:print('Swipe xS:{} yS:{}\n\txE:{} yE:{}'.format(xyStart[0],xyStart[1],xyEnd[0],xyEnd[1]))
+        else:self.mainDev.input_swipe(int(xyStart[0]*self.clickResolution),int(xyStart[1]*self.clickResolution),int(xyEnd[0]*self.clickResolution),int(xyEnd[1]*self.clickResolution),time)
 
     def checkActiveApp(self):
         try:
@@ -210,6 +230,22 @@ class botClient():
         else:
             return False
 
+    def findOkMenu(self,mode=0):
+        # 0 don't click
+        # 1 click
+        template = cv2.imread('../templates/okButton.png', 0)
+        res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, max_loc = cv2.minMaxLoc(res)
+        treshHold = 0.85
+        if max_val > treshHold:  # 0 means press attack button
+            if mode is 1:
+                bestY, bestX = np.where(res >= max_val)
+                self.click([bestX,bestY])
+                return True
+            return True
+        else:
+            return False
+
     def dangerOrServantFound(self):
         templateDanger = cv2.imread('../templates/Combat/danger.png', 0)
         templateServant = cv2.imread('../templates/Combat/servant.png', 0)
@@ -222,6 +258,27 @@ class botClient():
             return True
         else:
             return False
+
+    def returnBarrPos(self,type=0):
+        # 0 Top, generic barr, works with energy too, energy has priority
+        # 1 Bottom, Support
+        # 2 Center, Support
+        # 3 Top, Support
+
+        # Else, print no barr found
+
+        if type is 0:template = cv2.imread('../templates/barrTop.png', 0)
+        elif type is 1:template = cv2.imread('../templates/supportBottomScrollbar.png', 0)
+        elif type is 2:template = cv2.imread('../templates/barr.png', 0) # Sha de revistar
+        elif type is 3:template = cv2.imread('../templates/topScrollBar.png', 0)
+        else:return False
+        res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, max_loc = cv2.minMaxLoc(res)
+        treshHold = 0.85
+        if max_val > treshHold:
+            bestY, bestX = np.where(res >= max_val)
+            return([int(bestX),int(bestY)])
+
 
     # Combat
     def attack(self):
@@ -238,6 +295,7 @@ class botClient():
             # print(self.cardsJsonStr)
             self.selectAttackCards()
         else:print("NOT ACTIVE")
+        time.sleep(3)
 
     def getNPCardInfo(self):
         self.cardsJsonStr['NP'].append(
@@ -470,6 +528,47 @@ class botClient():
             # print('END')
         # if self.cardsSelected > 2: time.sleep(4)
 
+    def restoreApples(self,id=None): #Wont use quartz
+        #None/False Restore menu, returns true/false
+        #0 Gold Apple
+        #1 Silver Apple
+        #2 Bronze Apple -> Not enabled, still have to do drag barr
+
+        if not id:
+            template = cv2.imread('../templates/energy/restoreEnergyMenu.png', 0)
+            res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
+            _, max_val, _, max_loc = cv2.minMaxLoc(res)
+            treshHold = 0.85
+            if max_val > treshHold:return True
+
+        elif id in [0,1,2]:
+            picker={0: '../templates/energy/goldApple.png',
+                    1: '../templates/energy/silverApple.png',
+                    2: '../templates/energy/bronzeApple.png'
+                    }
+            if id is 2: #Dragg
+                xy = self.returnBarrPos(0)
+                # self.click(xy)
+                # self.swipe(xy,xy)
+                self.swipe(xy,[xy[0]+2,xy[1]+200])
+                time.sleep(1)
+                self.screenshot()
+
+            template = cv2.imread(picker[id], 0)
+            res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
+            _, max_val, _, max_loc = cv2.minMaxLoc(res)
+            treshHold = 0.85
+            if max_val > treshHold:
+                bestY, bestX = np.where(res >= max_val)
+                self.click([bestX,bestY])
+                time.sleep(1)
+                self.screenshot()
+                if self.findOkMenu(1):
+                    self.timesRestoredEnergy+=1
+                    return True
+        return False
+
+
     def countColors(self):pass
 
     # Main
@@ -493,6 +592,7 @@ class botClient():
         if self.screenshot():
         # self.time(">>")
             # print('?')
+            # cv2.imwrite('Test.png',self.screenshotImg)
             if False:pass
             elif self.checkInCombat():self.attack()
             elif self.checkAttackButton():
@@ -501,16 +601,16 @@ class botClient():
             elif self.selectSupport and self.checkSelectSupp():
                 self.click([675,250])
                 time.sleep(1)
+            elif self.clickCheckTapScreen():pass
             elif self.repeatQuest and self.checkRepeatButton():
                 self.clickRepeatButton()
                 time.sleep(1)
-            elif self.clickCheckTapScreen():pass
             elif self.clickCheckNextutton():pass
             else:print('N')
-            cv2.imwrite('Test.png',self.screenshotImg)
             #RestoreEnergy/Stop
-            # self.time(">>>")
+            self.time(">>>")
 
+    #Debugg
     def debuggMode(self):#Test From images
         self.screenshotImg=cv2.imread('Test.png')
         # print(self.screenshotImg)
@@ -528,9 +628,22 @@ class botClient():
         print('{} {}'.format(str,time.time()-self.timeV))
         self.timeV=time.time()
 
+    def clickSpeedTest(self):
+        test.screenshot()
+        self.click([100,100])
+        print('Click!')
+        self.click([100,100])
+        print('Click!')
+        self.click([100,100])
+        print('Click!')
+
 #test=botClient(port=5037,ip="192.168.1.78")
 test=botClient(ip="40edac8d")
 #test=botClient(debugg=True)
-test.npOnDangerOrServant=True
-test.main(mode=0)
-
+# test.screenshot(True)
+# test.debuggMode()
+# test.main(mode=0)
+# test.clickSpeedTest()
+# test.swipe([500,100],[200,200])
+test.screenshot()
+print(test.restoreApples(2))
