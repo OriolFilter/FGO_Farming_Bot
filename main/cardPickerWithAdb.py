@@ -567,6 +567,7 @@ class botClient():
                 if self.findOkMenu(1):
                     self.timesRestoredEnergy+=1
                     return True
+                    time.sleep(4)
         return False
 
 
@@ -637,6 +638,10 @@ class botClient():
                     if self.restoreApples(0):pass
                     elif self.restoreApples(1):pass
                     elif self.restoreApples(2):pass
+                    elif self.timesRestoredEnergy >= self.timesToRestoreEnergy:
+                        print('Stopping after restoring {}'.format(self.timesRestoredEnergy))
+                        self.run=False
+
 
                 else:print('N')
                 #RestoreEnergy/Stop
@@ -672,8 +677,8 @@ class botClient():
 #test=botClient(port=5037,ip="192.168.1.78")
 test=botClient(ip="40edac8d")
 #Settind custom details
-test.timesToRestoreEnergy=5
-test.npOnDangerOrServant=True
+test.timesToRestoreEnergy=1
+# test.npOnDangerOrServant=True
 test.selectSupport=True
 test.repeatQuest=True
 #test=botClient(debugg=True)
@@ -685,5 +690,4 @@ test.repeatQuest=True
 # print(test.restoreApples(2))
 
 # Running Main
-# test.main(mode=0)
-test.main(mode=1)
+test.main(mode=0)
