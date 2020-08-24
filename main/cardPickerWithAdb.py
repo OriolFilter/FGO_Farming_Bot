@@ -634,13 +634,13 @@ class botClient():
                     self.clickRepeatButton()
                     time.sleep(1)
                 elif self.clickCheckNextutton():pass
-                elif self.restoreApples() and self.timesRestoredEnergy < self.timesToRestoreEnergy:
+                elif self.restoreApples() and self.timesRestoredEnergy < self.timesToRestoreEnergy or :
                     if self.restoreApples(0):pass
                     elif self.restoreApples(1):pass
                     elif self.restoreApples(2):pass
-                    elif self.timesRestoredEnergy >= self.timesToRestoreEnergy:
-                        print('Stopping after restoring {}'.format(self.timesRestoredEnergy))
-                        self.run=False
+                elif self.timesRestoredEnergy >= self.timesToRestoreEnergy:
+                    print('Stopping after restoring {}'.format(self.timesRestoredEnergy))
+                    self.run=False
 
 
                 else:print('N')
@@ -691,3 +691,5 @@ test.repeatQuest=True
 
 # Running Main
 test.main(mode=0)
+
+#22:46-22:46, 3 mins per quest, 40 per missio, 140 total, 140/40=3.5, al 50% = 7, good math bro!, 3x7=21
