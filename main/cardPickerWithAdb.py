@@ -535,19 +535,24 @@ class botClient():
         #1 Silver Apple
         #2 Bronze Apple -> Not enabled, still have to do drag barr
 
-        if not id:
+        appleValues={ 0:1,  #100%
+                      1:0.5,#50%
+                      2:0.1 #10%
+        }
+
+        if id is None:
             template = cv2.imread('../templates/energy/restoreEnergyMenu.png', 0)
             res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
             _, max_val, _, max_loc = cv2.minMaxLoc(res)
             treshHold = 0.85
             if max_val > treshHold:return True
 
-        elif id in [0,1,2]:
+        elif int(id) in [0,1,2]:
             picker={0: '../templates/energy/goldApple.png',
                     1: '../templates/energy/silverApple.png',
                     2: '../templates/energy/bronzeApple.png'
                     }
-            if id is 2: #Dragg
+            if id == 2: #Dragg
                 xy = self.returnBarrPos(0)
                 # self.click(xy)
                 # self.swipe(xy,xy)
@@ -559,15 +564,17 @@ class botClient():
             res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
             _, max_val, _, max_loc = cv2.minMaxLoc(res)
             treshHold = 0.85
+            print(max_val)
             if max_val > treshHold:
                 bestY, bestX = np.where(res >= max_val)
                 self.click([bestX,bestY])
                 time.sleep(1)
                 self.screenshot()
                 if self.findOkMenu(1):
-                    self.timesRestoredEnergy+=1
+                    self.timesRestoredEnergy+=appleValues[id]
                     return True
                     time.sleep(4)
+                #else: #Find Close due lack of apples
         return False
 
 
@@ -638,7 +645,7 @@ class botClient():
                     if self.restoreApples(0):pass
                     elif self.restoreApples(1):pass
                     elif self.restoreApples(2):pass
-                elif self.timesRestoredEnergy >= self.timesToRestoreEnergy and not self.timesToRestoreEnergy <= 0 :
+                elif self.timesRestoredEnergy >= self.timesToRestoreEnergy and self.timesToRestoreEnergy > 0 :
                     print('Stopping after restoring {}'.format(self.timesRestoredEnergy))
                     self.run=False
 
@@ -677,7 +684,7 @@ class botClient():
 #test=botClient(port=5037,ip="192.168.1.78")
 test=botClient(ip="40edac8d")
 #Settind custom details
-test.timesToRestoreEnergy=0
+test.timesToRestoreEnergy=2
 # test.npOnDangerOrServant=True
 test.selectSupport=True
 test.repeatQuest=True
@@ -689,7 +696,10 @@ test.repeatQuest=True
 # test.screenshot()
 # print(test.restoreApples(2))
 
+# Test
+
 # Running Main
 test.main(mode=0)
+
 
 #22:46-22:46, 3 mins per quest, 40 per missio, 140 total, 140/40=3.5, al 50% = 7, good math bro!, 3x7=21
