@@ -41,7 +41,7 @@ class botClient():
 
         # Energy
         self.timesRestoredEnergy=0
-        self.timesToRestoreEnergy=0 #Does only work with gold/silver apples
+        self.timesToRestoreEnergy=0 # -1 means infinite, does not use QZ
 
         # Quests
         self.repeatQuest=False
@@ -581,7 +581,7 @@ class botClient():
             try:
                 if mode == 0:self.basicMode()
                 elif mode == 1:self.combatOnly()
-                elif mode == 2:self.combatOnly()
+                elif mode == 2:self.cardPickerOnly()
 
                 else:
                     print('Wrong mode...')
@@ -634,7 +634,7 @@ class botClient():
                     self.clickRepeatButton()
                     time.sleep(1)
                 elif self.clickCheckNextutton():pass
-                elif self.restoreApples() and self.timesRestoredEnergy < self.timesToRestoreEnergy or :
+                elif self.restoreApples() and self.timesRestoredEnergy < self.timesToRestoreEnergy or self.timesToRestoreEnergy == -1:
                     if self.restoreApples(0):pass
                     elif self.restoreApples(1):pass
                     elif self.restoreApples(2):pass
@@ -677,7 +677,7 @@ class botClient():
 #test=botClient(port=5037,ip="192.168.1.78")
 test=botClient(ip="40edac8d")
 #Settind custom details
-test.timesToRestoreEnergy=1
+test.timesToRestoreEnergy=0
 # test.npOnDangerOrServant=True
 test.selectSupport=True
 test.repeatQuest=True
@@ -690,6 +690,6 @@ test.repeatQuest=True
 # print(test.restoreApples(2))
 
 # Running Main
-test.main(mode=0)
+test.main(mode=1)
 
 #22:46-22:46, 3 mins per quest, 40 per missio, 140 total, 140/40=3.5, al 50% = 7, good math bro!, 3x7=21
