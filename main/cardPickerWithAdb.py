@@ -638,7 +638,7 @@ class botClient():
                     if self.restoreApples(0):pass
                     elif self.restoreApples(1):pass
                     elif self.restoreApples(2):pass
-                elif self.timesRestoredEnergy >= self.timesToRestoreEnergy:
+                elif self.timesRestoredEnergy >= self.timesToRestoreEnergy and not self.timesToRestoreEnergy <= 0 :
                     print('Stopping after restoring {}'.format(self.timesRestoredEnergy))
                     self.run=False
 
@@ -690,6 +690,6 @@ test.repeatQuest=True
 # print(test.restoreApples(2))
 
 # Running Main
-test.main(mode=1)
+test.main(mode=0)
 
 #22:46-22:46, 3 mins per quest, 40 per missio, 140 total, 140/40=3.5, al 50% = 7, good math bro!, 3x7=21
