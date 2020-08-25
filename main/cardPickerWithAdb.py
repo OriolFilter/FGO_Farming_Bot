@@ -681,25 +681,38 @@ class botClient():
         self.click([100,100])
         print('Click!')
 
-#test=botClient(port=5037,ip="192.168.1.78")
-test=botClient(ip="40edac8d")
-#Settind custom details
-test.timesToRestoreEnergy=2
-# test.npOnDangerOrServant=True
-test.selectSupport=True
-test.repeatQuest=True
-#test=botClient(debugg=True)
-# test.screenshot(True)
-# test.debuggMode()
-# test.clickSpeedTest()
-# test.swipe([500,100],[200,200])
-# test.screenshot()
-# print(test.restoreApples(2))
-
-# Test
-
-# Running Main
-test.main(mode=0)
 
 
-#22:46-22:46, 3 mins per quest, 40 per missio, 140 total, 140/40=3.5, al 50% = 7, good math bro!, 3x7=21
+
+
+
+
+
+
+
+
+
+# Demo
+if __name__ == '__main__':
+    #test=botClient(port=5037,ip="192.168.1.78")
+    test=botClient(ip="40edac8d")
+    #Settind custom details
+    test.timesToRestoreEnergy=2
+    # test.npOnDangerOrServant=True
+    test.selectSupport=True
+    test.repeatQuest=True
+    #test=botClient(debugg=True)
+    # test.screenshot(True)
+    # test.debuggMode()
+    # test.clickSpeedTest()
+    # test.swipe([500,100],[200,200])
+    # test.screenshot()
+    # print(test.restoreApples(2))
+
+    # Test
+
+    # Running Main
+    test.main(mode=0)
+
+
+    #22:46-22:46, 3 mins per quest, 40 per missio, 140 total, 140/40=3.5, al 50% = 7, good math bro!, 3x7=21
