@@ -239,7 +239,7 @@ class botClient():
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
         treshHold = 0.85
         if max_val > treshHold:  # 0 means press attack button
-            if mode is 1:
+            if mode == 1:
                 bestY, bestX = np.where(res >= max_val)
                 self.click([bestX,bestY])
                 return True
@@ -268,10 +268,10 @@ class botClient():
 
         # Else, print no barr found
 
-        if type is 0:template = cv2.imread('../templates/barrTop.png', 0)
-        elif type is 1:template = cv2.imread('../templates/supportBottomScrollbar.png', 0)
-        elif type is 2:template = cv2.imread('../templates/barr.png', 0) # Sha de revistar
-        elif type is 3:template = cv2.imread('../templates/topScrollBar.png', 0)
+        if type == 0:template = cv2.imread('../templates/barrTop.png', 0)
+        elif type == 1:template = cv2.imread('../templates/supportBottomScrollbar.png', 0)
+        elif type == 2:template = cv2.imread('../templates/barr.png', 0) # Sha de revistar
+        elif type == 3:template = cv2.imread('../templates/topScrollBar.png', 0)
         else:return False
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
@@ -697,7 +697,7 @@ if __name__ == '__main__':
     #test=botClient(port=5037,ip="192.168.1.78")
     test=botClient(ip="40edac8d")
     #Settind custom details
-    test.timesToRestoreEnergy=2
+    test.timesToRestoreEnergy=0
     # test.npOnDangerOrServant=True
     test.selectSupport=True
     test.repeatQuest=True
