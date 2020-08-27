@@ -490,7 +490,7 @@ class botClient():
                 while t<4 and self.cardsSelected<3:
                     e=0
                     while e<4 and self.cardsSelected<3:
-                        # print(len(self.cardsJsonStr["NORMAL"]))
+                        # print(len(self.car dsJsonStr["NORMAL"]))
                         c=0
                         while c<len(self.cardsJsonStr["NORMAL"]) and self.cardsSelected<3:
                             if self.cardsJsonStr["NORMAL"][c]["type"] == self.cardsPrio[t] and self.cardsJsonStr["NORMAL"][c]["effectiveness"] == e and not self.cardsJsonStr["NORMAL"][c]["used"]:
@@ -641,7 +641,7 @@ class botClient():
                     self.clickRepeatButton()
                     time.sleep(1)
                 elif self.clickCheckNextutton():pass
-                elif self.restoreApples() and self.timesRestoredEnergy < self.timesToRestoreEnergy or self.timesToRestoreEnergy == -1:
+                elif self.restoreApples() and (self.timesRestoredEnergy < self.timesToRestoreEnergy or self.timesToRestoreEnergy == -1):
                     if self.restoreApples(0):pass
                     elif self.restoreApples(1):pass
                     elif self.restoreApples(2):pass
@@ -697,7 +697,7 @@ if __name__ == '__main__':
     #test=botClient(port=5037,ip="192.168.1.78")
     test=botClient(ip="40edac8d")
     #Settind custom details
-    test.timesToRestoreEnergy=0
+    test.timesToRestoreEnergy=-1
     # test.npOnDangerOrServant=True
     test.selectSupport=True
     test.repeatQuest=True
@@ -716,3 +716,4 @@ if __name__ == '__main__':
 
 
     #22:46-22:46, 3 mins per quest, 40 per missio, 140 total, 140/40=3.5, al 50% = 7, good math bro!, 3x7=21
+    input()
