@@ -669,9 +669,9 @@ class botClient():
                     else:print('Not enabled')
                 elif self.restoreApples():
                     if self.timesRestoredEnergy < self.timesToRestoreEnergy or self.timesToRestoreEnergy == -1:
-                        if self.restoreApples(0):pass
-                        elif self.restoreApples(1):pass
-                        elif self.restoreApples(2):pass
+                        if self.restoreApples(0): print('Restored energy using{}'.format(' a Golden Apple'))
+                        elif self.restoreApples(1): print('Restored energy using{}'.format(' a Silver Apple'))
+                        elif self.restoreApples(2): print('Restored energy using{}'.format(' a Bronze Apple'))
                     elif self.timesRestoredEnergy >= self.timesToRestoreEnergy and self.timesToRestoreEnergy > 0 :
                         print('Stopping after restoring energy {} times'.format(self.timesRestoredEnergy))
                         self.run=False
@@ -748,3 +748,7 @@ if __name__ == '__main__':
 
     #22:46-22:46, 3 mins per quest, 40 per missio, 140 total, 140/40=3.5, al 50% = 7, good math bro!, 3x7=21
     input()
+
+#restoreApples -> refillEnergy
+
+# Fer una especie de menu per sellecionar coses, podria estar guai, i que fos per terminal, per a que sigui fancy control
