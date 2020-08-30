@@ -46,7 +46,7 @@ class botClient():
         # Quests
         self.repeatQuest=False
         self.selectSupport=False
-
+        self.questsFinished=0
 
         # Combat
         self.npOnDangerOrServant=False
@@ -57,6 +57,7 @@ class botClient():
         self.run=True # Mayb should move it to self.main()
         self.mask=None
         self.timeV=time.time() #D
+        self.addFriend=False # Add Master as a friend when aviable, fa falta configurar per en cas de que el jugador no tingui espai
 
     # ImageThings
     def screenshot(self,save=False):
@@ -66,7 +67,7 @@ class botClient():
             # print("reciving bimg")
             # self.time(">")
             bimg = self.mainDev.screencap()
-            self.time(">>")
+            #self.time(">>")
             # print("recived bimg")
             img = self.bimageToImage(bimg)
             img = self.pilToOpencv(img)
@@ -163,6 +164,27 @@ class botClient():
             self.click([bestX,bestY])
         else: return False
 
+    def clickDoNotSend(self):
+        template = cv2.imread('../templates/doNotSend.png', 0)
+        res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, max_loc = cv2.minMaxLoc(res)
+
+        treshHold = 0.85
+        if max_val > treshHold:
+            bestY, bestX = np.where(res >= max_val)
+            self.click([bestX,bestY])
+        else: return False
+
+    def friendRequest(self):
+        template = cv2.imread('../templates/friendRequest.png', 0)
+        res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, max_loc = cv2.minMaxLoc(res)
+
+        treshHold = 0.85
+        if max_val > treshHold:
+            return True
+        else: return False
+
     def clickCheckTapScreen(self):
         template = cv2.imread('../templates/tap.png', 0)
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
@@ -170,8 +192,6 @@ class botClient():
         if max_val > 0.7:
             bestY, bestX = np.where(res >= max_val)
             self.click([bestX,bestY])
-            return True
-        else: return False
 
     def clickCheckNextutton(self):
         # screenshot()
@@ -572,8 +592,9 @@ class botClient():
                 self.screenshot()
                 if self.findOkMenu(1):
                     self.timesRestoredEnergy+=appleValues[id]
-                    return True
+                    print('{} time restoring energy'.format(self.timesRestoredEnergy))
                     time.sleep(4)
+                    return True
                 #else: #Find Close due lack of apples
         return False
 
@@ -635,24 +656,34 @@ class botClient():
                     time.sleep(1)
                 elif self.selectSupport and self.checkSelectSupp():
                     self.click([675,250])
-                    time.sleep(1)
+                    time.sleep(0.5)
                 elif self.clickCheckTapScreen():pass
                 elif self.repeatQuest and self.checkRepeatButton():
                     self.clickRepeatButton()
-                    time.sleep(1)
-                elif self.clickCheckNextutton():pass
-                elif self.restoreApples() and (self.timesRestoredEnergy < self.timesToRestoreEnergy or self.timesToRestoreEnergy == -1):
-                    if self.restoreApples(0):pass
-                    elif self.restoreApples(1):pass
-                    elif self.restoreApples(2):pass
-                elif self.timesRestoredEnergy >= self.timesToRestoreEnergy and self.timesToRestoreEnergy > 0 :
-                    print('Stopping after restoring {}'.format(self.timesRestoredEnergy))
-                    self.run=False
+                    time.sleep(0.5)
+                elif self.clickCheckNextutton():
+                    self.questsFinished+=1
+                    print('Finished quest nº {}'.format(self.questsFinished))
+                elif self.friendRequest():
+                    if self.addFriend:self.clickDoNotSend()
+                    else:print('Not enabled')
+                elif self.restoreApples():
+                    if self.timesRestoredEnergy < self.timesToRestoreEnergy or self.timesToRestoreEnergy == -1:
+                        if self.restoreApples(0):pass
+                        elif self.restoreApples(1):pass
+                        elif self.restoreApples(2):pass
+                    elif self.timesRestoredEnergy >= self.timesToRestoreEnergy and self.timesToRestoreEnergy > 0 :
+                        print('Stopping after restoring energy {} times'.format(self.timesRestoredEnergy))
+                        self.run=False
+                    elif self.timesToRestoreEnergy == 0:
+                        print('Stopping after running out of energy')
+                        self.run=False
 
 
-                else:print('N')
+
+                #else:print('N')
                 #RestoreEnergy/Stop
-                self.time(">>>")
+                #self.time(">>>")
 
     #Debugg
     def debuggMode(self):#Test From images
@@ -697,7 +728,7 @@ if __name__ == '__main__':
     #test=botClient(port=5037,ip="192.168.1.78")
     test=botClient(ip="40edac8d")
     #Settind custom details
-    test.timesToRestoreEnergy=-1
+    test.timesToRestoreEnergy=0
     # test.npOnDangerOrServant=True
     test.selectSupport=True
     test.repeatQuest=True
