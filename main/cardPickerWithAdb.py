@@ -1,5 +1,4 @@
 # Project Excalibur
-# print(":".join(["a","b"]))
 
 # print(mainDev.get_battery_level())
 
@@ -14,31 +13,26 @@ from PIL import Image
 import io
 
 
-print('This is a test WITHOUT server/client')
-
-# def click():
-    # mainDev.input_tap()
-
-
 class botClient():
-    def __init__(self,ip=None,port=None,debugg=False):
-        if not debugg:
-            if port != None:
-                self.client = AdbClient(host="127.0.0.1", port=port)
-            else:
-                self.client = AdbClient(host="127.0.0.1", port=5037)
-            if port != None:
-                self.mainDev = self.client.device(":".join([ip,str(port)]))
-            else:
-                self.mainDev = self.client.device(ip)
-            # clientId="192.168.1.78:5037"
-            # print(":".join([ip,str(port)]))
-            self.debugg=False
+    def __init__(self,appName=None,ip=None,hostName=None,port=5037,debugg=False): # 5037 Might be the default port for adbServer
+        # You can check the device host 'name' in case you are using a usb
+        # appName not enabled
+        if not debugg: # Server connection to adb
+            self.client = AdbClient(host="127.0.0.1", port=port)
+            try:
+                if not port: # Server connection to client
+                    self.mainDev = self.client.device(":".join([ip,str(port)])) # Wifi/Network
+                elif hostName:
+                    self.mainDev = self.client.device(hostName) # "USB"
+                elif appName: print('Thats not enabled!')
+            except ConnectionRefusedError:
+                print('Connection refused or not aviable\nMake sure the server has started adb, and the client has debbug mode enabled, also check if wifi is inabled in case of using network, or the usb is plugged in correctly')
 
+            self.debugg=False
         # self
         else:self.debugg=True
 
-
+        # Default variables
         # Energy
         self.timesRestoredEnergy=0
         self.timesToRestoreEnergy=0 # -1 means infinite, does not use QZ
@@ -46,7 +40,7 @@ class botClient():
         # Quests
         self.repeatQuest=False
         self.selectSupport=False
-        self.questsFinished=0
+        self.questsFinished=0 # Just conts the times that had to press 'Next', in certain events it might bugg since it might have multiple pages
 
         # Combat
         self.npOnDangerOrServant=False
@@ -726,7 +720,7 @@ class botClient():
 # Demo
 if __name__ == '__main__':
     #test=botClient(port=5037,ip="192.168.1.78")
-    test=botClient(ip="40edac8d")
+    test=botClient(hostName="40edac8d")
     #Settind custom details
     test.timesToRestoreEnergy=0
     # test.npOnDangerOrServant=True
@@ -743,12 +737,11 @@ if __name__ == '__main__':
     # Test
 
     # Running Main
-    test.main(mode=0)
+    test.main(mode=1)
 
-
-    #22:46-22:46, 3 mins per quest, 40 per missio, 140 total, 140/40=3.5, al 50% = 7, good math bro!, 3x7=21
-    input()
+    input() # Input
 
 #restoreApples -> refillEnergy
 
 # Fer una especie de menu per sellecionar coses, podria estar guai, i que fos per terminal, per a que sigui fancy control
+# https://www.youtube.com/watch?v=zwMsmBsC1GM
