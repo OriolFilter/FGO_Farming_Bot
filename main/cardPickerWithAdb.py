@@ -1,5 +1,7 @@
-# Project Excalibur
+# Project Irisviel
 
+# Licence
+# CreativeCommons (by-nc)
 # print(mainDev.get_battery_level())
 
 
@@ -14,7 +16,7 @@ import io
 
 
 class botClient():
-    def __init__(self,appName=None,ip=None,hostName=None,port=5037,debugg=False): # 5037 Might be the default port for adbServer
+    def __init__(self,emuName=None,ip=None,hostName=None,port=5037,debugg=False): # 5037 Might be the default port for adbServer
         # You can check the device host 'name' in case you are using a usb
         # appName not enabled
         if not debugg: # Server connection to adb
@@ -24,7 +26,7 @@ class botClient():
                     self.mainDev = self.client.device(":".join([ip,str(port)])) # Wifi/Network
                 elif hostName:
                     self.mainDev = self.client.device(hostName) # "USB"
-                elif appName: print('Thats not enabled!')
+                elif emuName: print('Thats not enabled!') # Change to pass, or just remove
             except ConnectionRefusedError:
                 print('Connection refused or not aviable\nMake sure the server has started adb, and the client has debbug mode enabled, also check if wifi is inabled in case of using network, or the usb is plugged in correctly')
 
@@ -32,7 +34,10 @@ class botClient():
         # self
         else:self.debugg=True
 
-        # Default variables
+        # Default variables used on functions and default modes
+        # Application
+        self.emuName=emuName # If left empty it means None
+
         # Energy
         self.timesRestoredEnergy=0
         self.timesToRestoreEnergy=0 # -1 means infinite, does not use QZ
@@ -72,9 +77,11 @@ class botClient():
             if save:
                 cv2.imwrite("Test.png",self.screenshotImg)
             return True
+        elif self.emuName:
+            print('Taking screenshot from Windows Emulator')
         else:
-            print('TIME STOPPE')
-            time.sleep(5)
+            print('FGO application isn\' foreground')
+            time.sleep(5) # Wait 5 seconds
             return False
         # print("screenshot Ends")
         # Image is alredy in byte aray, don't need to do nothing
