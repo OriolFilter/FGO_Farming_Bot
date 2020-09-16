@@ -312,7 +312,7 @@ class botClient():
             bestY, bestX = np.where(res >= max_val)
             return([int(bestX),int(bestY)])
 
-    def findSpinButton(self,number=1):
+    def findSpinButton(self,number=1,returnPos=True):
         # number 1=10 spins (default)
         # number 0=1/else
         if number==1: template = cv2.imread('../templates/spin10.png', 0)
@@ -321,8 +321,10 @@ class botClient():
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
         treshHold = 0.85
         if max_val > treshHold:
-            bestY, bestX = np.where(res >= max_val)
-            return [bestX[0],bestY[0]]
+            if returnPos:
+                bestY, bestX = np.where(res >= max_val)
+                return [bestX[0],bestY[0]]
+            else: return True
         return False
 
     def findPrizeResetButton(self,returnPos=False):
