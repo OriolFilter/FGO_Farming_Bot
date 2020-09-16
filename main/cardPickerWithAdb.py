@@ -314,15 +314,15 @@ class botClient():
 
     def findSpinButton(self,number=1):
         # number 1=10 spins (default)
-        # number 0=1
-        if number: template = cv2.imread('../templates/spin10.png', 0)
+        # number 0=1/else
+        if number==1: template = cv2.imread('../templates/spin10.png', 0)
         else: template = cv2.imread('../templates/spin1.png', 0)
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
         treshHold = 0.85
         if max_val > treshHold:
             bestY, bestX = np.where(res >= max_val)
-            return [bestY[0],bestX[0]]
+            return [bestX[0],bestY[0]]
         return False
 
     # Combat
