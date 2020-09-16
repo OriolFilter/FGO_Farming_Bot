@@ -9,9 +9,10 @@ if __name__ == '__main__':
 
     hostname="40edac8d"
     client=cp.botClient(hostName=hostname)
-    client.screenshot()
     spinnPos=None
-    while not spinnPos:spinnPos=client.findSpinButton()
+    while not spinnPos:
+        client.screenshot()
+        spinnPos=client.findSpinButton()
     prizeResetButtonPos=None
     resetButtonPos=None
     closeButtonPos=None
