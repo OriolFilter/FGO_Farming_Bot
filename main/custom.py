@@ -47,4 +47,5 @@ if __name__ == '__main__':
         client.screenshot()
         pos=None
         while not pos:pos=client.findSpinButton()
+        print(pos)
         while True:client.click(pos)
