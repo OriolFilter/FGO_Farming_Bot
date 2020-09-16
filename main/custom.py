@@ -1,5 +1,6 @@
 # from main import cardPickerWithAdb as cp
 import cardPickerWithAdb as cp
+from time import sleep
 
 print('Select the mode')
 print('0\t normal mode\n1\t combat mode\n2\t card picking mode\n3\t qp mode\n-1\tTake screenshot\n-2\tSpin 10\n')
@@ -45,7 +46,17 @@ if __name__ == '__main__':
     elif option == -2:
         client=cp.botClient(hostName=hostname)
         client.screenshot()
-        pos=None
-        while not pos:pos=client.findSpinButton()
-        print(pos)
-        while True:client.click(pos)
+        spinnPos=None
+        while not spinnPos:spinnPos=client.findSpinButton()
+        # print(spinnPos)
+        prizeResetButtonPos=None
+        resetButtonPos=None
+        while True:
+            client.screenshot()
+            # while not client.findPrizeResetButton():
+            for x in range (33*5,0,-1):client.click(spinnPos)
+            if not prizeResetButtonPos:prizeResetButtonPos=client.findPrizeResetButton(returnPos=True)
+            if prizeResetButtonPos:client.click(prizeResetButtonPos)
+            sleep(1)
+            if not resetButtonPos:client.findResetButton=client.findResetButton(returnPos=True)
+            if resetButtonPos:client.click(resetButtonPos)

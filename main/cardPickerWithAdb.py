@@ -325,6 +325,34 @@ class botClient():
             return [bestX[0],bestY[0]]
         return False
 
+    def findPrizeResetButton(self,returnPos=False):
+        # number 1=10 spins (default)
+        # number 0=1/else
+        template = cv2.imread('../templates/prizeReset.png', 0)
+        res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, max_loc = cv2.minMaxLoc(res)
+        treshHold = 0.85
+        if max_val > treshHold:
+            if returnPos:
+                bestY, bestX = np.where(res >= max_val)
+                return [bestX[0],bestY[0]]
+            else:return True
+        return False
+
+    def findResetButton(self,returnPos=False):
+        # number 1=10 spins (default)
+        # number 0=1/else
+        template = cv2.imread('../templates/resetButton.png', 0)
+        res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, max_loc = cv2.minMaxLoc(res)
+        treshHold = 0.85
+        if max_val > treshHold:
+            if returnPos:
+                bestY, bestX = np.where(res >= max_val)
+                return [bestX[0],bestY[0]]
+            else:return True
+        return False
+
     # Combat
     def attack(self):
         self.cardsSelected=0
