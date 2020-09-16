@@ -48,13 +48,11 @@ if __name__ == '__main__':
         client.screenshot()
         spinnPos=None
         while not spinnPos:spinnPos=client.findSpinButton()
-        # print(spinnPos)
         prizeResetButtonPos=None
         resetButtonPos=None
         closeButtonPos=None
         while True:
             client.screenshot()
-            # while not client.findPrizeResetButton():
             for x in range (33*5,0,-1):client.click(spinnPos)
             if not prizeResetButtonPos:
                 prizeResetButtonPos=client.findPrizeResetButton(returnPos=True)
