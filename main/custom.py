@@ -14,7 +14,7 @@ if __name__ == '__main__':
         client.npOnDangerOrServant=True
         client.selectSupport=True
         client.repeatQuest=True
-    #        client.cardsPrio=[1,2,0,3]
+        # client.cardsPrio=[1,2,0,3]
         client.cardsPrio=[0,1,2,3]
         #test=botClient(debugg=True)
 
