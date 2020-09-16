@@ -1,35 +1,49 @@
 from main import cardPickerWithAdb as cp
+# import cardPickerWithAdb as cp
 
 print('Select the mode')
-print('0\t normal mode\n1\t combat mode\n2\t card picking mode\n-1 debugg mode')
-option = input()
-
-
-
+print('0\t normal mode\n1\t combat mode\n2\t card picking mode\n3\t qp mode\n-1\tTake screenshot\n-2\Exchange/spin 10')
+option = int(input())
 
 if __name__ == '__main__':
-    client=cp.botClient(hostName="40edac8d")
 
+    hostname="40edac8d"
     if option == 0:
-        client.timesToRestoreEnergy=0
-        # test.npOnDangerOrServant=True
+        client=cp.botClient(hostName="40edac8d")
+        client.timesToRestoreEnergy=20
+        client.npOnDangerOrServant=True
         client.selectSupport=True
         client.repeatQuest=True
+    #        client.cardsPrio=[1,2,0,3]
+        client.cardsPrio=[0,1,2,3]
         #test=botClient(debugg=True)
 
         # Test
 
         # Running Main
+        print('start')
         client.main(mode=0)
+        print('END')
 
     elif option == 1:
+        client=cp.botClient(hostName=hostname)
         client.main(mode=1)
     elif option == 2:
+        client=cp.botClient(hostName=hostname)
         client.main(mode=2)
+    elif option == 3:
+        client=cp.botClient(hostName=hostname)
+        client.selectSupport=False
+        client.repeatQuest=True
+        client.timesToRestoreEnergy=0
+        client.main(mode=0)
     elif option == -1: # Under construction
-        client.screenshot(True)
-        client.debuggMode()
-        # test.clickSpeedTest()
-        # test.swipe([500,100],[200,200])
-        # test.screenshot()
-        # print(test.restoreApples(2))
+        client=cp.botClient(hostName=hostname,debugg=True)
+        print('START')
+        client.screenshot(save=True,imgPath="Test.png")
+        print('END')
+    elif option == -2:
+        client=cp.botClient(hostName=hostname)
+        pos=None
+        while not pos:pos=client.findSpinButton()
+        client.click()

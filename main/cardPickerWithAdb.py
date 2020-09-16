@@ -19,7 +19,7 @@ class botClient():
     def __init__(self,emuName=None,ip=None,hostName=None,port=5037,debugg=False): # 5037 Might be the default port for adbServer
         # You can check the device host 'name' in case you are using a usb
         # appName not enabled
-        if not debugg: # Server connection to adb
+        if hostName or port: # Server connection to adb
             self.client = AdbClient(host="127.0.0.1", port=port)
             try:
                 if not port: # Server connection to client
@@ -32,7 +32,7 @@ class botClient():
 
             self.debugg=False
         # self
-        else:self.debugg=True
+        if debugg:self.debugg=True
 
         # Default variables used on functions and default modes
         # Application
@@ -50,7 +50,7 @@ class botClient():
         # Combat
         self.npOnDangerOrServant=False
         self.colorOverEffectiveness=False
-        self.cardsPrio=[0,1,2,3] # Default, Buster, Arts, Quick, Stunned
+        self.cardsPrio=[0,1,2,3] # Default, 0 Buster, 1 Arts, 2 Quick, 3 Stunned, IMPORTANT, use 3, since in case you don't and you have +3 stunned cards you will have a loop
 
         # Misc
         self.run=True # Mayb should move it to self.main()
@@ -59,9 +59,19 @@ class botClient():
         self.addFriend=False # Add Master as a friend when aviable, fa falta configurar per en cas de que el jugador no tingui espai
 
     # ImageThings
-    def screenshot(self,save=False):
+    def screenshot(self,save=False,imgPath="Test.png"):
         # print("screenshot Start")
-        if self.debugg:return True
+        if self.debugg:
+            bimg = self.mainDev.screencap()
+            img = self.bimageToImage(bimg)
+            img = self.pilToOpencv(img)
+            img = self.resizeOpenCvScreenshot(img)
+            self.screenshotImg = img
+            self.screenshotImg = self.resizeOpenCvScreenshot(self.pilToOpencv(self.bimageToImage(bimg)))
+            if save:
+                cv2.imwrite(imgPath,self.screenshotImg)
+                print('Image Saved!')
+
         elif self.checkActiveApp():
             # print("reciving bimg")
             # self.time(">")
@@ -75,7 +85,8 @@ class botClient():
             self.screenshotImg = self.resizeOpenCvScreenshot(self.pilToOpencv(self.bimageToImage(bimg)))
             self.screenshotImgGray = cv2.cvtColor(self.screenshotImg, cv2.COLOR_BGR2GRAY)
             if save:
-                cv2.imwrite("Test.png",self.screenshotImg)
+                cv2.imwrite(imgPath,self.screenshotImg)
+                print('Image Saved!')
             return True
         elif self.emuName:
             print('Taking screenshot from Windows Emulator')
@@ -160,7 +171,7 @@ class botClient():
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
 
         treshHold = 0.85
-        if max_val > treshHold:  # 0 means press attack button
+        if max_val > treshHold:
             bestY, bestX = np.where(res >= max_val)
             self.click([bestX,bestY])
         else: return False
@@ -247,7 +258,7 @@ class botClient():
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
         treshHold = 0.85
-        if max_val > treshHold:  # 0 means press attack button
+        if max_val > treshHold:
             return True
         else:
             return False
@@ -259,7 +270,7 @@ class botClient():
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
         treshHold = 0.85
-        if max_val > treshHold:  # 0 means press attack button
+        if max_val > treshHold:
             if mode == 1:
                 bestY, bestX = np.where(res >= max_val)
                 self.click([bestX,bestY])
@@ -276,7 +287,7 @@ class botClient():
         _, max_valD, _, max_locD = cv2.minMaxLoc(resD)
         _, max_valS, _, max_locS = cv2.minMaxLoc(resS)
         treshHold = 0.85
-        if max_valD > treshHold or max_valS > treshHold:  # 0 means press attack button
+        if max_valD > treshHold or max_valS > treshHold:
             return True
         else:
             return False
@@ -301,6 +312,18 @@ class botClient():
             bestY, bestX = np.where(res >= max_val)
             return([int(bestX),int(bestY)])
 
+    def findSpinButton(self,number=1):
+        # number 1=10 spins (default)
+        # number 0=1
+        if number: template = cv2.imread('../templates/spin10.png', 0)
+        else: template = cv2.imread('../templates/spin1.png', 0)
+        res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, max_loc = cv2.minMaxLoc(res)
+        treshHold = 0.85
+        if max_val > treshHold:
+            bestY, bestX = np.where(res >= max_val)
+            return [bestY,bestX]
+        return False
 
     # Combat
     def attack(self):
@@ -504,8 +527,9 @@ class botClient():
                 c+=1
 
         backup=0
-
-        if self.colorOverEffectiveness:
+        chain = False
+        if chain: pass
+        elif self.colorOverEffectiveness:
             while self.cardsSelected<3 and backup<5:
                 t=0
                 while t<4 and self.cardsSelected<3:
@@ -517,7 +541,7 @@ class botClient():
                             if self.cardsJsonStr["NORMAL"][c]["type"] == self.cardsPrio[t] and self.cardsJsonStr["NORMAL"][c]["effectiveness"] == e and not self.cardsJsonStr["NORMAL"][c]["used"]:
                                 self.cardsJsonStr["NORMAL"][c]["used"]=True
                                 self.cardsSelected+=1
-                                print(self.cardsJsonStr["NORMAL"][c]["pos"])
+                                # print(self.cardsJsonStr["NORMAL"][c]["pos"])
                                 # print(self.cardsJsonStr["NORMAL"][c]["pos"][0])
                                 # print(self.cardsJsonStr["NORMAL"][c]["pos"]["x"])
                                 self.click(xy=[self.cardsJsonStr["NORMAL"][c]["pos"]["x"],self.cardsJsonStr["NORMAL"][c]["pos"]["y"]])
@@ -537,7 +561,7 @@ class botClient():
                             if self.cardsJsonStr["NORMAL"][c]["type"] == self.cardsPrio[t] and self.cardsJsonStr["NORMAL"][c]["effectiveness"] == e and not self.cardsJsonStr["NORMAL"][c]["used"]:
                                 self.cardsJsonStr["NORMAL"][c]["used"]=True
                                 self.cardsSelected+=1
-                                print(self.cardsJsonStr["NORMAL"][c]["pos"])
+                                # print(self.cardsJsonStr["NORMAL"][c]["pos"])
                                 # print(self.cardsJsonStr["NORMAL"][c]["pos"][0])
                                 # print(self.cardsJsonStr["NORMAL"][c]["pos"]["x"])
                                 self.click(xy=[self.cardsJsonStr["NORMAL"][c]["pos"]["x"],self.cardsJsonStr["NORMAL"][c]["pos"]["y"]])
@@ -628,7 +652,7 @@ class botClient():
         while self.run:
             if self.screenshot():
                 if self.checkInCombat():self.attack()
-                else:print('N')
+                else:pass
 
 
     def combatOnly(self):
@@ -640,7 +664,7 @@ class botClient():
                 elif self.checkAttackButton():
                     self.click(xy=[self.attackButtonLoc[0]+50,self.attackButtonLoc[1]])
                     time.sleep(1)
-                else:print('N')
+                else:pass
 
     def basicMode(self):
         print('Basic mode selected')
@@ -692,7 +716,7 @@ class botClient():
         # print(self.screenshotImg)
         # self.showScreenshot()
         self.basicMode()
-        print(self.cardsJsonStr)
+        # print(self.cardsJsonStr)
         input()
 
     def showImage(self,img):
@@ -726,7 +750,7 @@ class botClient():
 
 # Demo
 if __name__ == '__main__':
-    #test=botClient(port=5037,ip="192.168.1.78")
+    #test=botClient(port=5037,ip="IP")
     test=botClient(hostName="40edac8d")
     #Settind custom details
     test.timesToRestoreEnergy=0
