@@ -53,14 +53,15 @@ if __name__ == '__main__':
         closeButtonPos=None
         while True:
             client.screenshot()
-            for x in range (33*5,0,-1):client.click(spinnPos)
+            # while not client.findPrizeResetButton():
+            # for x in range (33*5,0,-1):client.click(spinnPos)
             if not prizeResetButtonPos:
                 prizeResetButtonPos=client.findPrizeResetButton(returnPos=True)
                 client.screenshot()
             if prizeResetButtonPos:client.click(prizeResetButtonPos)
             sleep(1)
             if not resetButtonPos:
-                resetButtonPos.findResetButton(returnPos=True)
+                resetButtonPos=client.findResetButton(returnPos=True)
                 client.screenshot()
             if resetButtonPos:client.click(resetButtonPos)
             sleep(1)
