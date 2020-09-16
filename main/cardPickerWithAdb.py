@@ -322,7 +322,7 @@ class botClient():
         treshHold = 0.85
         if max_val > treshHold:
             bestY, bestX = np.where(res >= max_val)
-            return [bestY,bestX]
+            return [bestY[0],bestX[0]]
         return False
 
     # Combat

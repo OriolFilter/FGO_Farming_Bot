@@ -2,7 +2,7 @@
 import cardPickerWithAdb as cp
 
 print('Select the mode')
-print('0\t normal mode\n1\t combat mode\n2\t card picking mode\n3\t qp mode\n-1\tTake screenshot\n-2\tSpin 10')
+print('0\t normal mode\n1\t combat mode\n2\t card picking mode\n3\t qp mode\n-1\tTake screenshot\n-2\tSpin 10\n')
 option = int(input())
 
 if __name__ == '__main__':
@@ -47,4 +47,4 @@ if __name__ == '__main__':
         client.screenshot()
         pos=None
         while not pos:pos=client.findSpinButton()
-        while True:client.click()
+        while True:client.click(pos)
