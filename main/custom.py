@@ -1,5 +1,5 @@
-# from main import cardPickerWithAdb as cp
-import cardPickerWithAdb as cp
+from main import cardPickerWithAdb as cp
+# import cardPickerWithAdb as cp
 from time import sleep
 
 print('Select the mode')
@@ -11,7 +11,8 @@ if __name__ == '__main__':
     hostname="40edac8d"
     if option == 0:
         client=cp.botClient(hostName="40edac8d")
-        client.timesToRestoreEnergy=20
+        client.timesToRestoreEnergy=0
+        # client.timesToRestoreEnergy=20
         client.npOnDangerOrServant=True
         client.selectSupport=True
         client.repeatQuest=True
@@ -47,16 +48,12 @@ if __name__ == '__main__':
         client=cp.botClient(hostName=hostname)
         client.screenshot()
         spinnPos=None
-        while not spinnPos:
-            client.screenshot()
-            spinnPos=client.findSpinButton()
+
         prizeResetButtonPos=None
         resetButtonPos=None
         closeButtonPos=None
         while True:
-            client.screenshot()
-            if client.findPrizeResetButton(client.findSpinButton(returnPos=False)):
-                for x in range (33*5,0,-1):client.click(spinnPos)
+
             if not prizeResetButtonPos:
                 prizeResetButtonPos=client.findPrizeResetButton(returnPos=True)
                 client.screenshot()

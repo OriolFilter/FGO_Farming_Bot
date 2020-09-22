@@ -319,7 +319,7 @@ class botClient():
         else: template = cv2.imread('../templates/spin1.png', 0)
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
-        treshHold = 0.85
+        treshHold = 0.95
         if max_val > treshHold:
             if returnPos:
                 bestY, bestX = np.where(res >= max_val)
@@ -811,7 +811,7 @@ if __name__ == '__main__':
     # Test
 
     # Running Main
-    test.main(mode=1)
+    test.main(mode=0)
 
     input() # Input
 
