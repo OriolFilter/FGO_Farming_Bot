@@ -9,17 +9,20 @@ option = int(input())
 
 if __name__ == '__main__':
 
-    # hostname="b6997f9a"
-    hostname="40edac8d"
-    ceList=["ChaldeaLunchtimeU",""]
+    hostname="b6997f9a"
+    # hostname="40edac8d"
     if option == 0:
+        ceList = ["ChaldeaTeatimeU"]
+        # ceList = ["ChaldeaTeatimeU", "ChaldeaLunchtimeU"]
         client=cp.botClient(hostName=hostname)
+        client.ceList=ceList
         client.supportColorPalette=1
         # client.timesToRestoreEnergy=-1        # client.timesToRestoreEnergy=-1
         client.timesToRestoreEnergy=0
         client.npOnDangerOrServant=True
         client.selectSupportBool=True
         client.repeatQuest=True
+        client.supportClassInt=6 # Caster
         # client.cardsPrio=[1,2,0,3]
         client.cardsPrio=[0,1,2,3]
         #test=botClient(debugg=True)
@@ -97,7 +100,33 @@ if __name__ == '__main__':
         client = cp.botClient(hostName=hostname)
         client.supportColorPalette=1
         client.screenshot()
-        client.selectSupport(ceName="ChaldeaLunchtimeU")
+        client.supportClassInt = 6
+        client.ceList=["ChaldeaTeatimeU","ChaldeaLunchtimeU"]
+        client.selectSupport()
+
+        # print("inline for:")
+        # client.time(None)
+        # var = [print("Found!") for ce in ceList if client.findCE(ce)]
+        # client.time("time:\n")
+        # # input()
+        # print("For:")
+        # client.time(None)
+        # for ce in ceList:
+        #     if client.findCE(ce):print("Found!") #Aqui aniria un return
+        # client.time("time:\n")
+        # # input()
+        # print("While:")
+        # client.time(None)
+        # x=0
+        # finish=False
+        # while not finish and x<len(ceList):
+        #     finish=client.findCE(ceList[x])
+        #     if finish:print("Found!")
+        #     x+=1
+        # client.time("time:\n")
+
+
+        # client.selectSupport(ceName="ChaldeaLunchtimeU")
         # print(client.checkSuportBarrTopOrBottom())
         # print(client.checkSuportBarrTopOrBottom(False))
         # client.click([50,50])

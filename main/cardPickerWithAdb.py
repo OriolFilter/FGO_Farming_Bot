@@ -57,7 +57,7 @@ class botClient():
         self.selectSupportBool=False
         self.supportClassInt=0
         self.supportColorPalette=0 #0 means you finished the main history part 1
-
+        self.ceList=[]
         # Misc
         self.run=True # Mayb should move it to self.main()
         self.mask=None
@@ -299,36 +299,31 @@ class botClient():
 
 
 
-    def selectSupport(self,ceName=None):
-        self.supportClassInt=1
+    def selectSupport(self):
         self.selectSupportClass(classN=self.supportClassInt)
-        # self.selectSupportClass(classN=self.supportClassInt)
-        # print("abc")
-        # pass
-        # Detect barrPos if top or bottom
-        draggDown=True
+        if self.ceList == []:
+            self.findCE(None)
+        else:
+            for ceName in self.ceList:
+                draggDown=True
+                selectedSupport=False
+                x=0
+                while not selectedSupport and draggDown:
+                    if x == 5 and not self.checkSelectSuppScreen():return False
+                    self.screenshot()
+                    selectedSupport=self.findCE(ceName=ceName)
+                    if not selectedSupport and self.checkSuportBarrTopOrBottom(False):draggDown=False
+                    # elif not selectedSupport and self.checkSuportBarrTopOrBottom():draggDown=True
 
-        # lastBarrPos=0
-        # newBarrPos=0
-
-        selectedSupport=False
-        x=0
-        while not selectedSupport:
-            if x == 5 and not self.checkSelectSuppScreen():return False
-            self.screenshot()
-            # print("{} {}".format(lastBarrPos,newBarrPos))
-            selectedSupport=self.findCE(ceName=ceName)
-            if not selectedSupport and self.checkSuportBarrTopOrBottom():draggDown=True
-            elif not selectedSupport and self.checkSuportBarrTopOrBottom(False):draggDown=False
-
-            if not selectedSupport:
-                self.draggSupport(draggDown)
-                time.sleep(0.05)
-                lastBarrPos=self.returnBarrPos(0)
-            x+=1
-        return True
+                    if not selectedSupport:
+                        self.draggSupport(draggDown)
+                        time.sleep(0.05)
+                        lastBarrPos=self.returnBarrPos(0)
+                    x+=1
+                if selectedSupport:return True
 
     def findCE(self,ceName=None):
+        print(ceName)
         if ceName is None:
             self.click(xy=[660,250])
             return True
@@ -875,7 +870,7 @@ class botClient():
                     self.click(xy=[self.attackButtonLoc[0]+50,self.attackButtonLoc[1]])
                     time.sleep(1)
                 elif self.selectSupportBool and self.checkSelectSuppScreen():
-                    self.click([675,250])
+                    self.selectSupport()
                     time.sleep(0.5)
                 elif self.clickCheckTapScreen():pass
                 elif self.repeatQuest and self.checkRepeatQuestButton():
@@ -920,8 +915,11 @@ class botClient():
         cv2.waitKey(0)
     # Misc /D
     def time(self,str=">"):
-        print('{} {}'.format(str,time.time()-self.timeV))
-        self.timeV=time.time()
+        if str is None:
+            self.timeV=time.time()
+        else:
+            print('{} {}'.format(str,time.time()-self.timeV))
+            self.timeV=time.time()
 
     def clickSpeedTest(self):
         self.screenshot()
