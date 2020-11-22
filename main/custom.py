@@ -11,6 +11,7 @@ if __name__ == '__main__':
 
     # hostname="b6997f9a"
     hostname="40edac8d"
+    ceList=["ChaldeaLunchtimeU",""]
     if option == 0:
         client=cp.botClient(hostName=hostname)
         client.supportColorPalette=1
@@ -96,7 +97,7 @@ if __name__ == '__main__':
         client = cp.botClient(hostName=hostname)
         client.supportColorPalette=1
         client.screenshot()
-        client.selectSupport()
+        client.selectSupport(ceName="ChaldeaLunchtimeU")
         # print(client.checkSuportBarrTopOrBottom())
         # print(client.checkSuportBarrTopOrBottom(False))
         # client.click([50,50])

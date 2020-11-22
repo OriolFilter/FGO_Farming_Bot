@@ -299,7 +299,7 @@ class botClient():
 
 
 
-    def selectSupport(self):
+    def selectSupport(self,ceName=None):
         self.supportClassInt=1
         self.selectSupportClass(classN=self.supportClassInt)
         # self.selectSupportClass(classN=self.supportClassInt)
@@ -312,23 +312,41 @@ class botClient():
         # newBarrPos=0
 
         selectedSupport=False
+        x=0
         while not selectedSupport:
+            if x == 5 and not self.checkSelectSuppScreen():return False
             self.screenshot()
             # print("{} {}".format(lastBarrPos,newBarrPos))
-            if self.checkSuportBarrTopOrBottom():draggDown=True
-            elif self.checkSuportBarrTopOrBottom(False):draggDown=False
-            self.draggSupport(draggDown)
-            time.sleep(0.05)
-            lastBarrPos=self.returnBarrPos(0)
+            selectedSupport=self.findCE(ceName=ceName)
+            if not selectedSupport and self.checkSuportBarrTopOrBottom():draggDown=True
+            elif not selectedSupport and self.checkSuportBarrTopOrBottom(False):draggDown=False
+
+            if not selectedSupport:
+                self.draggSupport(draggDown)
+                time.sleep(0.05)
+                lastBarrPos=self.returnBarrPos(0)
+            x+=1
+        return True
 
     def findCE(self,ceName=None):
         if ceName is None:
             self.click(xy=[660,250])
             return True
         else:
+            template = cv2.imread('../templates/CE/{}.png'.format(ceName), 0)
+            res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
+            _, max_val, _, max_loc = cv2.minMaxLoc(res)
 
-            return False
-    # Frend related
+            treshHold = 0.85
+            if max_val > treshHold:
+                bestY, bestX = np.where(res >= max_val)
+                self.click([bestX, bestY])
+                return True
+        return False
+
+
+
+    # Friend related
 
     def clickDoNotSend(self):
         template = cv2.imread('../templates/doNotSend.png', 0)
