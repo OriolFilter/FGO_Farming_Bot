@@ -7,6 +7,7 @@
 
 #Imports
 import time
+# from typing import Type
 
 import cv2
 import numpy as np
@@ -44,13 +45,18 @@ class botClient():
 
         # Quests
         self.repeatQuest=False
-        self.selectSupport=False
         self.questsFinished=0 # Just conts the times that had to press 'Next', in certain events it might bugg since it might have multiple pages
 
         # Combat
         self.npOnDangerOrServant=False
+        self.dangerOrServantFoundVar=False
         self.colorOverEffectiveness=False
         self.cardsPrio=[0,1,2,3] # Default, 0 Buster, 1 Arts, 2 Quick, 3 Stunned, IMPORTANT, use 3, since in case you don't and you have +3 stunned cards you will have a loop
+
+        # Support
+        self.selectSupportBool=False
+        self.supportClassInt=0
+        self.supportColorPalette=0 #0 means you finished the main history part 1
 
         # Misc
         self.run=True # Mayb should move it to self.main()
@@ -60,23 +66,26 @@ class botClient():
 
     # ImageThings
     def screenshot(self,save=False,imgPath="Test.png"):
-        # print("screenshot Start")
-        if self.debugg:
-            bimg = self.mainDev.screencap()
-            img = self.bimageToImage(bimg)
-            img = self.pilToOpencv(img)
-            img = self.resizeOpenCvScreenshot(img)
-            self.screenshotImg = img
-            self.screenshotImg = self.resizeOpenCvScreenshot(self.pilToOpencv(self.bimageToImage(bimg)))
-            if save:
-                cv2.imwrite(imgPath,self.screenshotImg)
-                print('Image Saved!')
 
-        elif self.checkActiveApp():
+        # print("screenshot Start")
+        # if self.debugg:
+        #     self.time(">")
+        #     bimg = self.mainDev.screencap()
+        #     self.time(">>")
+        #     img = self.bimageToImage(bimg)
+        #     img = self.pilToOpencv(img)
+        #     img = self.resizeOpenCvScreenshot(img)
+        #     self.screenshotImg = img
+        #     self.screenshotImg = self.resizeOpenCvScreenshot(self.pilToOpencv(self.bimageToImage(bimg)))
+        #     if save:
+        #         cv2.imwrite(imgPath,self.screenshotImg)
+        #         print('Image Saved!')
+
+        if self.checkActiveApp():
             # print("reciving bimg")
-            # self.time(">")
+            if self.debugg:self.time(">")
             bimg = self.mainDev.screencap()
-            #self.time(">>")
+            if self.debugg:self.time(">>")
             # print("recived bimg")
             img = self.bimageToImage(bimg)
             img = self.pilToOpencv(img)
@@ -126,13 +135,14 @@ class botClient():
         defaultSize=(720,1280) #X,Y
         self.imageProportion=defaultSize[0]/img.shape[0]
         self.clickResolution=img.shape[0]/defaultSize[0]
+        if self.debugg: print("default:{} img:{}".format(defaultSize[0],img.shape[0]))
         outputImage=(int(img.shape[0]*self.imageProportion),int(img.shape[1]*self.imageProportion))
         img = cv2.resize(img,(outputImage[1],outputImage[0]))
         # cv2.imwrite("Test2.png",img)
         return img
 
     # ADB related
-    def click(self,xy=[]):
+    def click(self,xy=[0,0]):
         # print(xy)
         # Te en compte la rotació del dispositiu
         # print("Clicking at: {} {}".format(x*self.clickResolution,y*self.clickResolution))
@@ -142,15 +152,20 @@ class botClient():
         if self.debugg:print('Click x:{} y:{}'.format(xy[0],xy[1]))
         else:self.mainDev.input_tap(int(xy[0]*self.clickResolution),int(xy[1]*self.clickResolution))
 
-    def swipe(self,xyStart=[],xyEnd=[],time=200):
+    def dragg(self,xyStart=[0,0],xyEnd=[0,0],time=200):
         # print(xy)
-        # Te en compte la rotació del dispositiu
+        # Te en compte la rotació del dispositiu     ??!!
         # print("Clicking at: {} {}".format(x*self.clickResolution,y*self.clickResolution))
         # print("Clicking at: {} {}".format(x,y))
         if xyStart == [] or xyEnd == []:pass
         # print('Click x:{} y:{}'.format(xy[0],xy[1]))
         if self.debugg:print('Swipe xS:{} yS:{}\n\txE:{} yE:{}'.format(xyStart[0],xyStart[1],xyEnd[0],xyEnd[1]))
         else:self.mainDev.input_swipe(int(xyStart[0]*self.clickResolution),int(xyStart[1]*self.clickResolution),int(xyEnd[0]*self.clickResolution),int(xyEnd[1]*self.clickResolution),time)
+
+    def draggSupport(self, down=True,speed=400):
+        if down:self.dragg([self.screenshotImg.shape[1] / 2, self.screenshotImg.shape[0] - 50], [self.screenshotImg.shape[1] / 2, self.screenshotImg.shape[0] / 2], time=speed)
+        else:   self.dragg([self.screenshotImg.shape[1] / 2, self.screenshotImg.shape[0] / 2], [self.screenshotImg.shape[1] / 2, self.screenshotImg.shape[0] - 50], time=speed)
+
 
     def checkActiveApp(self):
         try:
@@ -163,7 +178,8 @@ class botClient():
             return True
 
     # Menu related
-    def selectRandomSupp(self):pass
+
+
 
     def clickRepeatButton(self):
         template = cv2.imread('../templates/repeatButton.png', 0)
@@ -176,26 +192,7 @@ class botClient():
             self.click([bestX,bestY])
         else: return False
 
-    def clickDoNotSend(self):
-        template = cv2.imread('../templates/doNotSend.png', 0)
-        res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
-        _, max_val, _, max_loc = cv2.minMaxLoc(res)
 
-        treshHold = 0.85
-        if max_val > treshHold:
-            bestY, bestX = np.where(res >= max_val)
-            self.click([bestX,bestY])
-        else: return False
-
-    def friendRequest(self):
-        template = cv2.imread('../templates/friendRequest.png', 0)
-        res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
-        _, max_val, _, max_loc = cv2.minMaxLoc(res)
-
-        treshHold = 0.85
-        if max_val > treshHold:
-            return True
-        else: return False
 
     def clickCheckTapScreen(self):
         template = cv2.imread('../templates/tap.png', 0)
@@ -218,7 +215,9 @@ class botClient():
             return
     # checkState
 
-    def checkSelectSupp(self):
+    # Support Related
+
+    def checkSelectSuppScreen(self):
         templateA = cv2.imread('../templates/selectSupportA.png', 0)
         templateB = cv2.imread('../templates/selectSupportB.png', 0)
         resA = cv2.matchTemplate(self.screenshotImgGray, templateA, cv2.TM_CCOEFF_NORMED)
@@ -232,7 +231,130 @@ class botClient():
         else:
             return False
 
-    def checkRepeatButton(self):
+    def selectRandomSupp(self):
+        pass
+
+    # def selectRandomSupp(self):pass
+
+    def selectSupportClass(self, classN=0):
+        # print(classN)
+        if classN == 0:
+            template = cv2.imread('../templates/supportList/supportMix.png', 0)
+        elif classN == 1:
+            template = cv2.imread('../templates/supportList/supportAll.png', 0)
+        elif classN == 2:
+            template = cv2.imread('../templates/supportList/supportSaber.png', 0)
+        elif classN == 3:
+            template = cv2.imread('../templates/supportList/supportArcher.png', 0)
+        elif classN == 4:
+            template = cv2.imread('../templates/supportList/supportLancer.png', 0)
+        elif classN == 5:
+            template = cv2.imread('../templates/supportList/supportRider.png', 0)
+        elif classN == 6:
+            template = cv2.imread('../templates/supportList/supportCaster.png', 0)
+        elif classN == 7:
+            template = cv2.imread('../templates/supportList/supportAssassin.png', 0)
+        elif classN == 8:
+            template = cv2.imread('../templates/supportList/supportBerserker.png', 0)
+        elif classN == 9:
+            template = cv2.imread('../templates/supportList/supportSpecial.png', 0)
+        else:
+            template = cv2.imread('../templates/supportList/supportMix.png', 0)
+        res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, max_loc = cv2.minMaxLoc(res)
+        # print(max_val)
+        treshhold = 0.9
+        if max_val > treshhold:
+            # self.click(max_loc)
+            self.click([max_loc[0]+2,max_loc[1]+2])
+            # print(([max_loc[0]+2,max_loc[1]+2]))
+            # return True
+        else:pass
+            # return False
+
+    def checkSuportBarrTopOrBottom(self,checkTop=True):
+
+        # Check if barr is on max top or bottom
+        template=None
+        treshold=None
+        if self.supportColorPalette == 0:
+            treshhold = 0.97 # Fucking annoying treshhold
+            if checkTop:template = cv2.imread('../templates/supportList/color0/supportBarrTop.png', 0)
+            else:template = cv2.imread('../templates/supportList/color0/supportBarrBottom.png', 0)
+        elif self.supportColorPalette == 1:
+            treshhold = 0.98 # Fucking annoying treshhold
+            if checkTop:
+                template = cv2.imread('../templates/supportList/color1/supportBarrTop.png', 0)
+                print("checktop")
+            else:
+                template = cv2.imread('../templates/supportList/color1/supportBarrBottom.png', 0)
+                print("checkbot")
+        # print(treshhold)
+        res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, max_loc = cv2.minMaxLoc(res)
+        # print(max_val)
+        print(max_val)
+        if max_val > treshhold:return True
+        return False
+
+
+
+    def selectSupport(self):
+        self.supportClassInt=1
+        self.selectSupportClass(classN=self.supportClassInt)
+        # self.selectSupportClass(classN=self.supportClassInt)
+        # print("abc")
+        # pass
+        # Detect barrPos if top or bottom
+        draggDown=True
+
+        # lastBarrPos=0
+        # newBarrPos=0
+
+        selectedSupport=False
+        while not selectedSupport:
+            self.screenshot()
+            # print("{} {}".format(lastBarrPos,newBarrPos))
+            if self.checkSuportBarrTopOrBottom():draggDown=True
+            elif self.checkSuportBarrTopOrBottom(False):draggDown=False
+            self.draggSupport(draggDown)
+            time.sleep(0.05)
+            lastBarrPos=self.returnBarrPos(0)
+
+    def findCE(self,ceName=None):
+        if ceName is None:
+            self.click(xy=[660,250])
+            return True
+        else:
+
+            return False
+    # Frend related
+
+    def clickDoNotSend(self):
+        template = cv2.imread('../templates/doNotSend.png', 0)
+        res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, max_loc = cv2.minMaxLoc(res)
+
+        treshHold = 0.85
+        if max_val > treshHold:
+            bestY, bestX = np.where(res >= max_val)
+            self.click([bestX,bestY])
+        else: return False
+
+    def friendRequest(self):
+        template = cv2.imread('../templates/friendRequest.png', 0)
+        res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, max_loc = cv2.minMaxLoc(res)
+
+        treshHold = 0.85
+        if max_val > treshHold:
+            return True
+        else: return False
+
+
+    # Combat related
+
+    def checkRepeatQuestButton(self):
         template = cv2.imread('../templates/repeatMessage.png', 0)
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
@@ -288,9 +410,13 @@ class botClient():
         _, max_valS, _, max_locS = cv2.minMaxLoc(resS)
         treshHold = 0.85
         if max_valD > treshHold or max_valS > treshHold:
+            if max_valD > treshHold: self.click(max_locD)
+            elif max_valS> treshHold: self.click(max_locS)
             return True
         else:
             return False
+
+
 
     def returnBarrPos(self,type=0):
         # 0 Top, generic barr, works with energy too, energy has priority
@@ -301,9 +427,9 @@ class botClient():
         # Else, print no barr found
 
         if type == 0:template = cv2.imread('../templates/barrTop.png', 0)
-        elif type == 1:template = cv2.imread('../templates/supportBottomScrollbar.png', 0)
-        elif type == 2:template = cv2.imread('../templates/barr.png', 0) # Sha de revistar
-        elif type == 3:template = cv2.imread('../templates/topScrollBar.png', 0)
+        # elif type == 1:template = cv2.imread('../templates/supportBottomScrollbar.png', 0)
+        # elif type == 2:template = cv2.imread('../templates/barr.png', 0) # Sha de revistar
+        # elif type == 3:template = cv2.imread('../templates/topScrollBar.png', 0)
         else:return False
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
@@ -337,7 +463,7 @@ class botClient():
         if max_val > treshHold:
             if returnPos:
                 bestY, bestX = np.where(res >= max_val)
-                return [bestX[0],bestY[0]]
+                return [bestX[0]+10,bestY[0]+10]
             else:return True
         return False
 
@@ -371,13 +497,21 @@ class botClient():
     # Combat
     def attack(self):
         self.cardsSelected=0
+        self.cardsFound=0 # D
         self.cardsJsonStr={"NORMAL":[],
                            "NP":[]
                            }
-        self.cardsFound=0 # D
         self.getNormalCardInfo()
-        if self.dangerOrServantFound():
-            self.getNPCardInfo()
+
+        if not self.npOnDangerOrServant:pass
+        elif self.dangerOrServantFound():
+            self.dangerOrServantFoundVar=True
+
+        if self.dangerOrServantFoundVar:self.getNPCardInfo()
+
+
+
+
         # print(' --: {}'.format(self.cardsFound))
         if self.checkActiveApp():
             # print(self.cardsJsonStr)
@@ -389,21 +523,21 @@ class botClient():
         self.cardsJsonStr['NP'].append(
                                                 {"pos" :
                                                     {"x":514,
-                                                     "y": 201
+                                                     "y": 180
                                                      },
                                                 "used": False
                                                 })
         self.cardsJsonStr['NP'].append(
                                                 {"pos" :
                                                     {"x":739,
-                                                     "y": 210
+                                                     "y": 180
                                                      },
                                                 "used": False
                                                 })
         self.cardsJsonStr['NP'].append(
                                                 {"pos" :
                                                     {"x":987,
-                                                     "y": 232
+                                                     "y": 180
                                                      },
                                                 "used": False
                                                 })
@@ -445,7 +579,7 @@ class botClient():
                     # print(line)
                     # print(recivedJson[line])
                     self.cardsJsonStr["NORMAL"].append(receivedJson[line])
-        # self.showImage(self.mask)
+        # self.showImage(self.mask12312111)
         self.mask=None
         # print('found {} cards'.format(self.cardsFound))
         # for element in self.cardsJsonStr["NORMAL"]:print(element)
@@ -644,7 +778,7 @@ class botClient():
                 xy = self.returnBarrPos(0)
                 # self.click(xy)
                 # self.swipe(xy,xy)
-                self.swipe(xy,[xy[0]+2,xy[1]+200])
+                self.dragg([xy[0]+10,xy[1]+10],[xy[0]+10,xy[1]+200])
                 time.sleep(1)
                 self.screenshot()
 
@@ -674,7 +808,7 @@ class botClient():
         # Main let you pick some predefined modes
         if self.debugg:self.debuggMode()
         else:
-            try:
+            # try:
                 if mode == 0:self.basicMode()
                 elif mode == 1:self.combatOnly()
                 elif mode == 2:self.cardPickerOnly()
@@ -683,10 +817,10 @@ class botClient():
                     print('Wrong mode...')
                     input()
 
-            except cv2.error as e:
-                print(e)
-                print("Screen blocked")
-                time.sleep(2)
+            # except cv2.error as e:
+            #     print(e)
+            #     print("Screen blocked")
+            #     time.sleep(2)
         print('Closing...')
 
 
@@ -722,11 +856,11 @@ class botClient():
                 elif self.checkAttackButton():
                     self.click(xy=[self.attackButtonLoc[0]+50,self.attackButtonLoc[1]])
                     time.sleep(1)
-                elif self.selectSupport and self.checkSelectSupp():
+                elif self.selectSupportBool and self.checkSelectSuppScreen():
                     self.click([675,250])
                     time.sleep(0.5)
                 elif self.clickCheckTapScreen():pass
-                elif self.repeatQuest and self.checkRepeatButton():
+                elif self.repeatQuest and self.checkRepeatQuestButton():
                     self.clickRepeatButton()
                     time.sleep(0.5)
                 elif self.clickCheckNextutton():
@@ -737,9 +871,9 @@ class botClient():
                     else:print('Not enabled')
                 elif self.restoreApples():
                     if self.timesRestoredEnergy < self.timesToRestoreEnergy or self.timesToRestoreEnergy == -1:
-                        if self.restoreApples(0): print('Restored energy using{}'.format(' a Golden Apple'))
+                        if self.restoreApples(2): print('Restored energy using{}'.format(' a Bronze Apple'))
                         elif self.restoreApples(1): print('Restored energy using{}'.format(' a Silver Apple'))
-                        elif self.restoreApples(2): print('Restored energy using{}'.format(' a Bronze Apple'))
+                        elif self.restoreApples(0): print('Restored energy using{}'.format(' a Golden Apple'))
                     elif self.timesRestoredEnergy >= self.timesToRestoreEnergy and self.timesToRestoreEnergy > 0 :
                         print('Stopping after restoring energy {} times'.format(self.timesRestoredEnergy))
                         self.run=False
@@ -772,7 +906,7 @@ class botClient():
         self.timeV=time.time()
 
     def clickSpeedTest(self):
-        test.screenshot()
+        self.screenshot()
         self.click([100,100])
         print('Click!')
         self.click([100,100])
@@ -793,28 +927,29 @@ class botClient():
 
 # Demo
 if __name__ == '__main__':
-    #test=botClient(port=5037,ip="IP")
-    test=botClient(hostName="40edac8d")
-    #Settind custom details
-    test.timesToRestoreEnergy=0
-    # test.npOnDangerOrServant=True
-    test.selectSupport=True
-    test.repeatQuest=True
-    #test=botClient(debugg=True)
-    # test.screenshot(True)
-    # test.debuggMode()
-    # test.clickSpeedTest()
-    # test.swipe([500,100],[200,200])
-    # test.screenshot()
-    # print(test.restoreApples(2))
-
-    # Test
-
-    # Running Main
-    test.main(mode=0)
-
-    input() # Input
-
+    # #test=botClient(port=5037,ip="IP")
+    # hostname=input("Specify the device name")
+    # test=botClient(hostName=hostname)
+    # #Settind custom details
+    # test.timesToRestoreEnergy=0
+    # # test.npOnDangerOrServant=True
+    # test.selectSupportBool=True
+    # test.repeatQuest=True
+    # #test=botClient(debugg=True)
+    # # test.screenshot(True)
+    # # test.debuggMode()
+    # # test.clickSpeedTest()
+    # # test.swipe([500,100],[200,200])
+    # # test.screenshot()
+    # # print(test.restoreApples(2))
+    #
+    # # Test
+    #
+    # # Running Main
+    # test.main(mode=0)
+    #
+    # input() # Input
+    print("you are running this from main, cya")
 #restoreApples -> refillEnergy
 
 # Fer una especie de menu per sellecionar coses, podria estar guai, i que fos per terminal, per a que sigui fancy control
