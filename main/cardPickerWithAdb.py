@@ -312,7 +312,12 @@ class botClient():
                     if x == 5 and not self.checkSelectSuppScreen():return False
                     self.screenshot()
                     selectedSupport=self.findCE(ceName=ceName)
-                    if not selectedSupport and self.checkSuportBarrTopOrBottom(False):draggDown=False
+                    if not selectedSupport and self.checkSuportBarrTopOrBottom(False):
+                        xy=self.returnBarrPos(0)
+                        self.dragg(xy, [xy[0], 0], 200)
+                        draggDown=False
+                        # DraggToTop
+
                     # elif not selectedSupport and self.checkSuportBarrTopOrBottom():draggDown=True
 
                     if not selectedSupport:
@@ -321,6 +326,7 @@ class botClient():
                         lastBarrPos=self.returnBarrPos(0)
                     x+=1
                 if selectedSupport:return True
+
 
     def findCE(self,ceName=None):
         print(ceName)

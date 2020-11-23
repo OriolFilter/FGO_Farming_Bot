@@ -3,7 +3,7 @@ from main import cardPickerWithAdb as cp
 from time import sleep
 
 print('Select the mode')
-print('0\t normal mode\n1\t combat mode\n2\t card picking mode\n3\t qp mode\n-1\tTake screenshot\n-2\tSpin 10\n-3\tTest image recogntion\n')
+print('0\t normal mode\n1\t combat mode\n2\t card picking mode\n3\t qp mode\n-1\tTake screenshot\n-2\tSpin 10\n-3\tTesting things\n')
 # option = int(-3)
 option = int(input())
 
@@ -12,8 +12,9 @@ if __name__ == '__main__':
     hostname="b6997f9a"
     # hostname="40edac8d"
     if option == 0:
-        ceList = ["ChaldeaTeatimeU"]
-        # ceList = ["ChaldeaTeatimeU", "ChaldeaLunchtimeU"]
+        # ceList = ["ChaldeaTeatimeU"]
+        # ceList = ["SprinterU", "TreefoldBarrierU", "TreefoldBarrier"] # D
+        ceList = ["ChaldeaTeatimeU", "ChaldeaLunchtimeU"]
         client=cp.botClient(hostName=hostname)
         client.ceList=ceList
         client.supportColorPalette=1
@@ -22,7 +23,7 @@ if __name__ == '__main__':
         client.npOnDangerOrServant=True
         client.selectSupportBool=True
         client.repeatQuest=True
-        client.supportClassInt=6 # Caster
+        client.supportClassInt=6 # Castera
         # client.cardsPrio=[1,2,0,3]
         client.cardsPrio=[0,1,2,3]
         #test=botClient(debugg=True)
@@ -42,10 +43,11 @@ if __name__ == '__main__':
         client.main(mode=2)
     elif option == 3:
         client=cp.botClient(hostName=hostname)
-        client.selectSupportBool=False
+        ceList = ["MonaLisaU","MonaLisa"]
         client.repeatQuest=True
         client.timesToRestoreEnergy=0
         client.main(mode=0)
+
     elif option == -1: # Under construction
         client=cp.botClient(hostName=hostname,debugg=True)
         print('START')
@@ -100,9 +102,12 @@ if __name__ == '__main__':
         client = cp.botClient(hostName=hostname)
         client.supportColorPalette=1
         client.screenshot()
-        client.supportClassInt = 6
-        client.ceList=["ChaldeaTeatimeU","ChaldeaLunchtimeU"]
-        client.selectSupport()
+        # client.supportClassInt = 6
+        # client.ceList=["ChaldeaTeatimeU","ChaldeaLunchtimeU"]
+        # client.selectSupport()
+        xy=client.returnBarrPos(0)
+        # client.click()
+
 
         # print("inline for:")
         # client.time(None)
