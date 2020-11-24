@@ -627,8 +627,11 @@ class botClient():
         templateSrc=colorSrc[color]
         template = cv2.imread(templateSrc, 0)
 
-
+        # template.view()
         img = cv2.cvtColor(self.screenshotImg, cv2.COLOR_BGR2GRAY) # Passa l'imatge a GRAY
+        # img = self.screenshotImg
+        # input()
+        # img.show()
 
         res = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED) # Match Template
         treshHold = 0.85

@@ -42,11 +42,20 @@ if __name__ == '__main__':
         client=cp.botClient(hostName=hostname)
         client.main(mode=2)
     elif option == 3:
-        client=cp.botClient(hostName=hostname)
         ceList = ["MonaLisaU","MonaLisa"]
-        client.repeatQuest=True
+        client=cp.botClient(hostName=hostname)
+        client.ceList=ceList
+        client.supportColorPalette=0
+        # client.timesToRestoreEnergy=-1        # client.timesToRestoreEnergy=-1
         client.timesToRestoreEnergy=0
+        client.npOnDangerOrServant=True
+        client.selectSupportBool=True
+        client.repeatQuest=True
+        client.supportClassInt=5 # Rider
+        client.cardsPrio=[0,1,2,3]
+        print('start')
         client.main(mode=0)
+        print('END')
 
     elif option == -1: # Under construction
         client=cp.botClient(hostName=hostname,debugg=True)
