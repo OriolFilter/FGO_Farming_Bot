@@ -5,7 +5,7 @@
 # print(mainDev.get_battery_level())
 
 
-#Imports
+# Imports
 import time
 # from typing import Type
 
@@ -16,8 +16,8 @@ from PIL import Image
 import io
 
 
-class botClient():
-    def __init__(self,emuName=None,ip=None,hostName=None,port=5037,debugg=False): # 5037 Might be the default port for adbServer
+class BotClient():
+    def __init__(self,emuName=None,ip=None,hostName=None,port=5037): # 5037 Might be the default port for adbServer
         # You can check the device host 'name' in case you are using a usb
         # appName not enabled
         if hostName or port: # Server connection to adb
@@ -31,9 +31,9 @@ class botClient():
             except ConnectionRefusedError:
                 print('Connection refused or not aviable\nMake sure the server has started adb, and the client has debbug mode enabled, also check if wifi is inabled in case of using network, or the usb is plugged in correctly')
 
-            self.debugg=False
         # self
-        if debugg:self.debugg=True
+        self.debugg=False
+        self.verbose=False
 
         # Default variables used on functions and default modes
         # Application
@@ -42,6 +42,10 @@ class botClient():
         # Energy
         self.timesRestoredEnergy=0
         self.timesToRestoreEnergy=0 # -1 means infinite, does not use QZ
+        self.useGoldApple=True
+        self.useSilverApple=True
+        self.useBronzeApple=True
+
 
         # Quests
         self.repeatQuest=False
@@ -80,12 +84,11 @@ class botClient():
         #     if save:
         #         cv2.imwrite(imgPath,self.screenshotImg)
         #         print('Image Saved!')
-
         if self.checkActiveApp():
             # print("reciving bimg")
-            if self.debugg:self.time(">")
+            if self.verbose:self.time(">")
             bimg = self.mainDev.screencap()
-            if self.debugg:self.time(">>")
+
             # print("recived bimg")
             img = self.bimageToImage(bimg)
             img = self.pilToOpencv(img)
@@ -96,12 +99,18 @@ class botClient():
             if save:
                 cv2.imwrite(imgPath,self.screenshotImg)
                 print('Image Saved!')
-            return True
+            if self.verbose: self.time(">>")
+            if self.checkPhoneNotBloqued():return True
+            else:
+                print('Phone device is bloqued')
+                time.sleep(2)  # Wait 5 seconds
+                return False
+
         elif self.emuName:
             print('Taking screenshot from Windows Emulator')
         else:
             print('FGO application isn\' foreground')
-            time.sleep(5) # Wait 5 seconds
+            time.sleep(2) # Wait 5 seconds
             return False
         # print("screenshot Ends")
         # Image is alredy in byte aray, don't need to do nothing
@@ -149,7 +158,8 @@ class botClient():
         # print("Clicking at: {} {}".format(x,y))
         if xy == []:pass
         # print('Click x:{} y:{}'.format(xy[0],xy[1]))
-        if self.debugg:print('Click x:{} y:{}'.format(xy[0],xy[1]))
+        if self.verbose:print('Click x:{} y:{}'.format(xy[0],xy[1]))
+        if self.debugg:print("skipping click!")
         else:self.mainDev.input_tap(int(xy[0]*self.clickResolution),int(xy[1]*self.clickResolution))
 
     def dragg(self,xyStart=[0,0],xyEnd=[0,0],time=200):
@@ -159,13 +169,24 @@ class botClient():
         # print("Clicking at: {} {}".format(x,y))
         if xyStart == [] or xyEnd == []:pass
         # print('Click x:{} y:{}'.format(xy[0],xy[1]))
-        if self.debugg:print('Swipe xS:{} yS:{}\n\txE:{} yE:{}'.format(xyStart[0],xyStart[1],xyEnd[0],xyEnd[1]))
+        if self.verbose:print('Swipe xS:{} yS:{}\n\txE:{} yE:{}'.format(xyStart[0],xyStart[1],xyEnd[0],xyEnd[1]))
+        if self.debugg:print("Debugg")
         else:self.mainDev.input_swipe(int(xyStart[0]*self.clickResolution),int(xyStart[1]*self.clickResolution),int(xyEnd[0]*self.clickResolution),int(xyEnd[1]*self.clickResolution),time)
 
     def draggSupport(self, down=True,speed=400):
         if down:self.dragg([self.screenshotImg.shape[1] / 2, self.screenshotImg.shape[0] - 50], [self.screenshotImg.shape[1] / 2, self.screenshotImg.shape[0] / 2], time=speed)
         else:   self.dragg([self.screenshotImg.shape[1] / 2, self.screenshotImg.shape[0] / 2], [self.screenshotImg.shape[1] / 2, self.screenshotImg.shape[0] - 50], time=speed)
 
+
+    def checkPhoneNotBloqued(self):
+        if self.screenshotImg.shape[0] < self.screenshotImg.shape[1]: return False
+        mask = np.copy(self.screenshotImg)
+        mask[0:mask.shape[0],0:mask.shape[1]] = 255
+        self.showImage(self.screenshotImg)
+        input()
+        if np.equal(self.screenshotImg, mask).any(1).all():return False
+
+        return True
 
     def checkActiveApp(self):
         try:
@@ -654,7 +675,7 @@ class botClient():
                                                 "used": False
                                                 })
                 else:
-                    effectiveness=self.reurnCardEff(cardCoordStart,cardCoordEnd)
+                    effectiveness=self.returnCardEff(cardCoordStart,cardCoordEnd)
                     jsonCardList[self.cardsFound]=(
                                                 {"type": color,
                                                 "effectiveness": effectiveness,
@@ -676,7 +697,7 @@ class botClient():
         if mode == 0:self.mask[0:int(self.mask.shape[0]/2.5),0:self.mask.shape[1]]=255 #Normal
         else:self.mask[int(self.mask.shape[0]/1.75):,0:self.mask.shape[1]]=255 #NP
 
-    def reurnCardEff(self,coordS,coordE):
+    def returnCardEff(self,coordS,coordE):
             cardImg=self.screenshotImg[coordS[1]:coordE[1],coordS[0]:coordE[0]]
 
             effectivenes=1
@@ -893,9 +914,9 @@ class botClient():
                     else:print('Not enabled')
                 elif self.restoreApples():
                     if self.timesRestoredEnergy < self.timesToRestoreEnergy or self.timesToRestoreEnergy == -1:
-                        if self.restoreApples(2): print('Restored energy using{}'.format(' a Bronze Apple'))
-                        elif self.restoreApples(1): print('Restored energy using{}'.format(' a Silver Apple'))
-                        elif self.restoreApples(0): print('Restored energy using{}'.format(' a Golden Apple'))
+                        if self.useBronzeApple and self.restoreApples(2): print('Restored energy using{}'.format(' a Bronze Apple'))
+                        elif self.useSilverApple and self.restoreApples(1): print('Restored energy using{}'.format(' a Silver Apple'))
+                        elif self.useGoldApple and self.restoreApples(0): print('Restored energy using{}'.format(' a Golden Apple'))
                     elif self.timesRestoredEnergy >= self.timesToRestoreEnergy and self.timesToRestoreEnergy > 0 :
                         print('Stopping after restoring energy {} times'.format(self.timesRestoredEnergy))
                         self.run=False
@@ -916,7 +937,7 @@ class botClient():
         # self.showScreenshot()
         self.basicMode()
         # print(self.cardsJsonStr)
-        input()
+        # input()
 
     def showImage(self,img):
         cv2.namedWindow('image')
@@ -952,15 +973,15 @@ class botClient():
 
 # Demo
 if __name__ == '__main__':
-    # #test=botClient(port=5037,ip="IP")
+    # #test=BotClient(port=5037,ip="IP")
     # hostname=input("Specify the device name")
-    # test=botClient(hostName=hostname)
+    # test=BotClient(hostName=hostname)
     # #Settind custom details
     # test.timesToRestoreEnergy=0
     # # test.npOnDangerOrServant=True
     # test.selectSupportBool=True
     # test.repeatQuest=True
-    # #test=botClient(debugg=True)
+    # #test=BotClient(debugg=True)
     # # test.screenshot(True)
     # # test.debuggMode()
     # # test.clickSpeedTest()
