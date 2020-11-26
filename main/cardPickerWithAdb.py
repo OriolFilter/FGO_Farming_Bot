@@ -84,34 +84,39 @@ class BotClient():
         #     if save:
         #         cv2.imwrite(imgPath,self.screenshotImg)
         #         print('Image Saved!')
-        if self.checkActiveApp():
-            # print("reciving bimg")
-            if self.verbose:self.time(">")
-            bimg = self.mainDev.screencap()
+        try:
+            if self.checkActiveApp():
+                # print("reciving bimg")
+                if self.verbose:self.time(">")
+                bimg = self.mainDev.screencap()
 
-            # print("recived bimg")
-            img = self.bimageToImage(bimg)
-            img = self.pilToOpencv(img)
-            img = self.resizeOpenCvScreenshot(img)
-            self.screenshotImg = img
-            self.screenshotImg = self.resizeOpenCvScreenshot(self.pilToOpencv(self.bimageToImage(bimg)))
-            self.screenshotImgGray = cv2.cvtColor(self.screenshotImg, cv2.COLOR_BGR2GRAY)
-            if save:
-                cv2.imwrite(imgPath,self.screenshotImg)
-                print('Image Saved!')
-            if self.verbose: self.time(">>")
-            if self.checkPhoneNotBloqued():return True
+                # print("recived bimg")
+                img = self.bimageToImage(bimg)
+                img = self.pilToOpencv(img)
+                img = self.resizeOpenCvScreenshot(img)
+                self.screenshotImg = img
+                self.screenshotImg = self.resizeOpenCvScreenshot(self.pilToOpencv(self.bimageToImage(bimg)))
+                self.screenshotImgGray = cv2.cvtColor(self.screenshotImg, cv2.COLOR_BGR2GRAY)
+                if save:
+                    cv2.imwrite(imgPath,self.screenshotImg)
+                    print('Image Saved!')
+                if self.verbose: self.time(">>")
+                if self.checkPhoneNotBloqued():return True
+                else:
+                    print('Phone device is not unlocked or not horizontal position')
+                    time.sleep(5)  # Wait 5 seconds
+                    return False
+
+            elif self.emuName:
+                print('Taking screenshot from Windows Emulator')
             else:
-                print('Phone device is bloqued')
-                time.sleep(2)  # Wait 5 seconds
+                print('FGO application isn\' foreground')
+                time.sleep(2) # Wait 5 seconds
                 return False
+        except:
+            print("Failed to take the screenshot, the device might be locked or with an app that doesn't let you take screenshots")
+            time.sleep(5)
 
-        elif self.emuName:
-            print('Taking screenshot from Windows Emulator')
-        else:
-            print('FGO application isn\' foreground')
-            time.sleep(2) # Wait 5 seconds
-            return False
         # print("screenshot Ends")
         # Image is alredy in byte aray, don't need to do nothing
 
@@ -179,11 +184,10 @@ class BotClient():
 
 
     def checkPhoneNotBloqued(self):
-        if self.screenshotImg.shape[0] < self.screenshotImg.shape[1]: return False
+        if self.screenshotImg.shape[0] > self.screenshotImg.shape[1]: return False
         mask = np.copy(self.screenshotImg)
         mask[0:mask.shape[0],0:mask.shape[1]] = 255
-        self.showImage(self.screenshotImg)
-        input()
+        # self.showImage(self.screenshotImg)
         if np.equal(self.screenshotImg, mask).any(1).all():return False
 
         return True
