@@ -3,34 +3,30 @@ from main import cardPickerWithAdb as cp
 from time import sleep
 
 print('Select the mode')
-print(
-    '0\t normal mode\n1\t combat mode\n2\t card picking mode\n3\t qp mode\n-1\tTake screenshot\n-2\tSpin 10\n-3\tTesting things\n')
-# option = int(0)
+print('0\t normal mode\n1\t combat mode\n2\t card picking mode\n3\t qp mode\n-1\tTake screenshot\n-2\tSpin 10\n-3\tTesting things\n')
+# option = int(-3)
 option = int(input())
 
 if __name__ == '__main__':
 
-    hostname = "b6997f9a"
+    hostname="b6997f9a"
     # hostname="40edac8d"
     if option == 0:
         # ceList = ["ChaldeaTeatimeU"]
         # ceList = ["SprinterU", "TreefoldBarrierU", "TreefoldBarrier"] # D
         ceList = ["ChaldeaTeatimeU", "ChaldeaLunchtimeU"]
-        client = cp.BotClient(hostName=hostname)
-        client.ceList = ceList
-        client.supportColorPalette = 1
+        client=cp.BotClient(hostName=hostname)
+        client.ceList=ceList
+        client.supportColorPalette=1
         # client.timesToRestoreEnergy=-1        # client.timesToRestoreEnergy=-1
-        client.useGoldApple = False
-        client.useSilverApple = False
-        client.timesToRestoreEnergy = 0
-        client.npOnDangerOrServant = True
-        client.selectSupportBool = True
-        client.repeatQuest = True
-        client.supportClassInt = 6  # Castera
+        client.timesToRestoreEnergy=0
+        client.npOnDangerOrServant=True
+        client.selectSupportBool=True
+        client.repeatQuest=True
+        client.supportClassInt=6 # Castera
         # client.cardsPrio=[1,2,0,3]
-        client.cardsPrio = [0, 1, 2, 3]
-        client.verbose = True
-        # client.debugg=True
+        client.cardsPrio=[0,1,2,3]
+        #test=BotClient(debugg=True)
 
         # Test
 
@@ -40,47 +36,62 @@ if __name__ == '__main__':
         print('END')
 
     elif option == 1:
-        client = cp.BotClient(hostName=hostname)
+        client=cp.BotClient(hostName=hostname)
         client.main(mode=1)
     elif option == 2:
-        client = cp.BotClient(hostName=hostname)
+        client=cp.BotClient(hostName=hostname)
         client.main(mode=2)
     elif option == 3:
-        client = cp.BotClient(hostName=hostname)
-        ceList = ["MonaLisaU", "MonaLisa"]
-        client.repeatQuest = True
-        client.timesToRestoreEnergy = 0
+        client=cp.BotClient(hostName=hostname)
+        ceList = ["MonaLisaU","MonaLisa"]
+        client.ceList=ceList
+        client.supportColorPalette=0
+        # client.timesToRestoreEnergy=-1        # client.timesToRestoreEnergy=-1
+        client.timesToRestoreEnergy=0
+        client.npOnDangerOrServant=True
+        client.selectSupportBool=True
+        client.repeatQuest=True
+        client.supportClassInt=5 # Rider
+        client.cardsPrio=[0,1,2,3]
+        print('start')
         client.main(mode=0)
-
-    elif option == -1:  # Under construction
-        client = cp.BotClient(hostName=hostname)
-        print('START')
-        client.screenshot(save=True, imgPath="Test.png")
         print('END')
-    elif option == -2:
-        client = cp.BotClient(hostName=hostname)
-        client.screenshot()
-        spinnPos = None
 
-        prizeResetButtonPos = None
-        resetButtonPos = None
-        closeButtonPos = None
+    elif option == -1: # Under construction
+        client=cp.BotClient(hostName=hostname)
+        client.debugg=True
+        wh=True
+        # wh=input()
+        print('START')
+        while wh:
+            client.screenshot(save=True,imgPath="Test.png")
+            wh=input()
+        print('END')
+
+    elif option == -2:
+        client=cp.BotClient(hostName=hostname)
+        client.screenshot()
+        spinnPos=None
+
+        prizeResetButtonPos=None
+        resetButtonPos=None
+        closeButtonPos=None
         while True:
 
             if not prizeResetButtonPos:
-                prizeResetButtonPos = client.findPrizeResetButton(returnPos=True)
+                prizeResetButtonPos=client.findPrizeResetButton(returnPos=True)
                 client.screenshot()
             if prizeResetButtonPos:
                 client.click(prizeResetButtonPos)
                 sleep(0.2)
             if not resetButtonPos:
-                resetButtonPos = client.findResetButton(returnPos=True)
+                resetButtonPos=client.findResetButton(returnPos=True)
                 client.screenshot()
             if resetButtonPos:
                 client.click(resetButtonPos)
                 sleep(1)
             if not closeButtonPos:
-                closeButtonPos = client.findClosePopUpButton(returnPos=True)
+                closeButtonPos=client.findClosePopUpButton(returnPos=True)
                 client.screenshot()
             if closeButtonPos:
                 client.click(closeButtonPos)
@@ -104,13 +115,25 @@ if __name__ == '__main__':
         #         sleep(1)
         #         input()
         client = cp.BotClient(hostName=hostname)
-        client.supportColorPalette = 1
+        ceList = ["MonaLisaU", "MonaLisa"]
+        client.ceList = ceList
+        client.supportColorPalette=1
         client.screenshot()
+        client.selectSupport()
+        # client.updateFriendList()
+        # client.screenshot()
+        # ceList = ["ChaldeaTeatimeU", "ChaldeaTeatime"]
+        # ceList = ["ChaldeaLunchtimeU", "ChaldeaLunchtime"]
+        # client.ceList = ceList
+        # client.debugg=True
+        # for CE in ceList:
+        #     client.findCE(CE)
         # client.supportClassInt = 6
         # client.ceList=["ChaldeaTeatimeU","ChaldeaLunchtimeU"]
         # client.selectSupport()
-        xy = client.returnBarrPos(0)
+        # xy=client.returnBarrPos(0)
         # client.click()
+
 
         # print("inline for:")
         # client.time(None)
@@ -132,6 +155,7 @@ if __name__ == '__main__':
         #     if finish:print("Found!")
         #     x+=1
         # client.time("time:\n")
+
 
         # client.selectSupport(ceName="ChaldeaLunchtimeU")
         # print(client.checkSuportBarrTopOrBottom())

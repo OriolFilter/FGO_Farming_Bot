@@ -12,8 +12,19 @@ import time
 import cv2
 import numpy as np
 from ppadb.client import Client as AdbClient
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 import io
+
+# Errors
+class PhoneLockedOrVertical(OSError):
+    """Raised when phone is locked or is playing with the aplication on vertical mode"""
+# class PhoneHorizontal(OSError):
+#     """Raised when android can't take a screenshot, like unlock screen or incognito mode google"""
+class CantScreenshotDevice(OSError):
+    """Raised when android can't take a screenshot, like unlock screen or incognito mode google"""
+class FateUsaAppNotForeground(OSError):
+    """Raised when FGO USA is not foreground or isn't in horizontal mode"""
+    pass
 
 
 class BotClient():
@@ -59,7 +70,7 @@ class BotClient():
 
         # Support
         self.selectSupportBool=False
-        self.supportClassInt=0
+        self.supportClassInt=None
         self.supportColorPalette=0 #0 means you finished the main history part 1
         self.ceList=[]
         # Misc
@@ -71,54 +82,53 @@ class BotClient():
     # ImageThings
     def screenshot(self,save=False,imgPath="Test.png"):
 
-        # print("screenshot Start")
-        # if self.debugg:
-        #     self.time(">")
-        #     bimg = self.mainDev.screencap()
-        #     self.time(">>")
-        #     img = self.bimageToImage(bimg)
-        #     img = self.pilToOpencv(img)
-        #     img = self.resizeOpenCvScreenshot(img)
-        #     self.screenshotImg = img
-        #     self.screenshotImg = self.resizeOpenCvScreenshot(self.pilToOpencv(self.bimageToImage(bimg)))
-        #     if save:
-        #         cv2.imwrite(imgPath,self.screenshotImg)
-        #         print('Image Saved!')
-        try:
-            if self.checkActiveApp():
-                # print("reciving bimg")
-                if self.verbose:self.time(">")
-                bimg = self.mainDev.screencap()
+        if self.debugg:
+            self.time(">")
+            bimg = self.mainDev.screencap()
+            print("f")
+            # print("recived bimg")
+            img = self.bimageToImage(bimg)
+            img = self.pilToOpencv(img)
+            img = self.resizeOpenCvScreenshot(img)
+            self.screenshotImg = img
+            self.screenshotImg = self.resizeOpenCvScreenshot(self.pilToOpencv(self.bimageToImage(bimg)))
+            self.screenshotImgGray = cv2.cvtColor(self.screenshotImg, cv2.COLOR_BGR2GRAY)
+            if save:
+                cv2.imwrite(imgPath, self.screenshotImg)
+                print('Image Saved!')
+            self.time(">>")
+        else:
+            try:
+                if not self.emuName and self.checkActiveApp():
+                    # print("reciving bimg")
+                    if self.verbose:self.time(">")
+                    bimg = self.mainDev.screencap()
+                    # print("recived bimg")
+                    try:
+                        img = self.bimageToImage(bimg)
+                    except UnidentifiedImageError:raise CantScreenshotDevice("Can't screenshot the device, it could be due being restricted by android itself")
 
-                # print("recived bimg")
-                img = self.bimageToImage(bimg)
-                img = self.pilToOpencv(img)
-                img = self.resizeOpenCvScreenshot(img)
-                self.screenshotImg = img
-                self.screenshotImg = self.resizeOpenCvScreenshot(self.pilToOpencv(self.bimageToImage(bimg)))
-                self.screenshotImgGray = cv2.cvtColor(self.screenshotImg, cv2.COLOR_BGR2GRAY)
-                if save:
-                    cv2.imwrite(imgPath,self.screenshotImg)
-                    print('Image Saved!')
-                if self.verbose: self.time(">>")
-                if self.checkPhoneNotBloqued():return True
-                else:
-                    print('Phone device is not unlocked or not horizontal position')
-                    time.sleep(5)  # Wait 5 seconds
-                    return False
+                    img = self.pilToOpencv(img)
+                    img = self.resizeOpenCvScreenshot(img)
+                    self.screenshotImg = img
+                    self.screenshotImg = self.resizeOpenCvScreenshot(self.pilToOpencv(self.bimageToImage(bimg)))
+                    if save:
+                        cv2.imwrite(imgPath,self.screenshotImg)
+                        print('Image Saved!')
+                    self.checkPhoneBloqued()
 
-            elif self.emuName:
-                print('Taking screenshot from Windows Emulator')
-            else:
-                print('FGO application isn\' foreground')
-                time.sleep(2) # Wait 5 seconds
+                    self.screenshotImgGray = cv2.cvtColor(self.screenshotImg, cv2.COLOR_BGR2GRAY)
+                    if self.verbose: self.time(">>")
+                    return True
+
+                elif self.emuName:
+                    """ Does not work..."""
+                    print('Taking screenshot from Windows Emulator')
+                else:raise FateUsaAppNotForeground('FGO application isn\'t foreground')
+            except (PhoneLockedOrVertical, FateUsaAppNotForeground, CantScreenshotDevice) as e:
+                print(e)
+                time.sleep(2)
                 return False
-        except:
-            print("Failed to take the screenshot, the device might be locked or with an app that doesn't let you take screenshots")
-            time.sleep(5)
-
-        # print("screenshot Ends")
-        # Image is alredy in byte aray, don't need to do nothing
 
     def bimageToImage(self,bimg): # also RGBA to RGB
         # D
@@ -183,24 +193,30 @@ class BotClient():
         else:   self.dragg([self.screenshotImg.shape[1] / 2, self.screenshotImg.shape[0] / 2], [self.screenshotImg.shape[1] / 2, self.screenshotImg.shape[0] - 50], time=speed)
 
 
-    def checkPhoneNotBloqued(self):
-        if self.screenshotImg.shape[0] > self.screenshotImg.shape[1]: return False
-        mask = np.copy(self.screenshotImg)
-        mask[0:mask.shape[0],0:mask.shape[1]] = 255
-        # self.showImage(self.screenshotImg)
-        if np.equal(self.screenshotImg, mask).any(1).all():return False
+    def checkPhoneBloqued(self):
+        if self.screenshotImg.shape[0] > self.screenshotImg.shape[1]: raise PhoneLockedOrVertical("Phone device is locked or on vertical position")
+        # mask = np.copy(self.screenshotImg) # Not needed
+        # mask[0:mask.shape[0],0:mask.shape[1]] = 255
+        # # self.showImage(self.screenshotImg)
+        # if np.equal(self.screenshotImg, mask).any(1).all():
+        #     print("White...")
+        #     self.screenshot(save=True)
+        #     return False
 
-        return True
+        # return True
 
     def checkActiveApp(self):
-        try:
+        # try:
             appname= "com.aniplex.fategrandorder.en"
             appList = self.mainDev.get_top_activities()
+            # for eleemeint in app1List:    # D
+            #     print(eleemeint)          # D
+            # print(appList[len(appList)-1])# D
             if appname in str(appList[len(appList)-1]):
                 return True
             return False
-        except AttributeError as e:
-            return True
+        # except AttributeError as e:
+        #     return True
 
     # Menu related
 
@@ -242,7 +258,7 @@ class BotClient():
 
     # Support Related
 
-    def checkSelectSuppScreen(self):
+    def checkSelectSupportScreen(self):
         templateA = cv2.imread('../templates/selectSupportA.png', 0)
         templateB = cv2.imread('../templates/selectSupportB.png', 0)
         resA = cv2.matchTemplate(self.screenshotImgGray, templateA, cv2.TM_CCOEFF_NORMED)
@@ -261,7 +277,7 @@ class BotClient():
 
     # def selectRandomSupp(self):pass
 
-    def selectSupportClass(self, classN=0):
+    def selectSupportClass(self, classN=None):
         # print(classN)
         if classN == 0:
             template = cv2.imread('../templates/supportList/supportMix.png', 0)
@@ -283,8 +299,7 @@ class BotClient():
             template = cv2.imread('../templates/supportList/supportBerserker.png', 0)
         elif classN == 9:
             template = cv2.imread('../templates/supportList/supportSpecial.png', 0)
-        else:
-            template = cv2.imread('../templates/supportList/supportMix.png', 0)
+        else: return None # If None
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
         # print(max_val)
@@ -300,6 +315,10 @@ class BotClient():
     def checkSuportBarrTopOrBottom(self,checkTop=True):
 
         # Check if barr is on max top or bottom
+
+        # True = Check if barr is on top
+        # False = Check if barr is on bottom
+
         template=None
         treshold=None
         if self.supportColorPalette == 0:
@@ -310,52 +329,55 @@ class BotClient():
             treshhold = 0.98 # Fucking annoying treshhold
             if checkTop:
                 template = cv2.imread('../templates/supportList/color1/supportBarrTop.png', 0)
-                print("checktop")
+                # print("checktop")
             else:
                 template = cv2.imread('../templates/supportList/color1/supportBarrBottom.png', 0)
-                print("checkbot")
+                # print("checkbot")
         # print(treshhold)
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
         # print(max_val)
-        print(max_val)
+        # print(max_val)
         if max_val > treshhold:return True
         return False
 
 
 
     def selectSupport(self):
-        self.selectSupportClass(classN=self.supportClassInt)
-        if self.ceList == []:
-            self.findCE(None)
-        else:
-            for ceName in self.ceList:
-                draggDown=True
-                selectedSupport=False
-                x=0
-                while not selectedSupport and draggDown:
-                    if x == 5 and not self.checkSelectSuppScreen():return False
-                    self.screenshot()
-                    selectedSupport=self.findCE(ceName=ceName)
-                    if not selectedSupport and self.checkSuportBarrTopOrBottom(False):
-                        xy=self.returnBarrPos(0)
-                        self.dragg(xy, [xy[0], 0], 200)
-                        draggDown=False
-                        # DraggToTop
+        while self.checkSelectSupportScreen():
+            self.selectSupportClass(classN=self.supportClassInt)
+            if self.ceList == []:
+                self.findCE(None)
+            else:
+                for ceName in self.ceList:
+                    draggDown=True
+                    selectedSupport=False
+                    x=0
+                    while not selectedSupport and draggDown:
+                        if x == 5 and not self.checkSelectSupportScreen():return False
+                        self.screenshot()
+                        selectedSupport=self.findCE(ceName=ceName)
+                        if not selectedSupport and self.checkSuportBarrTopOrBottom(False):
+                            xy=self.returnBarrPos(0)
+                            self.dragg(xy, [xy[0], 0], 200)
+                            draggDown=False
+                            # DraggToTop
 
-                    # elif not selectedSupport and self.checkSuportBarrTopOrBottom():draggDown=True
+                        # elif not selectedSupport and self.checkSuportBarrTopOrBottom():draggDown=True
 
-                    if not selectedSupport:
-                        self.draggSupport(draggDown)
-                        time.sleep(0.05)
-                        lastBarrPos=self.returnBarrPos(0)
-                    x+=1
-                if selectedSupport:return True
+                        if not selectedSupport:
+                            self.draggSupport(draggDown)
+                            time.sleep(0.05)
+                            lastBarrPos=self.returnBarrPos(0)
+                        x+=1
+                    if selectedSupport:return True
+            while not self.updateFriendList():pass
 
 
     def findCE(self,ceName=None):
-        print(ceName)
+        # print(ceName)
         if ceName is None:
+            # Maybe quite forced, still one way to select a support when you don't really care about who is
             self.click(xy=[660,250])
             return True
         else:
@@ -363,10 +385,11 @@ class BotClient():
             res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
             _, max_val, _, max_loc = cv2.minMaxLoc(res)
 
-            treshHold = 0.85
+            treshHold = 0.98
+            print("{} : {}".format(ceName,max_val))
             if max_val > treshHold:
                 bestY, bestX = np.where(res >= max_val)
-                self.click([bestX, bestY])
+                if not self.debugg: self.click([bestX, bestY])
                 return True
         return False
 
@@ -395,6 +418,37 @@ class BotClient():
             return True
         else: return False
 
+    def updateFriendList(self):
+        # Click updateFriendList
+        template = cv2.imread('../templates/updateFriendsButton.png', 0)
+        res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, max_loc = cv2.minMaxLoc(res)
+        treshHold = 0.85
+        if max_val > treshHold:
+            bestY, bestX = np.where(res >= max_val)
+            self.click([bestX, bestY])
+            # Find Yes, else find Close, either return False and do nothing
+            time.sleep(0.5)
+            self.screenshot()
+            template = cv2.imread('../templates/yes.png', 0)
+            res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
+            _, max_val, _, max_loc = cv2.minMaxLoc(res)
+            treshHold = 0.85
+            if max_val>treshHold:
+                bestY, bestX = np.where(res >= max_val)
+                self.click([bestX, bestY])
+                return True
+            template = cv2.imread('../templates/closePopUp.png', 0)
+            res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
+            _, max_val, _, max_loc = cv2.minMaxLoc(res)
+            treshHold = 0.85
+            print(treshHold)
+            print(max_val)
+            if max_val>treshHold:
+                bestY, bestX = np.where(res >= max_val)
+                self.click([bestX, bestY])
+                return True
+        return False
 
     # Combat related
 
@@ -903,7 +957,7 @@ class BotClient():
                 elif self.checkAttackButton():
                     self.click(xy=[self.attackButtonLoc[0]+50,self.attackButtonLoc[1]])
                     time.sleep(1)
-                elif self.selectSupportBool and self.checkSelectSuppScreen():
+                elif self.selectSupportBool and self.checkSelectSupportScreen():
                     self.selectSupport()
                     time.sleep(0.5)
                 elif self.clickCheckTapScreen():pass
