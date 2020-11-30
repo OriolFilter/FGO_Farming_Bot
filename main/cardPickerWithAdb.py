@@ -1058,3 +1058,4 @@ if __name__ == '__main__':
 
 # Fer una especie de menu per sellecionar coses, podria estar guai, i que fos per terminal, per a que sigui fancy control
 # https://www.youtube.com/watch?v=zwMsmBsC1GM
+
