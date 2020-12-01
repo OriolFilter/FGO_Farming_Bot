@@ -367,6 +367,8 @@ class BotClient:
                         if not selected_support and self.check_suport_barr_top_or_bottom(False):
                             xy=self.return_barr_pos(0)
                             self.dragg(xy, [xy[0], 0], 200)
+                            # self.dragg([xy[0]], [xy[1]], [xy[0, 250]])
+                            # self.dragg([xy[0]], [xy[1]], [xy[0, 250]])
                             dragg_down=False
                             # DraggToTop
 
