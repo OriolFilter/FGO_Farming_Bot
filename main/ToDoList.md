@@ -6,7 +6,7 @@
 
     Done, just left use it when you can't find a friend with X CE
 
-### Re-cut some CE (and maybe remove or add some)
+### Re-cut some CE (and maybe remove or add some) (ongoing)
 
 ### Remove some messages or commented code
 
@@ -30,3 +30,10 @@
 ## Notes
     (*)
     Stands for fixed, or probably fixed
+    
+    
+## 01/12/2020
+
+### Updated CE List
+
+    BeGracefulU
