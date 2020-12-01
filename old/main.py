@@ -136,7 +136,7 @@ class bot():
     def checkFriendRequest(self):
         img_rgb = self.screenshotImg
         img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
-        template = cv2.imread('../templates/friendRequest.png', 0)
+        template = cv2.imread('../templates/friend_request.png', 0)
         res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
         treshHold = 0.85
@@ -150,7 +150,7 @@ class bot():
     def declineFriendRequest(self):
         img_rgb = self.screenshotImg
         img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
-        template = cv2.imread('../templates/doNotSend.png', 0)
+        template = cv2.imread('../templates/do_not_send.png', 0)
         res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
         treshHold = 0.85
@@ -192,7 +192,7 @@ class bot():
     def checkScrollIsUp(self):
         img_rgb = self.screenshotImg
         img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
-        template = cv2.imread('../templates/supportTopScrollbar.png', 0)
+        template = cv2.imread('../templates/support_top_scrollbar.png', 0)
         res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
         treshHold = 0.99
@@ -204,7 +204,7 @@ class bot():
     def checkScrollIsDown(self):
         img_rgb = self.screenshotImg
         img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
-        template = cv2.imread('../templates/supportBottomScrollbar.png', 0)
+        template = cv2.imread('../templates/support_bottom_scrollbar.png', 0)
         res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
         treshHold = 0.99
@@ -310,7 +310,7 @@ class bot():
     def checkMainMenu(self):
         img_rgb = self.screenshotImg
         img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
-        template = cv2.imread('../templates/newsButton.png', 0)
+        template = cv2.imread('../templates/news_button.png', 0)
         res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
         if max_val > 0.9:
@@ -419,7 +419,7 @@ class bot():
     def checkConfirmParty(self):
         img_rgb = self.screenshotImg
         img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
-        template = cv2.imread('../templates/confirmParty.png', 0)
+        template = cv2.imread('../templates/confirm_party.png', 0)
         res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
         if max_val > 0.9:
@@ -430,7 +430,7 @@ class bot():
     def checkClosePopUp(self):  # Revisar
         img_rgb = self.screenshotImg
         img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
-        template = cv2.imread('../templates/closePopUp.png', 0)
+        template = cv2.imread('../templates/close_pop_up.png', 0)
         res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
         if max_val > 0.9:
@@ -444,7 +444,7 @@ class bot():
         self.screenshot()
         img_rgb = self.screenshotImg
         img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
-        template = cv2.imread('../templates/okButton.png', 0)
+        template = cv2.imread('../templates/ok_button.png', 0)
         res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
         if max_val > 0.9:
@@ -524,7 +524,7 @@ class bot():
         # screenshot()
         img_rgb = self.screenshotImg
         img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
-        template = cv2.imread('../templates/nextButton.png', 0)
+        template = cv2.imread('../templates/next_button.png', 0)
         res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
         if max_val > 0.9:
@@ -601,13 +601,13 @@ class bot():
 
     def findTopBar(self, barrType):
         if barrType == 0:
-            file = '../templates/topScrollBar.png'
+            file = '../templates/top_scroll_br.png'
             treshHold = 0.92
         elif barrType == 1:
             file = '../templates/energy/energyScrollBar.png'
             treshHold = 0.95
         elif barrType == 2:
-            file = '../templates/topFriendScrollBarr.png'
+            file = '../templates/top_friend_scroll_barr.png'
             treshHold = 0.95
         img_rgb = self.screenshotImg
         img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)

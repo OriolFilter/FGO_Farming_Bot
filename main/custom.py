@@ -12,18 +12,18 @@ if __name__ == '__main__':
     hostname="b6997f9a"
     # hostname="40edac8d"
     if option == 0:
-        # ceList = ["ChaldeaTeatimeU"]
-        # ceList = ["SprinterU", "TreefoldBarrierU", "TreefoldBarrier"] # D
-        ceList = ["ChaldeaTeatimeU", "ChaldeaLunchtimeU"]
+        # ce_list = ["ChaldeaTeatimeU"]
+        # ce_list = ["SprinterU", "TreefoldBarrierU", "TreefoldBarrier"] # D
+        ce_list = ["ChaldeaTeatimeU", "ChaldeaLunchtimeU"]
         client=cp.BotClient(hostName=hostname)
-        client.ceList=ceList
-        client.supportColorPalette=1
-        # client.timesToRestoreEnergy=-1        # client.timesToRestoreEnergy=-1
-        client.timesToRestoreEnergy=0
-        client.npOnDangerOrServant=True
-        client.selectSupportBool=True
-        client.repeatQuest=True
-        client.supportClassInt=6 # Castera
+        client.ce_list=ce_list
+        client.support_color_palette=1
+        # client.times_to_restore_energy=-1        # client.times_to_restore_energy=-1
+        client.times_to_restore_energy=0
+        client.np_on_danger_or_servant=True
+        client.select_support_bool=True
+        client.repeat_quest=True
+        client.support_class_int=6 # Castera
         # client.cardsPrio=[1,2,0,3]
         client.cardsPrio=[0,1,2,3]
         #test=BotClient(debugg=True)
@@ -43,15 +43,15 @@ if __name__ == '__main__':
         client.main(mode=2)
     elif option == 3:
         client=cp.BotClient(hostName=hostname)
-        ceList = ["MonaLisaU","MonaLisa"]
-        client.ceList=ceList
-        client.supportColorPalette=0
-        # client.timesToRestoreEnergy=-1        # client.timesToRestoreEnergy=-1
-        client.timesToRestoreEnergy=0
-        client.npOnDangerOrServant=True
-        client.selectSupportBool=True
-        client.repeatQuest=True
-        client.supportClassInt=5 # Rider
+        ce_list = ["MonaLisaU","MonaLisa"]
+        client.ce_list=ce_list
+        client.support_color_palette=0
+        # client.times_to_restore_energy=-1        # client.times_to_restore_energy=-1
+        client.times_to_restore_energy=0
+        client.np_on_danger_or_servant=True
+        client.select_support_bool=True
+        client.repeat_quest=True
+        client.support_class_int=5 # Rider
         client.cardsPrio=[0,1,2,3]
         print('start')
         client.main(mode=0)
@@ -79,7 +79,7 @@ if __name__ == '__main__':
         while True:
 
             if not prizeResetButtonPos:
-                prizeResetButtonPos=client.findPrizeResetButton(returnPos=True)
+                prizeResetButtonPos=client.find_prize_reset_button(returnPos=True)
                 client.screenshot()
             if prizeResetButtonPos:
                 client.click(prizeResetButtonPos)
@@ -115,21 +115,21 @@ if __name__ == '__main__':
         #         sleep(1)
         #         input()
         client = cp.BotClient(hostName=hostname)
-        ceList = ["MonaLisaU", "MonaLisa"]
-        client.ceList = ceList
-        client.supportColorPalette=1
+        ce_list = ["MonaLisaU", "MonaLisa"]
+        client.ce_list = ce_list
+        client.support_color_palette=1
         client.screenshot()
         client.selectSupport()
         # client.updateFriendList()
         # client.screenshot()
-        # ceList = ["ChaldeaTeatimeU", "ChaldeaTeatime"]
-        # ceList = ["ChaldeaLunchtimeU", "ChaldeaLunchtime"]
-        # client.ceList = ceList
+        # ce_list = ["ChaldeaTeatimeU", "ChaldeaTeatime"]
+        # ce_list = ["ChaldeaLunchtimeU", "ChaldeaLunchtime"]
+        # client.ce_list = ce_list
         # client.debugg=True
-        # for CE in ceList:
+        # for CE in ce_list:
         #     client.findCE(CE)
-        # client.supportClassInt = 6
-        # client.ceList=["ChaldeaTeatimeU","ChaldeaLunchtimeU"]
+        # client.support_class_int = 6
+        # client.ce_list=["ChaldeaTeatimeU","ChaldeaLunchtimeU"]
         # client.selectSupport()
         # xy=client.returnBarrPos(0)
         # client.click()
@@ -137,12 +137,12 @@ if __name__ == '__main__':
 
         # print("inline for:")
         # client.time(None)
-        # var = [print("Found!") for ce in ceList if client.findCE(ce)]
+        # var = [print("Found!") for ce in ce_list if client.findCE(ce)]
         # client.time("time:\n")
         # # input()
         # print("For:")
         # client.time(None)
-        # for ce in ceList:
+        # for ce in ce_list:
         #     if client.findCE(ce):print("Found!") #Aqui aniria un return
         # client.time("time:\n")
         # # input()
@@ -150,8 +150,8 @@ if __name__ == '__main__':
         # client.time(None)
         # x=0
         # finish=False
-        # while not finish and x<len(ceList):
-        #     finish=client.findCE(ceList[x])
+        # while not finish and x<len(ce_list):
+        #     finish=client.findCE(ce_list[x])
         #     if finish:print("Found!")
         #     x+=1
         # client.time("time:\n")

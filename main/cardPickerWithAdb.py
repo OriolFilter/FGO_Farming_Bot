@@ -18,19 +18,24 @@ import io
 # Errors
 class PhoneLockedOrVertical(OSError):
     """Raised when phone is locked or is playing with the aplication on vertical mode"""
+    pass
 # class PhoneHorizontal(OSError):
 #     """Raised when android can't take a screenshot, like unlock screen or incognito mode google"""
 class CantScreenshotDevice(OSError):
     """Raised when android can't take a screenshot, like unlock screen or incognito mode google"""
+    pass
 class FateUsaAppNotForeground(OSError):
     """Raised when FGO USA is not foreground or isn't in horizontal mode"""
     pass
 
 
-class BotClient():
+class BotClient:
     def __init__(self,emuName=None,ip=None,hostName=None,port=5037): # 5037 Might be the default port for adbServer
         # You can check the device host 'name' in case you are using a usb
         # appName not enabled
+
+
+
         if hostName or port: # Server connection to adb
             self.client = AdbClient(host="127.0.0.1", port=port)
             try:
@@ -52,7 +57,7 @@ class BotClient():
 
         # Energy
         self.timesRestoredEnergy=0
-        self.timesToRestoreEnergy=0 # -1 means infinite, does not use QZ
+        self.times_to_restore_energy=0 # -1 means infinite, does not use QZ
         self.useGoldApple=True
         self.useSilverApple=True
         self.useBronzeApple=True
@@ -63,16 +68,16 @@ class BotClient():
         self.questsFinished=0 # Just conts the times that had to press 'Next', in certain events it might bugg since it might have multiple pages
 
         # Combat
-        self.npOnDangerOrServant=False
-        self.dangerOrServantFoundVar=False
+        self.np_on_danger_or_servant=False
+        self.danger_or_servant_foundVar=False
         self.colorOverEffectiveness=False
         self.cardsPrio=[0,1,2,3] # Default, 0 Buster, 1 Arts, 2 Quick, 3 Stunned, IMPORTANT, use 3, since in case you don't and you have +3 stunned cards you will have a loop
 
         # Support
-        self.selectSupportBool=False
-        self.supportClassInt=None
-        self.supportColorPalette=0 #0 means you finished the main history part 1
-        self.ceList=[]
+        self.select_support_bool=False
+        self.support_class_int=None
+        self.support_color_palette=0 #0 means you finished the main history part 1
+        self.ce_list=[]
         # Misc
         self.run=True # Mayb should move it to self.main()
         self.mask=None
@@ -82,16 +87,19 @@ class BotClient():
     # ImageThings
     def screenshot(self,save=False,imgPath="Test.png"):
 
+        ""
+
+
         if self.debugg:
             self.time(">")
             bimg = self.mainDev.screencap()
             print("f")
             # print("recived bimg")
-            img = self.bimageToImage(bimg)
-            img = self.pilToOpencv(img)
-            img = self.resizeOpenCvScreenshot(img)
+            img = self.bimage_to_image(bimg)
+            img = self.pil_to_opencv(img)
+            img = self.resize_open_cv_screenshot(img)
             self.screenshotImg = img
-            self.screenshotImg = self.resizeOpenCvScreenshot(self.pilToOpencv(self.bimageToImage(bimg)))
+            self.screenshotImg = self.resize_open_cv_screenshot(self.pil_to_opencv(self.bimage_to_image(bimg)))
             self.screenshotImgGray = cv2.cvtColor(self.screenshotImg, cv2.COLOR_BGR2GRAY)
             if save:
                 cv2.imwrite(imgPath, self.screenshotImg)
@@ -99,23 +107,23 @@ class BotClient():
             self.time(">>")
         else:
             try:
-                if not self.emuName and self.checkActiveApp():
+                if not self.emuName and self.check_active_app():
                     # print("reciving bimg")
                     if self.verbose:self.time(">")
                     bimg = self.mainDev.screencap()
                     # print("recived bimg")
                     try:
-                        img = self.bimageToImage(bimg)
+                        img = self.bimage_to_image(bimg)
                     except UnidentifiedImageError:raise CantScreenshotDevice("Can't screenshot the device, it could be due being restricted by android itself")
 
-                    img = self.pilToOpencv(img)
-                    img = self.resizeOpenCvScreenshot(img)
+                    img = self.pil_to_opencv(img)
+                    img = self.resize_open_cv_screenshot(img)
                     self.screenshotImg = img
-                    self.screenshotImg = self.resizeOpenCvScreenshot(self.pilToOpencv(self.bimageToImage(bimg)))
+                    self.screenshotImg = self.resize_open_cv_screenshot(self.pil_to_opencv(self.bimage_to_image(bimg)))
                     if save:
                         cv2.imwrite(imgPath,self.screenshotImg)
                         print('Image Saved!')
-                    self.checkPhoneBloqued()
+                    self.check_phone_bloqued()
 
                     self.screenshotImgGray = cv2.cvtColor(self.screenshotImg, cv2.COLOR_BGR2GRAY)
                     if self.verbose: self.time(">>")
@@ -130,7 +138,7 @@ class BotClient():
                 time.sleep(2)
                 return False
 
-    def bimageToImage(self,bimg): # also RGBA to RGB
+    def bimage_to_image(self,bimg): # also RGBA to RGB
         # D
         png = Image.open(io.BytesIO(bimg))
         png.load() # required for png.split()
@@ -143,19 +151,19 @@ class BotClient():
         return background
         # self.image.show()
 
-    def pilToOpencv(self,img):
+    def pil_to_opencv(self,img):
         # print(type(img))
         # Load image
         # img.show()
         # Image to opencv
         open_cv_image = np.array(img)
         open_cv_image = open_cv_image[:, :, ::-1].copy()
-        # imgReady = self.resizeOpenCvScreenshot(open_cv_image) #No pot ser
+        # imgReady = self.resize_open_cv_screenshot(open_cv_image) #No pot ser
 
         # cv2.imwrite("Test.png",open_cv_image)
         return open_cv_image
 
-    def resizeOpenCvScreenshot(self,img): #Ho fa bé
+    def resize_open_cv_screenshot(self,img): #Ho fa bé
         defaultSize=(720,1280) #X,Y
         self.imageProportion=defaultSize[0]/img.shape[0]
         self.clickResolution=img.shape[0]/defaultSize[0]
@@ -188,16 +196,16 @@ class BotClient():
         if self.debugg:print("Debugg")
         else:self.mainDev.input_swipe(int(xyStart[0]*self.clickResolution),int(xyStart[1]*self.clickResolution),int(xyEnd[0]*self.clickResolution),int(xyEnd[1]*self.clickResolution),time)
 
-    def draggSupport(self, down=True,speed=400):
+    def dragg_support(self, down=True,speed=400):
         if down:self.dragg([self.screenshotImg.shape[1] / 2, self.screenshotImg.shape[0] - 50], [self.screenshotImg.shape[1] / 2, self.screenshotImg.shape[0] / 2], time=speed)
         else:   self.dragg([self.screenshotImg.shape[1] / 2, self.screenshotImg.shape[0] / 2], [self.screenshotImg.shape[1] / 2, self.screenshotImg.shape[0] - 50], time=speed)
 
 
-    def checkPhoneBloqued(self):
+    def check_phone_bloqued(self):
         if self.screenshotImg.shape[0] > self.screenshotImg.shape[1]: raise PhoneLockedOrVertical("Phone device is locked or on vertical position")
         # mask = np.copy(self.screenshotImg) # Not needed
         # mask[0:mask.shape[0],0:mask.shape[1]] = 255
-        # # self.showImage(self.screenshotImg)
+        # # self.show_image(self.screenshotImg)
         # if np.equal(self.screenshotImg, mask).any(1).all():
         #     print("White...")
         #     self.screenshot(save=True)
@@ -205,7 +213,7 @@ class BotClient():
 
         # return True
 
-    def checkActiveApp(self):
+    def check_active_app(self):
         # try:
             appname= "com.aniplex.fategrandorder.en"
             appList = self.mainDev.get_top_activities()
@@ -223,7 +231,7 @@ class BotClient():
 
 
     def clickRepeatButton(self):
-        template = cv2.imread('../templates/repeatButton.png', 0)
+        template = cv2.imread('../templates/repeat_button.png', 0)
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
 
@@ -235,7 +243,7 @@ class BotClient():
 
 
 
-    def clickCheckTapScreen(self):
+    def click_check_tap_screen(self):
         template = cv2.imread('../templates/tap.png', 0)
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
@@ -243,9 +251,9 @@ class BotClient():
             bestY, bestX = np.where(res >= max_val)
             self.click([bestX,bestY])
 
-    def clickCheckNextutton(self):
+    def click_check_next_button(self):
         # screenshot()
-        template = cv2.imread('../templates/nextButton.png', 0)
+        template = cv2.imread('../templates/next_button.png', 0)
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
         if max_val > 0.9:
@@ -258,9 +266,11 @@ class BotClient():
 
     # Support Related
 
-    def checkSelectSupportScreen(self):
-        templateA = cv2.imread('../templates/selectSupportA.png', 0)
-        templateB = cv2.imread('../templates/selectSupportB.png', 0)
+    def check_select_support_screen(self):
+        templateA = cv2.imread('../templates/select_support_a.png', 0)
+        templateB = cv2.imread('../templates/select_support_b.png', 0)
+        # self.show_image(self.screenshotImg)
+        # input()
         resA = cv2.matchTemplate(self.screenshotImgGray, templateA, cv2.TM_CCOEFF_NORMED)
         resB = cv2.matchTemplate(self.screenshotImgGray, templateB, cv2.TM_CCOEFF_NORMED)
         _, max_valA, _, max_loc = cv2.minMaxLoc(resA)
@@ -272,12 +282,9 @@ class BotClient():
         else:
             return False
 
-    def selectRandomSupp(self):
-        pass
-
     # def selectRandomSupp(self):pass
 
-    def selectSupportClass(self, classN=None):
+    def select_support_class(self, classN=None):
         # print(classN)
         if classN == 0:
             template = cv2.imread('../templates/supportList/supportMix.png', 0)
@@ -312,7 +319,7 @@ class BotClient():
         else:pass
             # return False
 
-    def checkSuportBarrTopOrBottom(self,checkTop=True):
+    def check_suport_barr_top_or_bottom(self,checkTop=True):
 
         # Check if barr is on max top or bottom
 
@@ -321,11 +328,11 @@ class BotClient():
 
         template=None
         treshold=None
-        if self.supportColorPalette == 0:
+        if self.support_color_palette == 0:
             treshhold = 0.97 # Fucking annoying treshhold
             if checkTop:template = cv2.imread('../templates/supportList/color0/supportBarrTop.png', 0)
             else:template = cv2.imread('../templates/supportList/color0/supportBarrBottom.png', 0)
-        elif self.supportColorPalette == 1:
+        elif self.support_color_palette == 1:
             treshhold = 0.98 # Fucking annoying treshhold
             if checkTop:
                 template = cv2.imread('../templates/supportList/color1/supportBarrTop.png', 0)
@@ -343,38 +350,38 @@ class BotClient():
 
 
 
-    def selectSupport(self):
-        while self.checkSelectSupportScreen():
-            self.selectSupportClass(classN=self.supportClassInt)
-            if self.ceList == []:
-                self.findCE(None)
+    def select_support(self):
+        while self.check_select_support_screen():
+            self.select_support_class(classN=self.support_class_int)
+            if self.ce_list == []:
+                self.find_ce(None)
             else:
-                for ceName in self.ceList:
-                    draggDown=True
-                    selectedSupport=False
+                for ceName in self.ce_list:
+                    dragg_down=True
+                    selected_support=False
                     x=0
-                    while not selectedSupport and draggDown:
-                        if x == 5 and not self.checkSelectSupportScreen():return False
+                    while not selected_support and dragg_down:
+                        if x == 5 and not self.check_select_support_screen():return False
                         self.screenshot()
-                        selectedSupport=self.findCE(ceName=ceName)
-                        if not selectedSupport and self.checkSuportBarrTopOrBottom(False):
-                            xy=self.returnBarrPos(0)
+                        selected_support=self.find_ce(ceName=ceName)
+                        if not selected_support and self.check_suport_barr_top_or_bottom(False):
+                            xy=self.return_barr_pos(0)
                             self.dragg(xy, [xy[0], 0], 200)
-                            draggDown=False
+                            dragg_down=False
                             # DraggToTop
 
-                        # elif not selectedSupport and self.checkSuportBarrTopOrBottom():draggDown=True
+                        # elif not selected_support and self.check_suport_barr_top_or_bottom():dragg_down=True
 
-                        if not selectedSupport:
-                            self.draggSupport(draggDown)
+                        if not selected_support:
+                            self.dragg_support(dragg_down)
                             time.sleep(0.05)
-                            lastBarrPos=self.returnBarrPos(0)
+                            lastBarrPos=self.return_barr_pos(0)
                         x+=1
-                    if selectedSupport:return True
-            while not self.updateFriendList():pass
+                    if selected_support:return True
+            while not self.update_friend_list():pass
 
 
-    def findCE(self,ceName=None):
+    def find_ce(self,ceName=None):
         # print(ceName)
         if ceName is None:
             # Maybe quite forced, still one way to select a support when you don't really care about who is
@@ -397,8 +404,8 @@ class BotClient():
 
     # Friend related
 
-    def clickDoNotSend(self):
-        template = cv2.imread('../templates/doNotSend.png', 0)
+    def click_do_not_send(self):
+        template = cv2.imread('../templates/do_not_send.png', 0)
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
 
@@ -408,8 +415,8 @@ class BotClient():
             self.click([bestX,bestY])
         else: return False
 
-    def friendRequest(self):
-        template = cv2.imread('../templates/friendRequest.png', 0)
+    def friend_request(self):
+        template = cv2.imread('../templates/friend_request.png', 0)
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
 
@@ -418,9 +425,9 @@ class BotClient():
             return True
         else: return False
 
-    def updateFriendList(self):
-        # Click updateFriendList
-        template = cv2.imread('../templates/updateFriendsButton.png', 0)
+    def update_friend_list(self):
+        # Click update_friend_list
+        template = cv2.imread('../templates/update_friends_button.png', 0)
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
         treshHold = 0.85
@@ -438,7 +445,7 @@ class BotClient():
                 bestY, bestX = np.where(res >= max_val)
                 self.click([bestX, bestY])
                 return True
-            template = cv2.imread('../templates/closePopUp.png', 0)
+            template = cv2.imread('../templates/close_pop_up.png', 0)
             res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
             _, max_val, _, max_loc = cv2.minMaxLoc(res)
             treshHold = 0.85
@@ -452,8 +459,8 @@ class BotClient():
 
     # Combat related
 
-    def checkRepeatQuestButton(self):
-        template = cv2.imread('../templates/repeatMessage.png', 0)
+    def check_repeat_quest_button(self):
+        template = cv2.imread('../templates/repeat_message.png', 0)
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
 
@@ -461,7 +468,7 @@ class BotClient():
         if max_val > treshHold: return True
         else: return False
 
-    def checkAttackButton(self):
+    def check_attack_button(self):
         template = cv2.imread('../templates/Combat/attackButton.png', 0)
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
@@ -473,7 +480,7 @@ class BotClient():
             return True
         else: return False
 
-    def checkInCombat(self):
+    def check_in_combat(self):
         template = cv2.imread('../templates/Combat/combatBackButton.png', 0)
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
@@ -483,10 +490,10 @@ class BotClient():
         else:
             return False
 
-    def findOkMenu(self,mode=0):
+    def find_ok_menu(self,mode=0):
         # 0 don't click
         # 1 click
-        template = cv2.imread('../templates/okButton.png', 0)
+        template = cv2.imread('../templates/ok_button.png', 0)
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
         treshHold = 0.85
@@ -499,7 +506,7 @@ class BotClient():
         else:
             return False
 
-    def dangerOrServantFound(self):
+    def danger_or_servant_found(self):
         templateDanger = cv2.imread('../templates/Combat/danger.png', 0)
         templateServant = cv2.imread('../templates/Combat/servant.png', 0)
         resD = cv2.matchTemplate(self.screenshotImgGray, templateDanger, cv2.TM_CCOEFF_NORMED)
@@ -516,7 +523,7 @@ class BotClient():
 
 
 
-    def returnBarrPos(self,type=0):
+    def return_barr_pos(self,type=0):
         # 0 Top, generic barr, works with energy too, energy has priority
         # 1 Bottom, Support
         # 2 Center, Support
@@ -524,10 +531,10 @@ class BotClient():
 
         # Else, print no barr found
 
-        if type == 0:template = cv2.imread('../templates/barrTop.png', 0)
-        # elif type == 1:template = cv2.imread('../templates/supportBottomScrollbar.png', 0)
+        if type == 0:template = cv2.imread('../templates/barr_top.png', 0)
+        # elif type == 1:template = cv2.imread('../templates/support_bottom_scrollbar.png', 0)
         # elif type == 2:template = cv2.imread('../templates/barr.png', 0) # Sha de revistar
-        # elif type == 3:template = cv2.imread('../templates/topScrollBar.png', 0)
+        # elif type == 3:template = cv2.imread('../templates/top_scroll_bar.png', 0)
         else:return False
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
@@ -536,7 +543,7 @@ class BotClient():
             bestY, bestX = np.where(res >= max_val)
             return([int(bestX),int(bestY)])
 
-    def findSpinButton(self,number=1,returnPos=True):
+    def find_spin_button(self,number=1,returnPos=True):
         # number 1=10 spins (default)
         # number 0=1/else
         if number==1: template = cv2.imread('../templates/spin10.png', 0)
@@ -551,7 +558,7 @@ class BotClient():
             else: return True
         return False
 
-    def findPrizeResetButton(self,returnPos=False):
+    def find_prize_reset_button(self,returnPos=False):
         # number 1=10 spins (default)
         # number 0=1/else
         template = cv2.imread('../templates/prizeReset.png', 0)
@@ -565,7 +572,7 @@ class BotClient():
             else:return True
         return False
 
-    def findResetButton(self,returnPos=False):
+    def find_reset_button(self,returnPos=False):
         # number 1=10 spins (default)
         # number 0=1/else
         template = cv2.imread('../templates/resetButton.png', 0)
@@ -579,10 +586,8 @@ class BotClient():
             else:return True
         return False
 
-    def findClosePopUpButton(self,returnPos=False):
-        # number 1=10 spins (default)
-        # number 0=1/else
-        template = cv2.imread('../templates/closePopUp.png', 0)
+    def find_close_pop_up_button(self,returnPos=False): # Might not be used at all, delete?
+        template = cv2.imread('../templates/close_pop_up.png', 0)
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
         treshHold = 0.85
@@ -599,25 +604,25 @@ class BotClient():
         self.cardsJsonStr={"NORMAL":[],
                            "NP":[]
                            }
-        self.getNormalCardInfo()
+        self.get_normal_card_info()
 
-        if not self.npOnDangerOrServant:pass
-        elif self.dangerOrServantFound():
-            self.dangerOrServantFoundVar=True
+        if not self.np_on_danger_or_servant:pass
+        elif self.danger_or_servant_found():
+            self.danger_or_servant_foundVar=True
 
-        if self.dangerOrServantFoundVar:self.getNPCardInfo()
+        if self.danger_or_servant_foundVar:self.get_np_card_info()
 
 
 
 
         # print(' --: {}'.format(self.cardsFound))
-        if self.checkActiveApp():
+        if self.check_active_app():
             # print(self.cardsJsonStr)
-            self.selectAttackCards()
+            self.select_attack_cards()
         else:print("NOT ACTIVE")
         time.sleep(3)
 
-    def getNPCardInfo(self):
+    def get_np_card_info(self):
         self.cardsJsonStr['NP'].append(
                                                 {"pos" :
                                                     {"x":514,
@@ -643,46 +648,46 @@ class BotClient():
     #     # self.detectBusterCards()
     #     # self.detectArtsCards()
     #     # self.detectQuickCards()
-    #     # self.getCardsInfo()
+    #     # self.get_cards_info()
     #     # self.cardsFound=0
     #     # self.cardsJson={}
     #     for n in range(0,4):
     #         # print('T')
     #         receivedJson=None
-    #         receivedJson=self.getCardsInfo(n,mode=1) #Not real json tho
+    #         receivedJson=self.get_cards_info(n,mode=1) #Not real json tho
     #         if receivedJson:
     #             for line in receivedJson:
     #                 # print(recivedJson[line])
     #                 self.cardsJsonStr["NP"].append(receivedJson[line])
     #     print(self.cardsJsonStr["NP"]) # D
-    #     # self.showImage(self.screenshotImg)
-    #     # self.showImage(self.mask)
+    #     # self.show_image(self.screenshotImg)
+    #     # self.show_image(self.mask)
     #     self.mask=None
     #     # print('found {} cards'.format(self.cardsFound))
     #     # for element in self.cardsJsonStr["NORMAL"]:print(element)
 
 
-    def getNormalCardInfo(self):
+    def get_normal_card_info(self):
         # self.detectBusterCards()
         # self.detectArtsCards()
         # self.detectQuickCards()
-        # self.getCardsInfo()
+        # self.get_cards_info()
         # self.cardsFound=0
         # self.cardsJson={}
         for n in range(0,4):
             receivedJson=None
-            receivedJson=self.getCardsInfo(n,mode=0) #Not real json tho
+            receivedJson=self.get_cards_info(n,mode=0) #Not real json tho
             if receivedJson:
                 for line in receivedJson:
                     # print(line)
                     # print(recivedJson[line])
                     self.cardsJsonStr["NORMAL"].append(receivedJson[line])
-        # self.showImage(self.mask12312111)
+        # self.show_image(self.mask12312111)
         self.mask=None
         # print('found {} cards'.format(self.cardsFound))
         # for element in self.cardsJsonStr["NORMAL"]:print(element)
 
-    def getCardsInfo(self,color,mode=0): #Problemes amb els returns de Json
+    def get_cards_info(self,color,mode=0): #Problemes amb els returns de Json
         # 0 Normal
         # 1 N?P
         jsonCardList={}
@@ -701,7 +706,7 @@ class BotClient():
         # 2 Quick
         # 3 Stunned
         if mode == 1:print('searching')
-        if self.mask is None:self.generateMaskFromImage(mode=mode)
+        if self.mask is None:self.generate_mask_from_image(mode=mode)
 
         templateSrc=colorSrc[color]
         template = cv2.imread(templateSrc, 0)
@@ -733,7 +738,7 @@ class BotClient():
                                                 "used": False
                                                 })
                 else:
-                    effectiveness=self.returnCardEff(cardCoordStart,cardCoordEnd)
+                    effectiveness=self.return_card_eff(cardCoordStart,cardCoordEnd)
                     jsonCardList[self.cardsFound]=(
                                                 {"type": color,
                                                 "effectiveness": effectiveness,
@@ -746,16 +751,13 @@ class BotClient():
                 self.cardsFound+=1
         return jsonCardList
 
-    def getCardColor(self):
-        for x in range(0,4):pass
-
-    def generateMaskFromImage(self,mode):
+    def generate_mask_from_image(self,mode):
         self.mask = np.zeros(self.screenshotImg.shape[:2], np.uint8) #Crear Mascara
 
         if mode == 0:self.mask[0:int(self.mask.shape[0]/2.5),0:self.mask.shape[1]]=255 #Normal
         else:self.mask[int(self.mask.shape[0]/1.75):,0:self.mask.shape[1]]=255 #NP
 
-    def returnCardEff(self,coordS,coordE):
+    def return_card_eff(self,coordS,coordE):
             cardImg=self.screenshotImg[coordS[1]:coordE[1],coordS[0]:coordE[0]]
 
             effectivenes=1
@@ -779,10 +781,10 @@ class BotClient():
             # cv2.waitKey()
             return effectivenes
 
-    def selectCardsOrder(self):
+    def select_cards_order(self):
         pass #Maybe?
 
-    def selectAttackCards(self):
+    def select_attack_cards(self):
         # print('>' ,self.cardsJson)
         # for card in self.cardsJsonStr["NORMAL"]:
         # print(self.cardsJsonStr["NORMAL"][0])
@@ -792,7 +794,7 @@ class BotClient():
                 # print(e)
 
         # NP
-        if self.npOnDangerOrServant:
+        if self.np_on_danger_or_servant:
             c=0
             while c<len(self.cardsJsonStr["NP"]) and self.cardsSelected<3:
                 if not self.cardsJsonStr["NP"][c]["used"]:
@@ -852,7 +854,7 @@ class BotClient():
             # print('END')
         # if self.cardsSelected > 2: time.sleep(4)
 
-    def restoreApples(self,id=None): #Wont use quartz
+    def restore_apples(self,id=None): #Wont use quartz
         #None/False Restore menu, returns true/false
         #0 Gold Apple
         #1 Silver Apple
@@ -876,7 +878,7 @@ class BotClient():
                     2: '../templates/energy/bronzeApple.png'
                     }
             if id == 2: #Dragg
-                xy = self.returnBarrPos(0)
+                xy = self.return_barr_pos(0)
                 # self.click(xy)
                 # self.swipe(xy,xy)
                 self.dragg([xy[0]+10,xy[1]+10],[xy[0]+10,xy[1]+200])
@@ -893,7 +895,7 @@ class BotClient():
                 self.click([bestX,bestY])
                 time.sleep(1)
                 self.screenshot()
-                if self.findOkMenu(1):
+                if self.find_ok_menu(1):
                     self.timesRestoredEnergy+=appleValues[id]
                     print('{} time restoring energy'.format(self.timesRestoredEnergy))
                     time.sleep(4)
@@ -901,50 +903,39 @@ class BotClient():
                 #else: #Find Close due lack of apples
         return False
 
-
-    def countColors(self):pass
-
     # Main
     def main(self,mode=0):
         # Main let you pick some predefined modes
-        if self.debugg:self.debuggMode()
+        if self.debugg:self.debugg_mode()
         else:
-            # try:
-                if mode == 0:self.basicMode()
-                elif mode == 1:self.combatOnly()
-                elif mode == 2:self.cardPickerOnly()
+                if mode == 0:self.basic_mode()
+                elif mode == 1:self.combat_only()
+                elif mode == 2:self.card_picker_only()
 
                 else:
                     print('Wrong mode...')
                     input()
-
-            # except cv2.error as e:
-            #     print(e)
-            #     print("Screen blocked")
-            #     time.sleep(2)
         print('Closing...')
 
-
-    def cardPickerOnly(self):
+    def card_picker_only(self):
         print('Card picker only mode selected')
         while self.run:
             if self.screenshot():
-                if self.checkInCombat():self.attack()
+                if self.check_in_combat():self.attack()
                 else:pass
 
-
-    def combatOnly(self):
+    def combat_only(self):
         print('Combat mode selected')
         while self.run:
             if self.screenshot():
                 if False:pass
-                elif self.checkInCombat():self.attack()
-                elif self.checkAttackButton():
+                elif self.check_in_combat():self.attack()
+                elif self.check_attack_button():
                     self.click(xy=[self.attackButtonLoc[0]+50,self.attackButtonLoc[1]])
                     time.sleep(1)
                 else:pass
 
-    def basicMode(self):
+    def basic_mode(self):
         print('Basic mode selected')
         while self.run:
             # self.time(">>")
@@ -953,32 +944,32 @@ class BotClient():
                 # print('?')
                 # cv2.imwrite('Test.png',self.screenshotImg)
                 if False:pass
-                elif self.checkInCombat():self.attack()
-                elif self.checkAttackButton():
+                elif self.check_in_combat():self.attack()
+                elif self.check_attack_button():
                     self.click(xy=[self.attackButtonLoc[0]+50,self.attackButtonLoc[1]])
                     time.sleep(1)
-                elif self.selectSupportBool and self.checkSelectSupportScreen():
-                    self.selectSupport()
+                elif self.select_support_bool and self.check_select_support_screen():
+                    self.select_support()
                     time.sleep(0.5)
-                elif self.clickCheckTapScreen():pass
-                elif self.repeatQuest and self.checkRepeatQuestButton():
+                elif self.click_check_tap_screen():pass
+                elif self.repeatQuest and self.check_repeat_quest_button():
                     self.clickRepeatButton()
                     time.sleep(0.5)
-                elif self.clickCheckNextutton():
+                elif self.click_check_next_button():
                     self.questsFinished+=1
                     print('Finished quest nº {}'.format(self.questsFinished))
-                elif self.friendRequest():
-                    if self.addFriend:self.clickDoNotSend()
+                elif self.friend_request():
+                    if self.addFriend:self.click_do_not_send()
                     else:print('Not enabled')
-                elif self.restoreApples():
-                    if self.timesRestoredEnergy < self.timesToRestoreEnergy or self.timesToRestoreEnergy == -1:
-                        if self.useBronzeApple and self.restoreApples(2): print('Restored energy using{}'.format(' a Bronze Apple'))
-                        elif self.useSilverApple and self.restoreApples(1): print('Restored energy using{}'.format(' a Silver Apple'))
-                        elif self.useGoldApple and self.restoreApples(0): print('Restored energy using{}'.format(' a Golden Apple'))
-                    elif self.timesRestoredEnergy >= self.timesToRestoreEnergy and self.timesToRestoreEnergy > 0 :
+                elif self.restore_apples():
+                    if self.timesRestoredEnergy < self.times_to_restore_energy or self.times_to_restore_energy == -1:
+                        if self.useBronzeApple and self.restore_apples(2): print('Restored energy using{}'.format(' a Bronze Apple'))
+                        elif self.useSilverApple and self.restore_apples(1): print('Restored energy using{}'.format(' a Silver Apple'))
+                        elif self.useGoldApple and self.restore_apples(0): print('Restored energy using{}'.format(' a Golden Apple'))
+                    elif self.timesRestoredEnergy >= self.times_to_restore_energy and self.times_to_restore_energy > 0 :
                         print('Stopping after restoring energy {} times'.format(self.timesRestoredEnergy))
                         self.run=False
-                    elif self.timesToRestoreEnergy == 0:
+                    elif self.times_to_restore_energy == 0:
                         print('Stopping after running out of energy')
                         self.run=False
 
@@ -988,16 +979,16 @@ class BotClient():
                 #RestoreEnergy/Stop
                 #self.time(">>>")
 
-    #Debugg
-    def debuggMode(self):#Test From images
+    #Debugg, thats provably usenless... might need to delete
+    def debugg_mode(self):#Test From images
         self.screenshotImg=cv2.imread('Test.png')
         # print(self.screenshotImg)
         # self.showScreenshot()
-        self.basicMode()
+        self.basic_mode()
         # print(self.cardsJsonStr)
         # input()
 
-    def showImage(self,img):
+    def show_image(self,img):
         cv2.namedWindow('image')
         cv2.imshow('image',img)
         cv2.waitKey(0)
@@ -1009,52 +1000,9 @@ class BotClient():
             print('{} {}'.format(str,time.time()-self.timeV))
             self.timeV=time.time()
 
-    def clickSpeedTest(self):
-        self.screenshot()
-        self.click([100,100])
-        print('Click!')
-        self.click([100,100])
-        print('Click!')
-        self.click([100,100])
-        print('Click!')
-
-
-
-
-
-
-
-
-
-
-
-
-# Demo
+# Demo, there is no demo...
 if __name__ == '__main__':
-    # #test=BotClient(port=5037,ip="IP")
-    # hostname=input("Specify the device name")
-    # test=BotClient(hostName=hostname)
-    # #Settind custom details
-    # test.timesToRestoreEnergy=0
-    # # test.npOnDangerOrServant=True
-    # test.selectSupportBool=True
-    # test.repeatQuest=True
-    # #test=BotClient(debugg=True)
-    # # test.screenshot(True)
-    # # test.debuggMode()
-    # # test.clickSpeedTest()
-    # # test.swipe([500,100],[200,200])
-    # # test.screenshot()
-    # # print(test.restoreApples(2))
-    #
-    # # Test
-    #
-    # # Running Main
-    # test.main(mode=0)
-    #
-    # input() # Input
     print("you are running this from main, cya")
-#restoreApples -> refillEnergy
 
 # Fer una especie de menu per sellecionar coses, podria estar guai, i que fos per terminal, per a que sigui fancy control
 # https://www.youtube.com/watch?v=zwMsmBsC1GM
