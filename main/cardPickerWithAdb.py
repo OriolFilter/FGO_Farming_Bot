@@ -431,6 +431,8 @@ class BotClient:
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
         treshHold = 0.85
         if max_val > treshHold:
+            bestY, bestX = np.where(res >= max_val)
+            self.click([bestX, bestY])
             return True
         return False
 
