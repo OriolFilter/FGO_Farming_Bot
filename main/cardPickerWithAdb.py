@@ -421,11 +421,18 @@ class BotClient:
         template = cv2.imread('../templates/friend_request.png', 0)
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
-
         treshHold = 0.85
         if max_val > treshHold:
             return True
-        else: return False
+        return False
+    def check_compat_open_menu(self):
+        template = cv2.imread('../templates/cross_window.png', 0)
+        res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, max_loc = cv2.minMaxLoc(res)
+        treshHold = 0.85
+        if max_val > treshHold:
+            return True
+        return False
 
     def update_friend_list(self):
         # Click update_friend_list
@@ -957,6 +964,7 @@ class BotClient:
                 elif self.repeatQuest and self.check_repeat_quest_button():
                     self.clickRepeatButton()
                     time.sleep(0.5)
+                    """Misc"""
                 elif self.click_check_next_button():
                     self.questsFinished+=1
                     print('Finished quest nº {}'.format(self.questsFinished))
@@ -974,6 +982,8 @@ class BotClient:
                     elif self.times_to_restore_energy == 0:
                         print('Stopping after running out of energy')
                         self.run=False
+                elif self.check_compat_open_menu():pass
+                else:pass
 
 
 

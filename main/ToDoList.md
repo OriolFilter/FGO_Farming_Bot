@@ -59,4 +59,6 @@
 
 ### Some functions might break due changing some file names, update file names accordingly
 
-###
+## 03/12/2020
+
+### __version__ variable
