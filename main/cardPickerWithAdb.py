@@ -64,7 +64,7 @@ class BotClient:
 
 
         # Quests
-        self.repeatQuest=False
+        self.repeat_quest=False
         self.questsFinished=0 # Just conts the times that had to press 'Next', in certain events it might bugg since it might have multiple pages
 
         # Combat
@@ -394,7 +394,7 @@ class BotClient:
             res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
             _, max_val, _, max_loc = cv2.minMaxLoc(res)
 
-            treshHold = 0.98
+            treshHold = 0.96
             print("{} : {}".format(ceName,max_val))
             if max_val > treshHold:
                 bestY, bestX = np.where(res >= max_val)
@@ -963,7 +963,7 @@ class BotClient:
                     self.select_support()
                     time.sleep(0.5)
                 elif self.click_check_tap_screen():pass
-                elif self.repeatQuest and self.check_repeat_quest_button():
+                elif self.repeat_quest and self.check_repeat_quest_button(): #Repeat Questsss
                     self.clickRepeatButton()
                     time.sleep(0.5)
                     """Misc"""
