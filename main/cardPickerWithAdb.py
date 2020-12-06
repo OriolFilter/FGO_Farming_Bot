@@ -8,7 +8,7 @@
 # Imports
 import time
 # from typing import Type
-
+import os
 import cv2
 import numpy as np
 from ppadb.client import Client as AdbClient
@@ -29,6 +29,17 @@ class FateUsaAppNotForeground(OSError):
     pass
 
 
+def start_adb_server():
+    if os.name == 'nt': # Windows
+        os.system('adb kill-server')
+        os.system('adb start-server')
+        return True
+    else: # Supposed to be Linux...
+        os.system('sudo adb kill-server')
+        os.system('sudo adb start-server')
+        return True
+    return False #??
+
 class BotClient:
     def __init__(self,emuName=None,ip=None,hostName=None,port=5037): # 5037 Might be the default port for adbServer
         # You can check the device host 'name' in case you are using a usb
@@ -44,8 +55,13 @@ class BotClient:
                 elif hostName:
                     self.mainDev = self.client.device(hostName) # "USB"
                 elif emuName: print('Thats not enabled!') # Change to pass, or just remove
-            except ConnectionRefusedError:
-                print('Connection refused or not aviable\nMake sure the server has started adb, and the client has debbug mode enabled, also check if wifi is inabled in case of using network, or the usb is plugged in correctly')
+            except RuntimeError as e:
+                print("Raised when Python can't connect with Adb Server or cannot find the specified dispositive, when this happens it will ask if you want to start the Adb server and try again")
+                if start_adb_server():
+                    print('Adb server started succefully')
+                    self.__init__(emuName=emuName,ip=ip,hostName=hostName,port=port)
+            # except ConnectionRefusedError:
+            #     print('Connection refused or not aviable\nMake sure the server has started adb, and the client has debbug mode enabled, also check if wifi is inabled in case of using network, or the usb is plugged in correctly')
 
         # self
         self.debugg=False
@@ -87,7 +103,7 @@ class BotClient:
     # ImageThings
     def screenshot(self,save=False,imgPath="Test.png"):
 
-        ""
+        """ """
 
 
         if self.debugg:
@@ -214,7 +230,6 @@ class BotClient:
         # return True
 
     def check_active_app(self):
-        # try:
             appname= "com.aniplex.fategrandorder.en"
             appList = self.mainDev.get_top_activities()
             # for eleemeint in app1List:    # D
@@ -223,8 +238,6 @@ class BotClient:
             if appname in str(appList[len(appList)-1]):
                 return True
             return False
-        # except AttributeError as e:
-        #     return True
 
     # Menu related
 

@@ -62,3 +62,9 @@
 ## 03/12/2020
 
 ### __version__ variable
+
+## 06/12/2020
+
+### Detect when adb is or is not enabled and try to enable it (depending of the distribution might do one command or another...) (*)
+    Might want to hide the adb output, or might want to leave it just to confirm that it's working, also, might want to actually check if adb is currentlly running so i can properlly tell if the command worked or not...
+    
