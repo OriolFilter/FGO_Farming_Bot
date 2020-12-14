@@ -14,7 +14,8 @@ if __name__ == '__main__':
     if option == 0:
         # ce_list = ["ChaldeaTeatimeU"]
         # ce_list = ["SprinterU", "TreefoldBarrierU", "TreefoldBarrier"] # D
-        ce_list = ["ChaldeaTeatimeU", "ChaldeaLunchtimeU"]
+        # ce_list = ["ChaldeaTeatimeU", "ChaldeaLunchtimeU"]
+        ce_list = ["SchwipsigInTheSnow", "HolyMaidensTeachings"]
         client=cp.BotClient(hostName=hostname)
         client.ce_list=ce_list
         client.support_color_palette=1

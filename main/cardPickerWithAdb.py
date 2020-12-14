@@ -489,6 +489,7 @@ class BotClient:
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
 
         treshHold = 0.85
+        print(max_val)
         if max_val > treshHold: return True
         else: return False
 
@@ -997,8 +998,8 @@ class BotClient:
                     elif self.times_to_restore_energy == 0:
                         print('Stopping after running out of energy')
                         self.run=False
-                elif self.check_compat_open_menu():pass
-                else:pass
+                # elif self.check_compat_open_menu():pass
+                # else:pass
 
 
 
