@@ -473,8 +473,8 @@ class BotClient:
             res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
             _, max_val, _, max_loc = cv2.minMaxLoc(res)
             treshHold = 0.85
-            print(treshHold)
-            print(max_val)
+            # print(treshHold)
+            # print(max_val)
             if max_val>treshHold:
                 bestY, bestX = np.where(res >= max_val)
                 self.click([bestX, bestY])
@@ -489,7 +489,7 @@ class BotClient:
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
 
         treshHold = 0.85
-        print(max_val)
+        # print(max_val)
         if max_val > treshHold: return True
         else: return False
 
@@ -914,7 +914,7 @@ class BotClient:
             res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
             _, max_val, _, max_loc = cv2.minMaxLoc(res)
             treshHold = 0.85
-            print(max_val)
+            # print(max_val)
             if max_val > treshHold:
                 bestY, bestX = np.where(res >= max_val)
                 self.click([bestX,bestY])
