@@ -3,7 +3,7 @@ from main import cardPickerWithAdb as cp
 from time import sleep
 
 print('Select the mode')
-print('0\t normal mode\n1\t combat mode\n2\t card picking mode\n3\t qp mode\n-1\tTake screenshot\n-2\tSpin 10\n-3\tTesting things\n')
+print('0\t normal mode\n1\t combat mode\n2\t card picking mode\n3\t qp mode\n4\t Spin mode\n-1\tTake screenshot\n-2\tSpin 10\n-3\tTesting things\n')
 # option = int(-3)
 option = int(input())
 
@@ -15,7 +15,8 @@ if __name__ == '__main__':
         # ce_list = ["ChaldeaTeatimeU"]
         # ce_list = ["SprinterU", "TreefoldBarrierU", "TreefoldBarrier"] # D
         # ce_list = ["ChaldeaTeatimeU", "ChaldeaLunchtimeU"]
-        ce_list = ["SchwipsigInTheSnow", "HolyMaidensTeachings"]
+        # ce_list = ["SchwipsigInTheSnowU", "SchwipsigInTheSnow", "HolyMaidensTeachings"]
+        ce_list = ["SchwipsigInTheSnowU"]
         client=cp.BotClient(hostName=hostname)
         client.ce_list=ce_list
         client.support_color_palette=1
@@ -24,10 +25,11 @@ if __name__ == '__main__':
         client.np_on_danger_or_servant=True
         client.select_support_bool=True
         client.repeat_quest=True
-        client.support_class_int=6 # Castera
+        # client.support_class_int=6 # Castera
+        client.support_class_int=0 # Mix
         # client.cardsPrio=[1,2,0,3]
         client.cardsPrio=[0,1,2,3]
-        #test=BotClient(debugg=True)
+        # test=BotClient(debugg=True)
 
         # Test
 
@@ -97,6 +99,9 @@ if __name__ == '__main__':
             if closeButtonPos:
                 client.click(closeButtonPos)
                 sleep(0.2)
+    elif option == 4:
+        client = cp.BotClient(hostName=hostname)
+        client.main(mode=3)
     elif option == -3:
         # client = cp.BotClient(hostName=hostname,debugg=True)
         # print('START')

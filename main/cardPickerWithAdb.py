@@ -275,6 +275,17 @@ class BotClient:
             return True
         else:
             return
+    def check_bond_intensified_message(self):
+        # screenshot()
+        template = cv2.imread('../templates/bond_up.png', 0)
+        res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, max_loc = cv2.minMaxLoc(res)
+        if max_val > 0.9:
+            bestY, bestX = np.where(res >= max_val)
+            self.click([bestX,bestY])
+            return True
+        else:
+            return
     # checkState
 
     # Support Related
@@ -373,15 +384,13 @@ class BotClient:
                     dragg_down=True
                     selected_support=False
                     x=0
-                    while not selected_support and dragg_down:
-                        if x == 5 and not self.check_select_support_screen():return False
+                    while not selected_support and x < 5 and dragg_down:
                         self.screenshot()
                         selected_support=self.find_ce(ceName=ceName)
-                        if not selected_support and self.check_suport_barr_top_or_bottom(False):
+
+                        if not selected_support and self.check_suport_barr_top_or_bottom(False): # Dragg barr to the top
                             xy=self.return_barr_pos(0)
                             self.dragg(xy, [xy[0], 0], 200)
-                            # self.dragg([xy[0]], [xy[1]], [xy[0, 250]])
-                            # self.dragg([xy[0]], [xy[1]], [xy[0, 250]])
                             dragg_down=False
                             # DraggToTop
 
@@ -389,17 +398,29 @@ class BotClient:
 
                         if not selected_support:
                             self.dragg_support(dragg_down)
-                            time.sleep(0.05)
+                            time.sleep(0.5)
                             lastBarrPos=self.return_barr_pos(0)
                         x+=1
+
                     if selected_support:return True
+                    elif x == 5 and not self.check_select_support_screen(): return False
+            while not self.update_friend_list():pass
+
+    def select_support2(self): # In progress to improve the previous one
+        while self.check_select_support_screen():
+            self.select_support_class(classN=self.support_class_int)
+            if self.ce_list == []:
+                self.find_ce(None)
+            else:
+                for ceName in self.ce_list:
+                    self.check_no_friends_aviable()
             while not self.update_friend_list():pass
 
 
     def find_ce(self,ceName=None):
         # print(ceName)
         if ceName is None:
-            # Maybe quite forced, still one way to select a support when you don't really care about who is
+            # Maybe quite forced, still one way to select a support when you don't really care about the CE
             self.click(xy=[660,250])
             return True
         else:
@@ -480,6 +501,15 @@ class BotClient:
                 self.click([bestX, bestY])
                 return True
         return False
+
+    def check_no_friends_aviable(self):
+        template = cv2.imread('../templates/unable_to_find_the_corresponding_criteria.png', 0)
+        res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, _ = cv2.minMaxLoc(res)
+        treshHold = 0.85
+        if max_val > treshHold:
+            return True
+        else: return False
 
     # Combat related
 
@@ -936,6 +966,7 @@ class BotClient:
                 if mode == 0:self.basic_mode()
                 elif mode == 1:self.combat_only()
                 elif mode == 2:self.card_picker_only()
+                elif mode == 3:self.spin_mode()
 
                 else:
                     print('Wrong mode...')
@@ -959,6 +990,26 @@ class BotClient:
                     self.click(xy=[self.attackButtonLoc[0]+50,self.attackButtonLoc[1]])
                     time.sleep(1)
                 else:pass
+
+    def spin_mode(self):
+        print('Spin mode selected.')
+        while self.run:
+            if self.screenshot():
+                spin_pos=self.find_spin_button(returnPos=True)
+                if False:
+                    pass
+                elif spin_pos:
+                    self.click(spin_pos)
+                    time.sleep(1)
+                    self.click([self.screenshotImgGray.shape[0]/2,self.screenshotImgGray.shape[1]/2])
+                    time.sleep(1)
+                    # self.click(self.imageProportion)
+                    # self.click(self.imageProportion)
+                # elif self.check_attack_button():
+                #     self.click(xy=[self.attackButtonLoc[0] + 50, self.attackButtonLoc[1]])
+                #     time.sleep(1)
+                else:
+                    pass
 
     def basic_mode(self):
         print('Basic mode selected')
@@ -998,6 +1049,7 @@ class BotClient:
                     elif self.times_to_restore_energy == 0:
                         print('Stopping after running out of energy')
                         self.run=False
+                elif self.check_bond_intensified_message(): print('A servant leveled up his bond')
                 # elif self.check_compat_open_menu():pass
                 # else:pass
 
