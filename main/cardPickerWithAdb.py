@@ -440,8 +440,11 @@ class BotClient:
 
     # Friend related
 
-    def click_do_not_send(self):
-        template = cv2.imread('../templates/do_not_send.png', 0)
+    def send_friend_request(self,bool=False):
+        if bool:
+            template = cv2.imread('../templates/send_friend_request.png', 0)
+        else:
+            template = cv2.imread('../templates/dont_send_friend_request.png', 0)
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
 
@@ -451,14 +454,15 @@ class BotClient:
             self.click([bestX,bestY])
         else: return False
 
-    def friend_request(self):
-        template = cv2.imread('../templates/friend_request.png', 0)
+    def send_friend_request_screen(self):
+        template = cv2.imread('../templates/send_friend_request_screen.png', 0)
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
         treshHold = 0.85
         if max_val > treshHold:
             return True
         return False
+
     def check_compat_open_menu(self):
         template = cv2.imread('../templates/cross_window.png', 0)
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
@@ -1035,9 +1039,7 @@ class BotClient:
                 elif self.click_check_next_button():
                     self.questsFinished+=1
                     print('Finished quest nº {}'.format(self.questsFinished))
-                elif self.friend_request():
-                    if self.addFriend:self.click_do_not_send()
-                    else:print('Not enabled')
+                elif self.send_friend_request_screen():self.send_friend_request(self.addFriend)
                 elif self.restore_apples():
                     if self.timesRestoredEnergy < self.times_to_restore_energy or self.times_to_restore_energy == -1:
                         if self.useBronzeApple and self.restore_apples(2): print('Restored energy using{}'.format(' a Bronze Apple'))

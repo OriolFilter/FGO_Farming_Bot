@@ -147,17 +147,6 @@ class bot():
         else:
             return False
 
-    def declineFriendRequest(self):
-        img_rgb = self.screenshotImg
-        img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
-        template = cv2.imread('../templates/do_not_send.png', 0)
-        res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
-        _, max_val, _, max_loc = cv2.minMaxLoc(res)
-        treshHold = 0.85
-        if max_val > treshHold:
-            bestY, bestX = numpy.where(res >= max_val)
-            pyautogui.click(self.appPos[0] + bestX, self.appPos[1] + bestY)
-
     def checkSupportCE(self, CEname, mode=None):
         img_rgb = self.screenshotImg
         img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
