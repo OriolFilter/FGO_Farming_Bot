@@ -375,6 +375,7 @@ class BotClient:
 
 
     def select_support(self):
+        selected_support=False
         while self.check_select_support_screen():
             self.select_support_class(classN=self.support_class_int)
             if self.ce_list == []:
@@ -382,7 +383,6 @@ class BotClient:
             else:
                 for ceName in self.ce_list:
                     dragg_down=True
-                    selected_support=False
                     x=0
                     while not selected_support and x < 5 and dragg_down:
                         self.screenshot()
@@ -407,6 +407,7 @@ class BotClient:
             while not self.update_friend_list():pass
 
     def select_support2(self): # In progress to improve the previous one
+        selected_support = False
         while self.check_select_support_screen():
             self.select_support_class(classN=self.support_class_int)
             if self.ce_list == []:
@@ -414,6 +415,9 @@ class BotClient:
             else:
                 for ceName in self.ce_list:
                     self.check_no_friends_aviable()
+
+
+
             while not self.update_friend_list():pass
 
 
@@ -605,8 +609,8 @@ class BotClient:
     def find_spin_button(self,number=1,returnPos=True):
         # number 1=10 spins (default)
         # number 0=1/else
-        if number==1: template = cv2.imread('../templates/spin10.png', 0)
-        else: template = cv2.imread('../templates/spin1.png', 0)
+        if number==1: template = cv2.imread('../templates/lottery/spins_button.png', 0)
+        else: template = cv2.imread('../templates/lottery/spin_button.png', 0)
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
         treshHold = 0.95
@@ -617,44 +621,63 @@ class BotClient:
             else: return True
         return False
 
-    def find_prize_reset_button(self,returnPos=False):
+    def find_prize_reset_button(self):
         # number 1=10 spins (default)
         # number 0=1/else
-        template = cv2.imread('../templates/prizeReset.png', 0)
+        template = cv2.imread('../templates/lottery/prize_reset.png', 0)
+        res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, max_loc = cv2.minMaxLoc(res)
+        treshHold = 0.75
+        print(max_val)
+        if max_val > treshHold:
+            bestY, bestX = np.where(res >= max_val)
+            return [bestX[0]+10,bestY[0]+10]
+        return False
+
+    def lottery_items_replenished(self):
+        # number 1=10 spins (default)
+        # number 0=1/else
+        template = cv2.imread('../templates/lottery/items_replenished.png', 0)
+        res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, _ = cv2.minMaxLoc(res)
+        treshHold = 0.85
+        if max_val > treshHold:
+            return True
+        return False
+
+    def find_reset_button(self):
+        # number 1=10 spins (default)
+        # number 0=1/else
+        template = cv2.imread('../templates/lottery/reset_button.png', 0)
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
         treshHold = 0.85
         if max_val > treshHold:
-            if returnPos:
-                bestY, bestX = np.where(res >= max_val)
-                return [bestX[0]+10,bestY[0]+10]
-            else:return True
+            bestY, bestX = np.where(res >= max_val)
+            return [bestX[0],bestY[0]]
         return False
 
-    def find_reset_button(self,returnPos=False):
+    def check_no_lottery_prizes_left(self):
         # number 1=10 spins (default)
         # number 0=1/else
-        template = cv2.imread('../templates/resetButton.png', 0)
+        template = cv2.imread('../templates/lottery/no_lottery_prizes_left.png', 0)
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
-        _, max_val, _, max_loc = cv2.minMaxLoc(res)
+        _, max_val, _, _ = cv2.minMaxLoc(res)
         treshHold = 0.85
         if max_val > treshHold:
-            if returnPos:
-                bestY, bestX = np.where(res >= max_val)
-                return [bestX[0],bestY[0]]
-            else:return True
+            return True
         return False
 
-    def find_close_pop_up_button(self,returnPos=False): # Might not be used at all, delete?
+
+
+    def find_close_pop_up_button(self): # Might not be used at all, delete?
         template = cv2.imread('../templates/close_pop_up.png', 0)
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
         treshHold = 0.85
         if max_val > treshHold:
-            if returnPos:
-                bestY, bestX = np.where(res >= max_val)
-                return [bestX[0],bestY[0]]
-            else:return True
+            bestY, bestX = np.where(res >= max_val)
+            return [bestX[0],bestY[0]]
         return False
     # Combat
     def attack(self):
@@ -1000,9 +1023,8 @@ class BotClient:
         while self.run:
             if self.screenshot():
                 spin_pos=self.find_spin_button(returnPos=True)
-                if False:
-                    pass
-                elif spin_pos:
+                if not spin_pos: no_prizes_left=self.check_no_lottery_prizes_left()
+                if spin_pos:
                     self.click(spin_pos)
                     time.sleep(1)
                     self.click([self.screenshotImgGray.shape[0]/2,self.screenshotImgGray.shape[1]/2])
@@ -1013,7 +1035,21 @@ class BotClient:
                 #     self.click(xy=[self.attackButtonLoc[0] + 50, self.attackButtonLoc[1]])
                 #     time.sleep(1)
                 else:
-                    pass
+                    prize_reset_button_pos = None
+                    if no_prizes_left:prize_reset_button_pos = self.find_prize_reset_button()
+                    if prize_reset_button_pos:
+                        self.click(prize_reset_button_pos)
+                        time.sleep(0.2)
+                        self.screenshot()
+                    reset_button_pos = self.find_reset_button()
+                    if reset_button_pos:
+                        self.click(reset_button_pos)
+                        time.sleep(0.2)
+                        self.screenshot()
+                    lottery_items_replenished = self.lottery_items_replenished()
+                    if lottery_items_replenished:
+                        self.click(self.find_close_pop_up_button())
+                        time.sleep(0.2)
 
     def basic_mode(self):
         print('Basic mode selected')
@@ -1030,6 +1066,7 @@ class BotClient:
                     time.sleep(1)
                 elif self.select_support_bool and self.check_select_support_screen():
                     self.select_support()
+                    # self.select_support2()
                     time.sleep(0.5)
                 elif self.click_check_tap_screen():pass
                 elif self.repeat_quest and self.check_repeat_quest_button(): #Repeat Questsss

@@ -12,7 +12,7 @@
 
 ### Document every function
 
-### Select 3 cards from the same color
+### Select 3 cards from the same color (chain, not counting NP)
 
 ### Fix select support...  (*)
 
@@ -25,6 +25,12 @@
     ChaldeaLunchtimeU
     ChaldeaTeatimeU
     ChaldeaTeatime
+    (pending, 2 CE from Christmas event + U version)
+
+### Improve select support 
+
+### Add spin function
+    (half done alredy)
 
 
 ## Notes
