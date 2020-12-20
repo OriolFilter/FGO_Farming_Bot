@@ -384,7 +384,7 @@ class BotClient:
                 for ceName in self.ce_list:
                     dragg_down=True
                     x=0
-                    while not selected_support and x < 5 and dragg_down:
+                    while not selected_support and x < 3 and dragg_down:
                         self.screenshot()
                         selected_support=self.find_ce(ceName=ceName)
 
@@ -403,7 +403,7 @@ class BotClient:
                         x+=1
 
                     if selected_support:return True
-                    elif x == 5 and not self.check_select_support_screen(): return False
+                    elif x == 3 and not self.check_select_support_screen(): return False
             while not self.update_friend_list():pass
 
     def select_support2(self): # In progress to improve the previous one
@@ -1027,6 +1027,8 @@ class BotClient:
                 if spin_pos:
                     self.click(spin_pos)
                     time.sleep(1)
+                    self.click([self.screenshotImgGray.shape[0]/2,self.screenshotImgGray.shape[1]/2])
+                    self.click([self.screenshotImgGray.shape[0]/2,self.screenshotImgGray.shape[1]/2])
                     self.click([self.screenshotImgGray.shape[0]/2,self.screenshotImgGray.shape[1]/2])
                     time.sleep(1)
                     # self.click(self.imageProportion)

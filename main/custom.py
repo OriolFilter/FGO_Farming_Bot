@@ -16,16 +16,18 @@ if __name__ == '__main__':
         # ce_list = ["SprinterU", "TreefoldBarrierU", "TreefoldBarrier"] # D
         # ce_list = ["ChaldeaTeatimeU", "ChaldeaLunchtimeU"]
         # ce_list = ["SchwipsigInTheSnowU", "SchwipsigInTheSnow", "HolyMaidensTeachings"]
-        ce_list = ["SchwipsigInTheSnowU"]
+        # ce_list = ["SchwipsigInTheSnowU"]
+        ce_list = ["HolyMaidensTeachingsU"]
         client=cp.BotClient(hostName=hostname)
         client.ce_list=ce_list
         client.support_color_palette=1
         # client.times_to_restore_energy=-1        # client.times_to_restore_energy=-1
-        client.times_to_restore_energy=0
+        client.times_to_restore_energy=5
         client.np_on_danger_or_servant=True
         client.select_support_bool=True
         client.repeat_quest=True
         # client.support_class_int=6 # Castera
+        # client.support_class_int=4 # Mix
         client.support_class_int=0 # Mix
         # client.cardsPrio=[1,2,0,3]
         client.cardsPrio=[0,1,2,3]
@@ -59,7 +61,9 @@ if __name__ == '__main__':
         print('start')
         client.main(mode=0)
         print('END')
-
+    elif option == 4:
+        client = cp.BotClient(hostName=hostname)
+        client.main(mode=3)
     elif option == -1: # Under construction
         client=cp.BotClient(hostName=hostname)
         client.debugg=True
@@ -99,9 +103,7 @@ if __name__ == '__main__':
             if closeButtonPos:
                 client.click(closeButtonPos)
                 sleep(0.2)
-    elif option == 4:
-        client = cp.BotClient(hostName=hostname)
-        client.main(mode=3)
+
     elif option == -3:
         # client = cp.BotClient(hostName=hostname,debugg=True)
         # print('START')
