@@ -433,7 +433,7 @@ class BotClient:
             _, max_val, _, max_loc = cv2.minMaxLoc(res)
 
             treshHold = 0.96
-            print("{} : {}".format(ceName,max_val))
+            # print("{} : {}".format(ceName,max_val))
             if max_val > treshHold:
                 bestY, bestX = np.where(res >= max_val)
                 if not self.debugg: self.click([bestX, bestY])
@@ -606,19 +606,24 @@ class BotClient:
             bestY, bestX = np.where(res >= max_val)
             return([int(bestX),int(bestY)])
 
-    def find_spin_button(self,number=1,returnPos=True):
+    def find_spin_button(self):
         # number 1=10 spins (default)
         # number 0=1/else
-        if number==1: template = cv2.imread('../templates/lottery/spins_button.png', 0)
-        else: template = cv2.imread('../templates/lottery/spin_button.png', 0)
+        template = cv2.imread('../templates/lottery/spins_button.png', 0)
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
-        treshHold = 0.95
+        treshHold = 0.90
+        # print(max_val)
         if max_val > treshHold:
-            if returnPos:
-                bestY, bestX = np.where(res >= max_val)
-                return [bestX[0],bestY[0]]
-            else: return True
+            bestY, bestX = np.where(res >= max_val)
+            return [bestX[0],bestY[0]]
+        template = cv2.imread('../templates/lottery/spin_button.png', 0)
+        res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, max_loc = cv2.minMaxLoc(res)
+        treshHold = 0.90
+        if max_val > treshHold:
+            bestY, bestX = np.where(res >= max_val)
+            return [bestX[0],bestY[0]]
         return False
 
     def find_prize_reset_button(self):
@@ -662,7 +667,7 @@ class BotClient:
         template = cv2.imread('../templates/lottery/no_lottery_prizes_left.png', 0)
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, _ = cv2.minMaxLoc(res)
-        treshHold = 0.85
+        treshHold = 0.95
         if max_val > treshHold:
             return True
         return False
@@ -881,7 +886,7 @@ class BotClient:
                 if not self.cardsJsonStr["NP"][c]["used"]:
                     self.cardsJsonStr["NP"][c]["used"]=True
                     # self.cardsSelected+=1
-                    print(self.cardsJsonStr["NP"][c]["pos"])
+                    # print(self.cardsJsonStr["NP"][c]["pos"])
                     # print(self.cardsJsonStr["NP"][c]["pos"][0])
                     # print(self.cardsJsonStr["NP"][c]["pos"]["x"])
                     self.click(xy=[self.cardsJsonStr["NP"][c]["pos"]["x"],self.cardsJsonStr["NP"][c]["pos"]["y"]])
@@ -1021,20 +1026,22 @@ class BotClient:
         print('Spin mode selected.')
         while self.run:
             if self.screenshot():
-                spin_pos=self.find_spin_button(returnPos=True)
-                if not spin_pos: no_prizes_left=self.check_no_lottery_prizes_left()
-                if spin_pos:
+                prize_reset_button_pos = None
+                no_prizes_left = self.check_no_lottery_prizes_left()
+                if no_prizes_left: prize_reset_button_pos = self.find_prize_reset_button()
+                if prize_reset_button_pos:
+                    self.click(prize_reset_button_pos)
+                    time.sleep(0.2)
+                    self.screenshot()
+                spin_pos=self.find_spin_button()
+                if not no_prizes_left and spin_pos:
                     self.click(spin_pos)
                     time.sleep(0.2)
                     self.click(spin_pos)
                     self.click(spin_pos)
                     self.click(spin_pos)
+                    self.click(spin_pos)
                     time.sleep(0.5)
-                    # self.click(self.imageProportion)
-                    # self.click(self.imageProportion)
-                # elif self.check_attack_button():
-                #     self.click(xy=[self.attackButtonLoc[0] + 50, self.attackButtonLoc[1]])
-                #     time.sleep(1)
                 else:
                     prize_reset_button_pos = None
                     if no_prizes_left:prize_reset_button_pos = self.find_prize_reset_button()
