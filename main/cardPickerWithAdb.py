@@ -628,7 +628,6 @@ class BotClient:
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
         treshHold = 0.75
-        print(max_val)
         if max_val > treshHold:
             bestY, bestX = np.where(res >= max_val)
             return [bestX[0]+10,bestY[0]+10]
@@ -688,7 +687,7 @@ class BotClient:
                            }
         self.get_normal_card_info()
 
-        if not self.np_on_danger_or_servant:pass
+        if not self.np_on_danger_or_servant:self.danger_or_servant_foundVar=False
         elif self.danger_or_servant_found():
             self.danger_or_servant_foundVar=True
 
@@ -1026,11 +1025,11 @@ class BotClient:
                 if not spin_pos: no_prizes_left=self.check_no_lottery_prizes_left()
                 if spin_pos:
                     self.click(spin_pos)
-                    time.sleep(1)
-                    self.click([self.screenshotImgGray.shape[0]/2,self.screenshotImgGray.shape[1]/2])
-                    self.click([self.screenshotImgGray.shape[0]/2,self.screenshotImgGray.shape[1]/2])
-                    self.click([self.screenshotImgGray.shape[0]/2,self.screenshotImgGray.shape[1]/2])
-                    time.sleep(1)
+                    time.sleep(0.2)
+                    self.click(spin_pos)
+                    self.click(spin_pos)
+                    self.click(spin_pos)
+                    time.sleep(0.5)
                     # self.click(self.imageProportion)
                     # self.click(self.imageProportion)
                 # elif self.check_attack_button():
@@ -1052,6 +1051,7 @@ class BotClient:
                     if lottery_items_replenished:
                         self.click(self.find_close_pop_up_button())
                         time.sleep(0.2)
+
 
     def basic_mode(self):
         print('Basic mode selected')
