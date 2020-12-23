@@ -263,6 +263,8 @@ class BotClient:
         if max_val > 0.7:
             bestY, bestX = np.where(res >= max_val)
             self.click([bestX,bestY])
+            return True
+        return False
 
     def click_check_next_button(self):
         # screenshot()
@@ -272,9 +274,9 @@ class BotClient:
         if max_val > 0.9:
             bestY, bestX = np.where(res >= max_val)
             self.click([bestX,bestY])
+            time.sleep(2)
             return True
-        else:
-            return
+        return False
     def check_bond_intensified_message(self):
         # screenshot()
         template = cv2.imread('../templates/bond_up.png', 0)
@@ -283,9 +285,41 @@ class BotClient:
         if max_val > 0.9:
             bestY, bestX = np.where(res >= max_val)
             self.click([bestX,bestY])
+            time.sleep(2)
             return True
-        else:
-            return
+        return False
+    def check_xp_gained_message(self):
+        # screenshot()
+        template = cv2.imread('../templates/xp_gained.png', 0)
+        res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, max_loc = cv2.minMaxLoc(res)
+        if max_val > 0.9:
+            bestY, bestX = np.where(res >= max_val)
+            self.click([bestX,bestY])
+            time.sleep(2)
+            return True
+        return False
+    def check_items_dropped_message(self):
+        # screenshot()
+        template = cv2.imread('../templates/items_dropped.png', 0)
+        res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, max_loc = cv2.minMaxLoc(res)
+        if max_val > 0.9:
+            time.sleep(2)
+            return True
+        return False
+
+    def check_result_bond_screen(self):
+        # screenshot()
+        template = cv2.imread('../templates/result_bond_screen.png', 0)
+        res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, max_loc = cv2.minMaxLoc(res)
+        if max_val > 0.9:
+            bestY, bestX = np.where(res >= max_val)
+            self.click([bestX,bestY])
+            time.sleep(2)
+            return True
+        return False
     # checkState
 
     # Support Related
@@ -303,8 +337,7 @@ class BotClient:
         treshhold=0.9
         if max_valA > treshhold or max_valB > treshhold:
             return True
-        else:
-            return False
+        return False
 
     # def selectRandomSupp(self):pass
 
@@ -1082,9 +1115,7 @@ class BotClient:
                     self.clickRepeatButton()
                     time.sleep(0.5)
                     """Misc"""
-                elif self.click_check_next_button():
-                    self.questsFinished+=1
-                    print('Finished quest nº {}'.format(self.questsFinished))
+                    print('Starting quest nº {}'.format(self.questsFinished))
                 elif self.send_friend_request_screen():self.send_friend_request(self.addFriend)
                 elif self.restore_apples():
                     if self.timesRestoredEnergy < self.times_to_restore_energy or self.times_to_restore_energy == -1:
@@ -1098,7 +1129,12 @@ class BotClient:
                         print('Stopping after running out of energy')
                         self.run=False
                 elif self.check_bond_intensified_message(): print('A servant leveled up his bond')
-                # elif self.check_compat_open_menu():pass
+                elif self.check_result_bond_screen(): pass
+                elif self.check_xp_gained_message(): pass
+                elif self.check_items_dropped_message(): self.click_check_next_button(); self.questsFinished+=1
+                elif self.click_check_next_button():self.questsFinished += 1
+
+            # elif self.check_compat_open_menu():pass
                 # else:pass
 
 
