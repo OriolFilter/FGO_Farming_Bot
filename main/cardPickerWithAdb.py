@@ -282,6 +282,7 @@ class BotClient:
         template = cv2.imread('../templates/bond_up.png', 0)
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
+        # print(max_val)
         if max_val > 0.9:
             bestY, bestX = np.where(res >= max_val)
             self.click([bestX,bestY])
@@ -376,7 +377,17 @@ class BotClient:
         else:pass
             # return False
 
-    def check_suport_barr_top_or_bottom(self,checkTop=True):
+    def check_support_barr(self):
+        template = cv2.imread('../templates/supportList/barr.png', 0)
+        treshhold = 0.98  # Fucking annoying treshhold
+        res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, max_loc = cv2.minMaxLoc(res)
+        # print(max_val)
+        # print(max_val)
+        if max_val > treshhold: return True
+        return False
+
+    def check_support_barr_top_or_bottom(self,checkTop=True):
 
         # Check if barr is on max top or bottom
 
@@ -416,27 +427,29 @@ class BotClient:
             else:
                 for ceName in self.ce_list:
                     dragg_down=True
-                    x=0
-                    while not selected_support and x < 3 and dragg_down:
+                    while not selected_support and self.check_select_support_screen() and dragg_down:
+                        if self.check_no_support_aviable():
+                            while self.check_no_support_aviable():
+                                self.update_friend_list()
+                                time.sleep(1)
+                                self.screenshot()
                         self.screenshot()
                         selected_support=self.find_ce(ceName=ceName)
 
-                        if not selected_support and self.check_suport_barr_top_or_bottom(False): # Dragg barr to the top
+                        if not selected_support and self.check_support_barr_top_or_bottom(False): # Dragg barr to the top
                             xy=self.return_barr_pos(0)
                             self.dragg(xy, [xy[0], 0], 200)
                             dragg_down=False
                             # DraggToTop
 
-                        # elif not selected_support and self.check_suport_barr_top_or_bottom():dragg_down=True
+                        # elif not selected_support and self.check_support_barr_top_or_bottom():dragg_down=True
 
                         if not selected_support:
                             self.dragg_support(dragg_down)
                             time.sleep(0.5)
                             lastBarrPos=self.return_barr_pos(0)
-                        x+=1
 
                     if selected_support:return True
-                    elif x == 3 and not self.check_select_support_screen(): return False
             while not self.update_friend_list():pass
 
     def select_support2(self): # In progress to improve the previous one
@@ -447,12 +460,79 @@ class BotClient:
                 self.find_ce(None)
             else:
                 for ceName in self.ce_list:
-                    self.check_no_friends_aviable()
+                    self.check_no_support_aviable()
 
 
 
             while not self.update_friend_list():pass
 
+    def select_support3(self):
+        selected_support=False
+        while self.check_select_support_screen():
+            self.select_support_class(classN=self.support_class_int)
+            if self.ce_list == []:
+                self.find_ce(None)
+            else:
+                for ceName in self.ce_list:
+                    dragg_down=True
+                    while not selected_support and self.check_select_support_screen() and dragg_down:
+                        if self.check_no_support_aviable():
+                            while self.check_no_support_aviable():
+                                self.update_friend_list()
+                                time.sleep(1)
+                                self.screenshot()
+                        self.screenshot()
+                        selected_support=self.find_ce(ceName=ceName)
+
+                        if not selected_support and self.check_support_barr_top_or_bottom(False): # Dragg barr to the top
+                            xy=self.return_barr_pos(0)
+                            self.dragg(xy, [xy[0], 0], 200)
+                            dragg_down=False
+                            # DraggToTop
+
+                        # elif not selected_support and self.check_support_barr_top_or_bottom():dragg_down=True
+
+                        if not selected_support:
+                            self.dragg_support(dragg_down)
+                            time.sleep(0.5)
+                            lastBarrPos=self.return_barr_pos(0)
+
+                    if selected_support:return True
+            while not self.update_friend_list():pass
+
+    def select_support4(self):
+        selected_support = False
+        self.select_support_class(classN=self.support_class_int)
+        while not selected_support:
+            for ceName in self.ce_list:
+                if not self.check_select_support_screen(): return False
+                print(ceName)
+                self.screenshot()
+                # print(0)
+                if not selected_support and self.check_support_barr_top_or_bottom(False):  # Dragg barr to the top
+                    xy = self.return_barr_pos(0)
+                    self.dragg(xy, [xy[0], 0], 200)
+                    dragg_down = False
+
+                while not selected_support and self.check_no_support_aviable() and self.check_select_support_screen(): # Update friends if noone has come to your birthday party
+                    self.update_friend_list()
+                    time.sleep(2)
+                    self.screenshot()
+                dragg_down = True
+                if not selected_support and self.check_select_support_screen():
+                    selected_support=self.find_ce(ceName=ceName)
+                if not selected_support and self.check_support_barr_top_or_bottom():
+                    while not selected_support and self.check_support_barr_top_or_bottom(checkTop=False):
+                        selected_support=self.find_ce(ceName=ceName)
+                        if not selected_support:
+                            self.dragg_support(dragg_down)
+                            time.sleep(0.5)
+            if not self.check_select_support_screen(): return False
+            while self.check_select_support_screen() and self.check_no_support_aviable():
+                self.update_friend_list()
+                time.sleep(2)
+                self.screenshot()
+        return True
 
     def find_ce(self,ceName=None):
         # print(ceName)
@@ -543,7 +623,7 @@ class BotClient:
                 return True
         return False
 
-    def check_no_friends_aviable(self):
+    def check_no_support_aviable(self):
         template = cv2.imread('../templates/unable_to_find_the_corresponding_criteria.png', 0)
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, _ = cv2.minMaxLoc(res)
@@ -1107,7 +1187,7 @@ class BotClient:
                     self.click(xy=[self.attackButtonLoc[0]+50,self.attackButtonLoc[1]])
                     time.sleep(1)
                 elif self.select_support_bool and self.check_select_support_screen():
-                    self.select_support()
+                    self.select_support4()
                     # self.select_support2()
                     time.sleep(0.5)
                 elif self.click_check_tap_screen():pass

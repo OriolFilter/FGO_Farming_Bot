@@ -18,6 +18,9 @@ if __name__ == '__main__':
         # ce_list = ["SchwipsigInTheSnowU", "SchwipsigInTheSnow", "HolyMaidensTeachings"]
         # ce_list = ["SchwipsigInTheSnowU"]
         ce_list = ["HolyMaidensTeachingsU"]
+        # ce_list = ["SchwipsigInTheSnowU"]
+        # ce_list = ["BurningBroadcastSeatU"]
+        # ce_list = ["RingTheBellU"]
         client=cp.BotClient(hostName=hostname)
         client.ce_list=ce_list
         client.support_color_palette=1
