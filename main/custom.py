@@ -12,18 +12,19 @@ if __name__ == '__main__':
     hostname="b6997f9a"
     # hostname="40edac8d"
     if option == 0:
-        ce_list = ["ChaldeaTeatimeU"]
+        # ce_list = ["AModestPigU"]
+        # ce_list = ["NewYearsMystiqueU"]
+        # ce_list = ["ChaldeaTeatimeU"]
         client=cp.BotClient(hostName=hostname)
-        client.ce_list=ce_list
+        # client.ce_list=ce_list
         client.support_color_palette=1
-        # client.times_to_restore_energy=-1        # client.times_to_restore_energy=-1
-        # client.times_to_restore_energy=40
+        client.times_to_restore_energy=4
         client.np_on_danger_or_servant=True
         client.select_support_bool=True
         client.repeat_quest=True
         # client.support_class_int=6 # Castera
-        client.support_class_int=4 # Lancer
-        # client.support_class_int=0 # Mix
+        # client.support_class_int=4 # Lancer
+        client.support_class_int=0 # Mix
         # client.cardsPrio=[1,2,0,3]
         client.cardsPrio=[0,1,2,3]
         # test=BotClient(debugg=True)

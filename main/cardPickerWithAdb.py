@@ -69,7 +69,7 @@ class BotClient:
 
         # Default variables used on functions and default modes
         # Application
-        self.emuName=emuName # If left empty it means None
+        self.emuName=emuName # If left empty equals None
 
         # Energy
         self.timesRestoredEnergy=0
@@ -501,6 +501,10 @@ class BotClient:
         selected_support = False
         self.select_support_class(classN=self.support_class_int)
         while not selected_support:
+            if not self.ce_list:
+                if not self.check_select_support_screen(): return False
+                if self.ce_list == []:
+                    selected_support=self.find_ce(None)
             for ceName in self.ce_list:
                 if not self.check_select_support_screen(): return False
                 print(ceName)
@@ -525,7 +529,8 @@ class BotClient:
                             time.sleep(0.5)
                             self.screenshot()
             if not self.check_select_support_screen(): return False
-            while not self.update_friend_list() and self.select_support():pass
+            while self.check_no_support_aviable() and self.select_support():self.update_friend_list()
+
         return True
 
     def find_ce(self,ceName=None):
@@ -543,6 +548,7 @@ class BotClient:
             # print("{} : {}".format(ceName,max_val))
             if max_val > treshHold:
                 bestY, bestX = np.where(res >= max_val)
+                # print(bestY,bestX)
                 if not self.debugg: self.click([bestX, bestY])
                 return True
         return False
@@ -1179,7 +1185,7 @@ class BotClient:
                 # cv2.imwrite('Test.png',self.screenshotImg)
                 if False:pass
                 elif self.check_in_combat():self.attack()
-                elif self.check_attack_button():
+                elif self.check_attack_button():# Aixo podria estar molt millor.
                     self.click(xy=[self.attackButtonLoc[0]+50,self.attackButtonLoc[1]])
                     time.sleep(1)
                 elif self.select_support_bool and self.check_select_support_screen():
