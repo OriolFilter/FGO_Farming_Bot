@@ -395,7 +395,6 @@ class BotClient:
         # False = Check if barr is on bottom
 
         template=None
-        treshold=None
         if self.support_color_palette == 0:
             treshhold = 0.97 # Fucking annoying treshhold
             if checkTop:template = cv2.imread('../templates/supportList/color0/supportBarrTop.png', 0)
@@ -408,10 +407,8 @@ class BotClient:
             else:
                 template = cv2.imread('../templates/supportList/color1/supportBarrBottom.png', 0)
                 # print("checkbot")
-        # print(treshhold)
         res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
-        # print(max_val)
         # print(max_val)
         if max_val > treshhold:return True
         return False
@@ -516,22 +513,19 @@ class BotClient:
 
                 while not selected_support and self.check_no_support_aviable() and self.check_select_support_screen(): # Update friends if noone has come to your birthday party
                     self.update_friend_list()
-                    time.sleep(2)
-                    self.screenshot()
+                # Start
                 dragg_down = True
                 if not selected_support and self.check_select_support_screen():
                     selected_support=self.find_ce(ceName=ceName)
-                if not selected_support and self.check_support_barr_top_or_bottom():
-                    while not selected_support and self.check_support_barr_top_or_bottom(checkTop=False):
+                if not selected_support and not self.check_support_barr_top_or_bottom(checkTop=False):
+                    while not selected_support and not self.check_support_barr_top_or_bottom(checkTop=False):
                         selected_support=self.find_ce(ceName=ceName)
                         if not selected_support:
                             self.dragg_support(dragg_down)
                             time.sleep(0.5)
+                            self.screenshot()
             if not self.check_select_support_screen(): return False
-            while self.check_select_support_screen() and self.check_no_support_aviable():
-                self.update_friend_list()
-                time.sleep(2)
-                self.screenshot()
+            while not self.update_friend_list() and self.select_support():pass
         return True
 
     def find_ce(self,ceName=None):
@@ -620,6 +614,8 @@ class BotClient:
             if max_val>treshHold:
                 bestY, bestX = np.where(res >= max_val)
                 self.click([bestX, bestY])
+                time.sleep(2)
+                self.screenshot()
                 return True
         return False
 

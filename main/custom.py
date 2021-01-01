@@ -12,20 +12,12 @@ if __name__ == '__main__':
     hostname="b6997f9a"
     # hostname="40edac8d"
     if option == 0:
-        # ce_list = ["ChaldeaTeatimeU"]
-        # ce_list = ["SprinterU", "TreefoldBarrierU", "TreefoldBarrier"] # D
-        # ce_list = ["ChaldeaTeatimeU", "ChaldeaLunchtimeU"]
-        # ce_list = ["SchwipsigInTheSnowU", "SchwipsigInTheSnow", "HolyMaidensTeachings"]
-        # ce_list = ["SchwipsigInTheSnowU"]
-        ce_list = ["HolyMaidensTeachingsU"]
-        # ce_list = ["SchwipsigInTheSnowU"]
-        # ce_list = ["BurningBroadcastSeatU"]
-        # ce_list = ["RingTheBellU"]
+        ce_list = ["ChaldeaTeatimeU"]
         client=cp.BotClient(hostName=hostname)
         client.ce_list=ce_list
         client.support_color_palette=1
         # client.times_to_restore_energy=-1        # client.times_to_restore_energy=-1
-        client.times_to_restore_energy=40
+        # client.times_to_restore_energy=40
         client.np_on_danger_or_servant=True
         client.select_support_bool=True
         client.repeat_quest=True
