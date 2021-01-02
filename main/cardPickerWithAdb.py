@@ -199,6 +199,7 @@ class BotClient:
         # print('Click x:{} y:{}'.format(xy[0],xy[1]))
         if self.verbose:print('Click x:{} y:{}'.format(xy[0],xy[1]))
         if self.debugg:print("skipping click!")
+        elif xy[0] is None or xy[1] is None:print("Recieved None as click location, skipping!")
         else:self.mainDev.input_tap(int(xy[0]*self.clickResolution),int(xy[1]*self.clickResolution))
 
     def dragg(self,xyStart=[0,0],xyEnd=[0,0],time=200):
@@ -414,97 +415,99 @@ class BotClient:
         return False
 
 
-
-    def select_support(self):
-        selected_support=False
-        while self.check_select_support_screen():
-            self.select_support_class(classN=self.support_class_int)
-            if self.ce_list == []:
-                self.find_ce(None)
-            else:
-                for ceName in self.ce_list:
-                    dragg_down=True
-                    while not selected_support and self.check_select_support_screen() and dragg_down:
-                        if self.check_no_support_aviable():
-                            while self.check_no_support_aviable():
-                                self.update_friend_list()
-                                time.sleep(1)
-                                self.screenshot()
-                        self.screenshot()
-                        selected_support=self.find_ce(ceName=ceName)
-
-                        if not selected_support and self.check_support_barr_top_or_bottom(False): # Dragg barr to the top
-                            xy=self.return_barr_pos(0)
-                            self.dragg(xy, [xy[0], 0], 200)
-                            dragg_down=False
-                            # DraggToTop
-
-                        # elif not selected_support and self.check_support_barr_top_or_bottom():dragg_down=True
-
-                        if not selected_support:
-                            self.dragg_support(dragg_down)
-                            time.sleep(0.5)
-                            lastBarrPos=self.return_barr_pos(0)
-
-                    if selected_support:return True
-            while not self.update_friend_list():pass
-
-    def select_support2(self): # In progress to improve the previous one
-        selected_support = False
-        while self.check_select_support_screen():
-            self.select_support_class(classN=self.support_class_int)
-            if self.ce_list == []:
-                self.find_ce(None)
-            else:
-                for ceName in self.ce_list:
-                    self.check_no_support_aviable()
-
-
-
-            while not self.update_friend_list():pass
-
-    def select_support3(self):
-        selected_support=False
-        while self.check_select_support_screen():
-            self.select_support_class(classN=self.support_class_int)
-            if self.ce_list == []:
-                self.find_ce(None)
-            else:
-                for ceName in self.ce_list:
-                    dragg_down=True
-                    while not selected_support and self.check_select_support_screen() and dragg_down:
-                        if self.check_no_support_aviable():
-                            while self.check_no_support_aviable():
-                                self.update_friend_list()
-                                time.sleep(1)
-                                self.screenshot()
-                        self.screenshot()
-                        selected_support=self.find_ce(ceName=ceName)
-
-                        if not selected_support and self.check_support_barr_top_or_bottom(False): # Dragg barr to the top
-                            xy=self.return_barr_pos(0)
-                            self.dragg(xy, [xy[0], 0], 200)
-                            dragg_down=False
-                            # DraggToTop
-
-                        # elif not selected_support and self.check_support_barr_top_or_bottom():dragg_down=True
-
-                        if not selected_support:
-                            self.dragg_support(dragg_down)
-                            time.sleep(0.5)
-                            lastBarrPos=self.return_barr_pos(0)
-
-                    if selected_support:return True
-            while not self.update_friend_list():pass
+    # 
+    # def select_support(self):
+    #     selected_support=False
+    #     while self.check_select_support_screen():
+    #         self.select_support_class(classN=self.support_class_int)
+    #         if self.ce_list == []:
+    #             self.find_ce(None)
+    #         else:
+    #             for ceName in self.ce_list:
+    #                 dragg_down=True
+    #                 while not selected_support and self.check_select_support_screen() and dragg_down:
+    #                     if self.check_no_support_aviable():
+    #                         while self.check_no_support_aviable():
+    #                             self.update_friend_list()
+    #                             time.sleep(1)
+    #                             self.screenshot()
+    #                     self.screenshot()
+    #                     selected_support=self.find_ce(ceName=ceName)
+    # 
+    #                     if not selected_support and self.check_support_barr_top_or_bottom(False): # Dragg barr to the top
+    #                         xy=self.return_barr_pos(0)
+    #                         self.dragg(xy, [xy[0], 0], 200)
+    #                         dragg_down=False
+    #                         # DraggToTop
+    # 
+    #                     # elif not selected_support and self.check_support_barr_top_or_bottom():dragg_down=True
+    # 
+    #                     if not selected_support:
+    #                         self.dragg_support(dragg_down)
+    #                         time.sleep(0.5)
+    #                         lastBarrPos=self.return_barr_pos(0)
+    # 
+    #                 if selected_support:return True
+    #         while not self.update_friend_list():pass
+    # 
+    # def select_support2(self): # In progress to improve the previous one
+    #     selected_support = False
+    #     while self.check_select_support_screen():
+    #         self.select_support_class(classN=self.support_class_int)
+    #         if self.ce_list == []:
+    #             self.find_ce(None)
+    #         else:
+    #             for ceName in self.ce_list:
+    #                 self.check_no_support_aviable()
+    # 
+    # 
+    # 
+    #         while not self.update_friend_list():pass
+    # 
+    # def select_support3(self):
+    #     selected_support=False
+    #     while self.check_select_support_screen():
+    #         self.select_support_class(classN=self.support_class_int)
+    #         if self.ce_list == []:
+    #             self.find_ce(None)
+    #         else:
+    #             for ceName in self.ce_list:
+    #                 dragg_down=True
+    #                 while not selected_support and self.check_select_support_screen() and dragg_down:
+    #                     if self.check_no_support_aviable():
+    #                         while self.check_no_support_aviable():
+    #                             self.update_friend_list()
+    #                             time.sleep(1)
+    #                             self.screenshot()
+    #                     self.screenshot()
+    #                     selected_support=self.find_ce(ceName=ceName)
+    # 
+    #                     if not selected_support and self.check_support_barr_top_or_bottom(False): # Dragg barr to the top
+    #                         xy=self.return_barr_pos(0)
+    #                         self.dragg(xy, [xy[0], 0], 200)
+    #                         dragg_down=False
+    #                         # DraggToTop
+    # 
+    #                     # elif not selected_support and self.check_support_barr_top_or_bottom():dragg_down=True
+    # 
+    #                     if not selected_support:
+    #                         self.dragg_support(dragg_down)
+    #                         time.sleep(0.5)
+    #                         lastBarrPos=self.return_barr_pos(0)
+    # 
+    #                 if selected_support:return True
+    #         while not self.update_friend_list():pass
 
     def select_support4(self):
         selected_support = False
-        self.select_support_class(classN=self.support_class_int)
+        # self.select_support_class(classN=self.support_class_int)
         while not selected_support:
             if not self.ce_list:
                 if not self.check_select_support_screen(): return False
-                if self.ce_list == []:
+                if self.ce_list == [] and not self.check_no_support_aviable():
                     selected_support=self.find_ce(None)
+
+                    # print("zzzzzzzzz")
             for ceName in self.ce_list:
                 if not self.check_select_support_screen(): return False
                 print(ceName)
@@ -528,9 +531,10 @@ class BotClient:
                             self.dragg_support(dragg_down)
                             time.sleep(0.5)
                             self.screenshot()
-            if not self.check_select_support_screen(): return False
-            while self.check_no_support_aviable() and self.select_support():self.update_friend_list()
-
+            # print("yyyyyyyyy")
+            if not selected_support and not self.check_select_support_screen(): return False
+            while not selected_support and self.check_no_support_aviable() and self.check_select_support_screen():self.update_friend_list()
+        # print("selected? {}".format(selected_support))
         return True
 
     def find_ce(self,ceName=None):
@@ -1215,7 +1219,7 @@ class BotClient:
                 elif self.check_xp_gained_message(): pass
                 elif self.check_items_dropped_message(): self.click_check_next_button(); self.questsFinished+=1
                 elif self.click_check_next_button():self.questsFinished += 1
-
+                # Add update friend list _ page too
             # elif self.check_compat_open_menu():pass
                 # else:pass
 

@@ -18,7 +18,7 @@ if __name__ == '__main__':
         client=cp.BotClient(hostName=hostname)
         # client.ce_list=ce_list
         client.support_color_palette=1
-        client.times_to_restore_energy=4
+        client.times_to_restore_energy=0.5
         client.np_on_danger_or_servant=True
         client.select_support_bool=True
         client.repeat_quest=True
