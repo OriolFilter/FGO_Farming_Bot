@@ -513,24 +513,70 @@ class BotClient:
                 print(ceName)
                 self.screenshot()
                 # print(0)
-                if not selected_support and self.check_support_barr_top_or_bottom(False):  # Dragg barr to the top
+                dragg_down = True
+                while not selected_support and self.check_select_support_screen() and dragg_down and not self.check_no_support_aviable():
+                    # dragg_down = True
+                    if not selected_support and self.check_support_barr_top_or_bottom(False):  # Dragg barr to the top
+                        dragg_down = False
+                    while not selected_support and not self.check_no_support_aviable(): # Update friends if noone has come to your birthday party
+                        self.update_friend_list()
+                    # Start
+
+                    if not selected_support and self.check_select_support_screen():
+                        selected_support=self.find_ce(ceName=ceName)
+                    if not selected_support and not self.check_support_barr_top_or_bottom(checkTop=False):
+                        while not selected_support and not self.check_support_barr_top_or_bottom(checkTop=False):
+                            selected_support=self.find_ce(ceName=ceName)
+                            if not selected_support:
+                                self.dragg_support(dragg_down)
+                                time.sleep(0.5)
+                                self.screenshot()
+                if not selected_support and not dragg_down and self.check_select_support_screen():
                     xy = self.return_barr_pos(0)
                     self.dragg(xy, [xy[0], 0], 200)
-                    dragg_down = False
+            # print("yyyyyyyyy")
+            if not selected_support and not self.check_select_support_screen(): return False
+            while not selected_support and self.check_no_support_aviable() and self.check_select_support_screen():self.update_friend_list()
+        # print("selected? {}".format(selected_support))
+        return True
 
-                while not selected_support and self.check_no_support_aviable() and self.check_select_support_screen(): # Update friends if noone has come to your birthday party
-                    self.update_friend_list()
-                # Start
+    def select_support5(self):
+        selected_support = False
+        # self.select_support_class(classN=self.support_class_int)
+        while not selected_support:
+            if not self.ce_list:
+                if not self.check_select_support_screen(): return False
+                if self.ce_list == [] and not self.check_no_support_aviable():
+                    selected_support=self.find_ce(None)
+
+                    # print("zzzzzzzzz")
+            for ceName in self.ce_list:
+                if not self.check_select_support_screen(): return False
+                print(ceName)
+                self.screenshot()
+                # print(0)
                 dragg_down = True
-                if not selected_support and self.check_select_support_screen():
-                    selected_support=self.find_ce(ceName=ceName)
-                if not selected_support and not self.check_support_barr_top_or_bottom(checkTop=False):
-                    while not selected_support and not self.check_support_barr_top_or_bottom(checkTop=False):
+                while not selected_support and self.check_select_support_screen() and dragg_down and not self.check_no_support_aviable():
+                    # dragg_down = True
+                    if not selected_support and self.check_support_barr_top_or_bottom(False):  # Dragg barr to the top
+                        dragg_down = False
+                    # while not selected_support and not self.check_no_support_aviable() and self.check_select_support_screen(): # Update friends if noone has come to your birthday party
+                    #     self.update_friend_list()
+                    #     print("x")
+                    # Start
+
+                    if not selected_support and self.check_select_support_screen():
                         selected_support=self.find_ce(ceName=ceName)
-                        if not selected_support:
-                            self.dragg_support(dragg_down)
-                            time.sleep(0.5)
-                            self.screenshot()
+                    if not selected_support and not self.check_support_barr_top_or_bottom(checkTop=False):
+                        while not selected_support and not self.check_support_barr_top_or_bottom(checkTop=False):
+                            selected_support=self.find_ce(ceName=ceName)
+                            if not selected_support:
+                                self.dragg_support(dragg_down)
+                                time.sleep(0.5)
+                                self.screenshot()
+                if not selected_support and not dragg_down and self.check_select_support_screen():
+                    xy = self.return_barr_pos(0)
+                    self.dragg(xy, [xy[0], 0], 200)
             # print("yyyyyyyyy")
             if not selected_support and not self.check_select_support_screen(): return False
             while not selected_support and self.check_no_support_aviable() and self.check_select_support_screen():self.update_friend_list()
@@ -614,6 +660,8 @@ class BotClient:
             if max_val>treshHold:
                 bestY, bestX = np.where(res >= max_val)
                 self.click([bestX, bestY])
+                time.sleep(2)
+                self.screenshot()
                 return True
             template = cv2.imread('../templates/close_pop_up.png', 0)
             res = cv2.matchTemplate(self.screenshotImgGray, template, cv2.TM_CCOEFF_NORMED)
@@ -1193,7 +1241,7 @@ class BotClient:
                     self.click(xy=[self.attackButtonLoc[0]+50,self.attackButtonLoc[1]])
                     time.sleep(1)
                 elif self.select_support_bool and self.check_select_support_screen():
-                    self.select_support4()
+                    self.select_support5()
                     # self.select_support2()
                     time.sleep(0.5)
                 elif self.click_check_tap_screen():pass
