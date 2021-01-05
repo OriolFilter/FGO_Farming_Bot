@@ -542,7 +542,7 @@ class BotClient:
 
     def select_support5(self):
         selected_support = False
-        # self.select_support_class(classN=self.support_class_int)
+        self.select_support_class(classN=self.support_class_int)
         while not selected_support:
             if not self.ce_list:
                 if not self.check_select_support_screen(): return False
@@ -568,7 +568,7 @@ class BotClient:
                     if not selected_support and self.check_select_support_screen():
                         selected_support=self.find_ce(ceName=ceName)
                     if not selected_support and not self.check_support_barr_top_or_bottom(checkTop=False):
-                        while not selected_support and not self.check_support_barr_top_or_bottom(checkTop=False):
+                        while not selected_support and not self.check_support_barr_top_or_bottom(checkTop=False) and self.check_select_support_screen():
                             selected_support=self.find_ce(ceName=ceName)
                             if not selected_support:
                                 self.dragg_support(dragg_down)
