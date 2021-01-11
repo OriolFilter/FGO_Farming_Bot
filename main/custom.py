@@ -12,11 +12,11 @@ if __name__ == '__main__':
     hostname="b6997f9a"
     # hostname="40edac8d"
     if option == 0:
-        ce_list = ["AModestPigU"]
+        # ce_list = ["AModestPigU"]
         # ce_list = ["MarkOnASmilingFaceU"]
-        # ce_list = ["GoddessesOfTheGlitteringSnowU"]
+        ce_list = ["GoddessesOfTheGlitteringSnowU"]
         # ce_list = ["NewYearsMystiqueU"]
-        ce_list = ["ChaldeaTeatimeU"]
+        # ce_list = ["ChaldeaTeatimeU"]
         client=cp.BotClient(hostName=hostname)
         client.ce_list=ce_list
         client.support_color_palette=1
@@ -124,11 +124,14 @@ if __name__ == '__main__':
         #         sleep(1)
         #         input()
         client = cp.BotClient(hostName=hostname)
-        ce_list = ["MonaLisaU", "MonaLisa"]
-        client.ce_list = ce_list
-        client.support_color_palette=1
         client.screenshot()
-        client.selectSupport()
+        while True:
+            client.click([960,568])
+        # ce_list = ["MonaLisaU", "MonaLisa"]
+        # client.ce_list = ce_list
+        # client.support_color_palette=1
+        # client.screenshot()
+        # client.selectSupport()
         # client.updateFriendList()
         # client.screenshot()
         # ce_list = ["ChaldeaTeatimeU", "ChaldeaTeatime"]
