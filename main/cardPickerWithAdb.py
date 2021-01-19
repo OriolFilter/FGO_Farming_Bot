@@ -927,7 +927,7 @@ class BotClient:
         # self.get_cards_info()
         # self.cardsFound=0
         # self.cardsJson={}
-        for n in range(0,4):
+        for n in [3,0,1,2]: # Now detects stunned cards before looking for types (as it should had been)
             receivedJson=None
             receivedJson=self.get_cards_info(n,mode=0) #Not real json tho
             if receivedJson:
