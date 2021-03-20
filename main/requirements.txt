@@ -13,7 +13,7 @@ Flask==1.1.2
 future==0.18.2
 idna==2.10
 itsdangerous==1.1.0
-Jinja2==2.11.2
+Jinja2==2.11.3
 Kivy==1.11.1
 Kivy-Garden==0.1.4
 kiwisolver==1.2.0
