@@ -4,7 +4,7 @@ EasyProcess==0.2.10
 entrypoint2==0.2
 future==0.18.2
 MouseInfo==0.1.2
-numpy==1.18.1
+numpy==1.22.0
 opencv-python==4.2.0.32
 pefile==2019.4.18
 Pillow==7.0.0
